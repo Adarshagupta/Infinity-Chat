@@ -5,15 +5,16 @@ from together import Together
 import os
 import json
 from dotenv import load_dotenv
-import html
 import logging
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+from flask_cors import CORS
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
+CORS(app)  # Enable CORS for all routes
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -67,9 +68,9 @@ const chatWithAI = async (input) => {{
     }} catch (error) {{
         console.error('Error:', error);
         if (error.response) {{
-            return `Error: ${{error.response.data.error || 'Unknown server error'}}`;
+            return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
         }} else if (error.request) {{
-            return 'Error: No response received from the server. Please check your internet connection.';
+            return 'Network Error: No response received from the server. Please check your internet connection.';
         }} else {{
             return `Error: ${{error.message}}`;
         }}
@@ -103,6 +104,10 @@ addMessage('AI', 'Hello! How can I assist you today?');
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/test', methods=['GET'])
+def test():
+    return "Server is running!"
 
 @app.route('/process_url', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -171,10 +176,6 @@ def chat():
     except Exception as e:
         logger.error(f"Unexpected error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
-
-@app.route('/test', methods=['GET'])
-def test():
-    return "Server is running!"
 
 if __name__ == '__main__':
     app.run(debug=True)
