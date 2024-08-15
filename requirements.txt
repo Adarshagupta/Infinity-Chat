@@ -7,4 +7,4 @@ beautifulsoup4
 together
 Werkzeug
 Flask-Limiter
-psycopg2
+psycopg2-binary  # Recommended over psycopg2
