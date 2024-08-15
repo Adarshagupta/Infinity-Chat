@@ -20,8 +20,11 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Set up rate limiting
-limiter = Limiter(app, key_func=get_remote_address)
-
+limiter = Limiter(
+    key_func=get_remote_address,
+    app=app,
+    default_limits=["200 per day", "50 per hour"]
+)
 # Get the API key from the environment variable
 together_api_key = os.getenv('TOGETHER_API_KEY')
 if not together_api_key:
