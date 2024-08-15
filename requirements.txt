@@ -1,8 +1,6 @@
 Flask
 requests
 beautifulsoup4
-together
 python-dotenv
-logging
 Flask-Limiter
 Flask-Cors
