@@ -335,60 +335,81 @@ def chatbot_design():
         return jsonify({"error": "API key is required"}), 400
 
     design = f'''
-    <!-- AI Chatbot -->
-    <div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background-color: #f1f1f1; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;">
-        <div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;">AI Chatbot</div>
-        <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
-        <div style="padding: 10px; border-top: 1px solid #ddd;">
-            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
-            <button onclick="sendMessage()" style="width: 18%; padding: 5px;">Send</button>
+<div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; font-family: Arial, sans-serif; transition: all 0.3s ease-in-out; z-index: 1000;">
+    <div id="chat-header" style="background-color: #007bff; color: white; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
+        <span>AI Chatbot</span>
+        <span id="toggle-chat" style="font-size: 20px;">−</span>
+    </div>
+    <div id="chat-body" style="display: none; background-color: #f1f1f1; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
+        <div id="chat-messages" style="height: 300px; overflow-y: auto; padding: 10px;"></div>
+        <div style="padding: 10px; border-top: 1px solid #ddd; display: flex;">
+            <input type="text" id="user-input" placeholder="Type your message..." style="flex-grow: 1; padding: 5px; margin-right: 5px;">
+            <button onclick="sendMessage()" style="padding: 5px 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">Send</button>
         </div>
     </div>
+</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-    const chatWithAI = async (input) => {{
-        try {{
-            const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
-                input: input,
-                api_key: '{api_key}'
-            }});
-            return response.data.response;
-        }} catch (error) {{
-            console.error('Error:', error);
-            if (error.response) {{
-                return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
-            }} else if (error.request) {{
-                return 'Network Error: No response received from the server. Please check your internet connection.';
-            }} else {{
-                return `Error: ${{error.message}}`;
-            }}
-        }}
-    }};
-
-    function addMessage(sender, message) {{
-        const chatMessages = document.getElementById('chat-messages');
-        const messageElement = document.createElement('div');
-        messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }}
-
-    async function sendMessage() {{
-        const userInput = document.getElementById('user-input');
-        const message = userInput.value.trim();
-        if (message) {{
-            addMessage('You', message);
-            userInput.value = '';
-            const response = await chatWithAI(message);
-            addMessage('AI', response);
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script>
+const chatWithAI = async (input) => {{
+    try {{
+        const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
+            input: input,
+            api_key: '{api_key}'
+        }});
+        return response.data.response;
+    }} catch (error) {{
+        console.error('Error:', error);
+        if (error.response) {{
+            return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
+        }} else if (error.request) {{
+            return 'Network Error: No response received from the server. Please check your internet connection.';
+        }} else {{
+            return `Error: ${{error.message}}`;
         }}
     }}
+}};
 
-    // Initialize chat
-    addMessage('AI', 'Hello! How can I assist you today?');
-    </script>
-    '''
+function addMessage(sender, message) {{
+    const chatMessages = document.getElementById('chat-messages');
+    const messageElement = document.createElement('div');
+    messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}}
+
+async function sendMessage() {{
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value.trim();
+    if (message) {{
+        addMessage('You', message);
+        userInput.value = '';
+        const response = await chatWithAI(message);
+        addMessage('AI', response);
+    }}
+}}
+
+// Toggle chat visibility
+document.getElementById('chat-header').addEventListener('click', function() {{
+    const chatBody = document.getElementById('chat-body');
+    const toggleChat = document.getElementById('toggle-chat');
+    if (chatBody.style.display === 'none') {{
+        chatBody.style.display = 'block';
+        toggleChat.textContent = '−';
+    }} else {{
+        chatBody.style.display = 'none';
+        toggleChat.textContent = '+';
+    }}
+}});
+
+// Initialize chat
+addMessage('AI', 'Hello! How can I assist you today?');
+
+// Show chat body by default (remove this line if you want it collapsed initially)
+document.getElementById('chat-body').style.display = 'block';
+</script>
+'''
+
 @app.route('/delete_api_key', methods=['POST'])
 def delete_api_key():
     if 'user_id' not in session:
