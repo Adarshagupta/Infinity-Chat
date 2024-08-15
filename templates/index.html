@@ -13,59 +13,63 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 min-h-screen">
+<body class="bg-gray-100 min-h-screen font-sans">
     <div class="container mx-auto px-4 py-12">
-        <h1 class="text-4xl font-bold text-center text-gray-800 mb-12">AI Chatbot Creator</h1>
+        <h1 class="text-5xl font-extrabold text-center text-indigo-600 mb-12">AI Chatbot Creator</h1>
         
-        <div id="authForms" class="max-w-md mx-auto bg-white shadow-lg rounded-xl overflow-hidden">
+
+        
+        <div id="authForms" class="max-w-md mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden transition-all duration-300">
             <div class="flex">
-                <button id="loginTab" onclick="switchTab('login')" class="flex-1 py-4 px-6 text-center font-semibold focus:outline-none transition duration-300">Login</button>
+                <button id="loginTab" onclick="switchTab('login')" class="flex-1 py-4 px-6 text-center font-semibold focus:outline-none transition duration-300 bg-indigo-100 text-indigo-700">Login</button>
                 <button id="registerTab" onclick="switchTab('register')" class="flex-1 py-4 px-6 text-center font-semibold focus:outline-none transition duration-300">Register</button>
             </div>
             <div id="loginForm" class="p-8">
-                <input type="email" id="loginEmail" placeholder="Email" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <input type="password" id="loginPassword" placeholder="Password" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                <button onclick="login()" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300">Login</button>
+                <input type="email" id="loginEmail" placeholder="Email" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300">
+                <input type="password" id="loginPassword" placeholder="Password" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300">
+                <button onclick="login()" class="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105">Login</button>
             </div>
             <div id="registerForm" class="p-8 hidden">
-                <input type="email" id="registerEmail" placeholder="Email" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <input type="password" id="registerPassword" placeholder="Password" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <button onclick="register()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300">Register</button>
+                <input type="email" id="registerEmail" placeholder="Email" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300">
+                <input type="password" id="registerPassword" placeholder="Password" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-green-500 transition duration-300">
+                <button onclick="register()" class="w-full bg-green-600 text-white py-3 rounded-lg hover:bg-green-700 transition duration-300 transform hover:scale-105">Register</button>
             </div>
         </div>
 
-        <div id="userInfo" class="hidden max-w-3xl mx-auto bg-white shadow-lg rounded-xl overflow-hidden mt-12">
+        <div id="userInfo" class="hidden max-w-3xl mx-auto bg-white shadow-2xl rounded-2xl overflow-hidden mt-12 transition-all duration-300">
             <div class="p-8">
                 <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-2xl font-semibold">Welcome, <span id="userEmail" class="font-normal"></span></h2>
-                    <button onclick="logout()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-300">Logout</button>
+                    <h2 class="text-3xl font-bold text-indigo-600">Welcome, <span id="userEmail" class="font-normal text-gray-700"></span></h2>
+                    <button onclick="logout()" class="bg-red-500 text-white px-6 py-2 rounded-lg hover:bg-red-600 transition duration-300 transform hover:scale-105">Logout</button>
                 </div>
                 
-                <h2 class="text-2xl font-semibold mb-6">Create New Chatbot</h2>
+                <h2 class="text-2xl font-semibold mb-6 text-indigo-600">Create New Chatbot</h2>
                 <div class="flex space-x-4 mb-8">
-                    <input type="text" id="urlInput" placeholder="Enter website URL" class="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
-                    <button onclick="processUrl()" class="bg-blue-600 text-white px-8 py-3 rounded-lg hover:bg-blue-700 transition duration-300">Process URL</button>
+                    <input type="text" id="urlInput" placeholder="Enter website URL" class="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 transition duration-300">
+                    <button onclick="processUrl()" class="bg-indigo-600 text-white px-8 py-3 rounded-lg hover:bg-indigo-700 transition duration-300 transform hover:scale-105">Process URL</button>
                 </div>
 
-                <h2 class="text-2xl font-semibold mb-6">Your API Keys</h2>
+                <h2 class="text-2xl font-semibold mb-6 text-indigo-600">Your API Keys</h2>
                 <ul id="apiKeyList" class="space-y-4"></ul>
             </div>
         </div>
 
-        <div id="result" class="mt-12 max-w-3xl mx-auto"></div>
+        <div id="result" class="mt-12 max-w-3xl mx-auto bg-white p-6 rounded-2xl shadow-lg"></div>
     </div>
 
-    <div id="selected-api-key" class="fixed bottom-430px right-20px bg-blue-100 p-2 rounded">
-        Selected API Key: <span id="current-api-key">None</span>
+    <div id="selected-api-key" class="fixed bottom-4 right-4 bg-indigo-100 p-2 rounded-lg shadow-md">
+        Selected API Key: <span id="current-api-key" class="font-semibold">None</span>
     </div>
 
     <!-- AI Chatbot -->
-    <div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background-color: #f1f1f1; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;">
-        <div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;">AI Chatbot</div>
-        <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
-        <div style="padding: 10px; border-top: 1px solid #ddd;">
-            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
-            <button onclick="sendMessage()" style="width: 18%; padding: 5px;">Send</button>
+    <div id="ai-chatbot" class="fixed bottom-4 right-4 w-80 h-96 bg-white rounded-2xl shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform hover:scale-105">
+        <div class="bg-indigo-600 text-white p-4 font-bold text-lg">AI Chatbot</div>
+        <div id="chat-messages" class="flex-grow overflow-y-auto p-4 space-y-4"></div>
+        <div class="p-4 border-t border-gray-200">
+            <div class="flex space-x-2">
+                <input type="text" id="user-input" placeholder="Type your message..." class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <button onclick="sendMessage()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">Send</button>
+            </div>
         </div>
     </div>
 
@@ -341,6 +345,15 @@
             return jQuery(a).text().toUpperCase()
                 .indexOf(m[3].toUpperCase()) >= 0;
         };
+        function adminLogout() {
+    fetch('/logout', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+            window.location.href = '/';  // Redirect to home page after logout
+        })
+        .catch(error => console.error('Error:', error));
+}
     </script>
 </body>
 </html>

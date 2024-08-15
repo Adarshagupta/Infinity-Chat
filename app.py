@@ -60,16 +60,19 @@ def extract_text_from_url(url):
 def generate_integration_code(api_key):
     return f'''
 <!-- AI Chatbot -->
-<div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background-color: #f1f1f1; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;">
-    <div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;">AI Chatbot</div>
-    <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
-    <div style="padding: 10px; border-top: 1px solid #ddd;">
-        <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
-        <button onclick="sendMessage()" style="width: 18%; padding: 5px;">Send</button>
+<div id="ai-chatbot" class="fixed bottom-4 right-4 w-80 bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform hover:scale-105">
+    <div class="bg-indigo-600 text-white p-3 font-bold text-lg">AI Chatbot</div>
+    <div id="chat-messages" class="flex-grow overflow-y-auto p-4 space-y-3 h-96"></div>
+    <div class="p-3 border-t border-gray-200">
+        <div class="flex space-x-2">
+            <input type="text" id="user-input" placeholder="Type your message..." class="flex-grow px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
+            <button onclick="sendMessage()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">Send</button>
+        </div>
     </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdn.tailwindcss.com"></script>
 <script>
 const chatWithAI = async (input) => {{
     try {{
@@ -93,7 +96,8 @@ const chatWithAI = async (input) => {{
 function addMessage(sender, message) {{
     const chatMessages = document.getElementById('chat-messages');
     const messageElement = document.createElement('div');
-    messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
+    messageElement.className = 'p-2 rounded-lg ' + (sender === 'You' ? 'bg-indigo-100 ml-8' : 'bg-gray-100 mr-8');
+    messageElement.innerHTML = `<strong class="text-indigo-600">${{sender}}:</strong> <span class="text-gray-800">${{message}}</span>`;
     chatMessages.appendChild(messageElement);
     chatMessages.scrollTop = chatMessages.scrollHeight;
 }}
