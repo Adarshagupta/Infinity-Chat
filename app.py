@@ -409,7 +409,6 @@ addMessage('AI', 'Hello! How can I assist you today?');
 document.getElementById('chat-body').style.display = 'block';
 </script>
 '''
-
 @app.route('/delete_api_key', methods=['POST'])
 def delete_api_key():
     if 'user_id' not in session:
