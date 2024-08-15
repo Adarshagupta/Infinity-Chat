@@ -34,15 +34,13 @@ if not together_api_key:
 
 client = Together(api_key=together_api_key)
 
+# Store extracted text for each API key
+extracted_texts = {}
+
 def extract_text_from_url(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     return ' '.join([p.text for p in soup.find_all('p')])
-
-def simulate_fine_tuning(extracted_text):
-    # In a real scenario, you would use this data to fine-tune a model
-    # For now, we'll just store it and use it as context
-    return json.dumps({"context": extracted_text})
 
 def generate_integration_code(api_key):
     return f'''
@@ -118,11 +116,9 @@ def process_url():
 
     try:
         extracted_text = extract_text_from_url(url)
-        fine_tuned_data = simulate_fine_tuning(extracted_text)
         api_key = f"user_{os.urandom(16).hex()}"  # Generate a unique API key
+        extracted_texts[api_key] = extracted_text  # Store the extracted text
         integration_code = generate_integration_code(api_key)
-
-        # In a real scenario, you'd store the api_key and fine_tuned_data in a database
 
         return jsonify({
             "message": "Processing complete",
@@ -143,8 +139,7 @@ def chat():
         if not user_input or not api_key:
             return jsonify({"error": "Input and API key are required"}), 400
 
-        # In a real scenario, you'd retrieve the fine-tuned data using the api_key
-        context = "This is a dummy context for the fine-tuned model."
+        context = extracted_texts.get(api_key, "No context available for this API key.")
 
         messages = [{
             "role": "system",
