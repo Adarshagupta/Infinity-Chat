@@ -168,33 +168,27 @@ def chatbot_design():
         <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
         <div style="padding: 10px; border-top: 1px solid #ddd;">
             <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
-            <button onclick="sendMessage()" style="width: 18%; padding: 5px;">Send</button>
+            <button id="send-button" style="width: 18%; padding: 5px;">Send</button>
         </div>
     </div>
 
     <script>
     console.log('Chatbot script loaded');
+    const apiKey = '{api_key}';
+    console.log('API Key:', apiKey);
+
     const chatWithAI = async (input) => {{
         console.log('Sending message to AI:', input);
         try {{
             const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
                 input: input,
-                api_key: '{api_key}'
+                api_key: apiKey
             }});
             console.log('Received response from AI:', response.data);
             return response.data.response;
         }} catch (error) {{
             console.error('Error in chatWithAI:', error);
-            if (error.response) {{
-                console.error('Error response:', error.response.data);
-                return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
-            }} else if (error.request) {{
-                console.error('No response received');
-                return 'Network Error: No response received from the server. Please check your internet connection.';
-            }} else {{
-                console.error('Error message:', error.message);
-                return `Error: ${{error.message}}`;
-            }}
+            throw error;
         }}
     }};
 
@@ -208,15 +202,21 @@ def chatbot_design():
     }}
 
     async function sendMessage() {{
+        console.log('sendMessage function called');
         const userInput = document.getElementById('user-input');
         const message = userInput.value.trim();
         if (message) {{
             console.log('User sending message:', message);
             addMessage('You', message);
             userInput.value = '';
-            const response = await chatWithAI(message);
-            console.log('Received AI response:', response);
-            addMessage('AI', response);
+            try {{
+                const response = await chatWithAI(message);
+                console.log('Received AI response:', response);
+                addMessage('AI', response);
+            }} catch (error) {{
+                console.error('Error in sendMessage:', error);
+                addMessage('AI', 'Sorry, there was an error processing your request.');
+            }}
         }}
     }}
 
@@ -230,6 +230,9 @@ def chatbot_design():
             sendMessage();
         }}
     }});
+
+    // Add event listener for send button
+    document.getElementById('send-button').addEventListener('click', sendMessage);
     </script>
     '''
     
