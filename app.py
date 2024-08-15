@@ -59,64 +59,119 @@ def extract_text_from_url(url):
 
 def generate_integration_code(api_key):
     return f'''
-<!-- AI Chatbot -->
-<div id="ai-chatbot" class="fixed bottom-4 right-4 w-80 bg-white rounded-lg shadow-2xl flex flex-col overflow-hidden transition-all duration-300 transform hover:scale-105">
-    <div class="bg-indigo-600 text-white p-3 font-bold text-lg">AI Chatbot</div>
-    <div id="chat-messages" class="flex-grow overflow-y-auto p-4 space-y-3 h-96"></div>
-    <div class="p-3 border-t border-gray-200">
-        <div class="flex space-x-2">
-            <input type="text" id="user-input" placeholder="Type your message..." class="flex-grow px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500">
-            <button onclick="sendMessage()" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700 transition duration-300">Send</button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script src="https://cdn.tailwindcss.com"></script>
-<script>
-const chatWithAI = async (input) => {{
-    try {{
-        const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
-            input: input,
-            api_key: '{api_key}'
-        }});
-        return response.data.response;
-    }} catch (error) {{
-        console.error('Error:', error);
-        if (error.response) {{
-            return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
-        }} else if (error.request) {{
-            return 'Network Error: No response received from the server. Please check your internet connection.';
-        }} else {{
-            return `Error: ${{error.message}}`;
-        }}
-    }}
-}};
-
-function addMessage(sender, message) {{
-    const chatMessages = document.getElementById('chat-messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = 'p-2 rounded-lg ' + (sender === 'You' ? 'bg-indigo-100 ml-8' : 'bg-gray-100 mr-8');
-    messageElement.innerHTML = `<strong class="text-indigo-600">${{sender}}:</strong> <span class="text-gray-800">${{message}}</span>`;
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}}
-
-async function sendMessage() {{
-    const userInput = document.getElementById('user-input');
-    const message = userInput.value.trim();
-    if (message) {{
-        addMessage('You', message);
-        userInput.value = '';
-        const response = await chatWithAI(message);
-        addMessage('AI', response);
-    }}
-}}
-
-// Initialize chat
-addMessage('AI', 'Hello! How can I assist you today?');
-</script>
+<!-- AI Chatbot Integration -->
+<script src="https://chatcat-s1ny.onrender.com/chatbot.js?api_key={api_key}"></script>
 '''
+@app.route('/chatbot.js')
+def chatbot_script():
+    api_key = request.args.get('api_key')
+    if not api_key:
+        return jsonify({"error": "API key is required"}), 400
+    
+    script = f'''
+    (function() {{
+        var script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js';
+        script.onload = function() {{
+            var chatbotDiv = document.createElement('div');
+            chatbotDiv.id = 'ai-chatbot';
+            chatbotDiv.innerHTML = `
+                <div id="chat-header">AI Chatbot</div>
+                <div id="chat-messages"></div>
+                <div id="chat-input">
+                    <input type="text" id="user-input" placeholder="Type your message...">
+                    <button onclick="sendMessage()">Send</button>
+                </div>
+            `;
+            document.body.appendChild(chatbotDiv);
+            
+            var style = document.createElement('style');
+            style.textContent = `
+                #ai-chatbot {{
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    width: 300px;
+                    height: 400px;
+                    background-color: #f1f1f1;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                }}
+                #chat-header {{
+                    background-color: #007bff;
+                    color: white;
+                    padding: 10px;
+                    font-weight: bold;
+                }}
+                #chat-messages {{
+                    flex-grow: 1;
+                    overflow-y: auto;
+                    padding: 10px;
+                }}
+                #chat-input {{
+                    padding: 10px;
+                    border-top: 1px solid #ddd;
+                }}
+                #user-input {{
+                    width: 80%;
+                    padding: 5px;
+                }}
+                #chat-input button {{
+                    width: 18%;
+                    padding: 5px;
+                }}
+            `;
+            document.head.appendChild(style);
+            
+            window.chatWithAI = async function(input) {{
+                try {{
+                    const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
+                        input: input,
+                        api_key: '{api_key}'
+                    }});
+                    return response.data.response;
+                }} catch (error) {{
+                    console.error('Error:', error);
+                    if (error.response) {{
+                        return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
+                    }} else if (error.request) {{
+                        return 'Network Error: No response received from the server. Please check your internet connection.';
+                    }} else {{
+                        return `Error: ${{error.message}}`;
+                    }}
+                }}
+            }};
+
+            window.addMessage = function(sender, message) {{
+                const chatMessages = document.getElementById('chat-messages');
+                const messageElement = document.createElement('div');
+                messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }};
+
+            window.sendMessage = async function() {{
+                const userInput = document.getElementById('user-input');
+                const message = userInput.value.trim();
+                if (message) {{
+                    addMessage('You', message);
+                    userInput.value = '';
+                    const response = await chatWithAI(message);
+                    addMessage('AI', response);
+                }}
+            }};
+
+            // Initialize chat
+            addMessage('AI', 'Hello! How can I assist you today?');
+        }};
+        document.head.appendChild(script);
+    }})();
+    '''
+    
+    return Response(script, mimetype='application/javascript')
 
 @app.route('/')
 def index():
