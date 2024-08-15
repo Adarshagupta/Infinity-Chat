@@ -236,6 +236,70 @@ def get_user_api_keys():
     api_keys = json.loads(user.api_keys)
     return jsonify({"api_keys": api_keys})
 
+@app.route('/chatbot-design', methods=['GET'])
+def chatbot_design():
+    api_key = request.args.get('api_key')
+    if not api_key:
+        return jsonify({"error": "API key is required"}), 400
+
+    design = f'''
+    <!-- AI Chatbot -->
+    <div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background-color: #f1f1f1; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;">
+        <div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;">AI Chatbot</div>
+        <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
+        <div style="padding: 10px; border-top: 1px solid #ddd;">
+            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
+            <button onclick="sendMessage()" style="width: 18%; padding: 5px;">Send</button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+    const chatWithAI = async (input) => {{
+        try {{
+            const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
+                input: input,
+                api_key: '{api_key}'
+            }});
+            return response.data.response;
+        }} catch (error) {{
+            console.error('Error:', error);
+            if (error.response) {{
+                return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
+            }} else if (error.request) {{
+                return 'Network Error: No response received from the server. Please check your internet connection.';
+            }} else {{
+                return `Error: ${{error.message}}`;
+            }}
+        }}
+    }};
+
+    function addMessage(sender, message) {{
+        const chatMessages = document.getElementById('chat-messages');
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }}
+
+    async function sendMessage() {{
+        const userInput = document.getElementById('user-input');
+        const message = userInput.value.trim();
+        if (message) {{
+            addMessage('You', message);
+            userInput.value = '';
+            const response = await chatWithAI(message);
+            addMessage('AI', response);
+        }}
+    }}
+
+    // Initialize chat
+    addMessage('AI', 'Hello! How can I assist you today?');
+    </script>
+    '''
+    
+    return Response(design, mimetype='text/html')
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
