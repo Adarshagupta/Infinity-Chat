@@ -31,8 +31,8 @@ limiter = Limiter(
 )
 
 # Configure SQLAlchemy
-app.config['SECRET_KEY'] = 'your_secret_key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key_for_development')
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///users.db')
 db = SQLAlchemy(app)
 
 # Get the API key from the environment variable
