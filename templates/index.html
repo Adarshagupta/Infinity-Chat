@@ -5,101 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI Chatbot Creator</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 800px;
-            margin: 0 auto;
-            background-color: white;
-            padding: 20px;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
-        }
-        h1, h2 {
-            color: #333;
-        }
-        input[type="text"], input[type="password"], input[type="email"] {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 10px;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            cursor: pointer;
-            margin-right: 10px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        #result, #userInfo {
-            margin-top: 20px;
-        }
-        #integration-code {
-            width: 100%;
-            height: 200px;
-            margin-top: 10px;
-            padding: 10px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-            border: 1px solid #ddd;
-            border-radius: 5px;
-        }
-        .hidden {
-            display: none;
-        }
-    </style>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>AI Chatbot Creator</h1>
+<body class="bg-gray-100 min-h-screen">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">AI Chatbot Creator</h1>
         
-        <div id="authForms">
-            <h2>Register</h2>
-            <input type="email" id="registerEmail" placeholder="Email">
-            <input type="password" id="registerPassword" placeholder="Password">
-            <button onclick="register()">Register</button>
-
-            <h2>Login</h2>
-            <input type="email" id="loginEmail" placeholder="Email">
-            <input type="password" id="loginPassword" placeholder="Password">
-            <button onclick="login()">Login</button>
+        <div id="authForms" class="max-w-md mx-auto bg-white shadow-md rounded-lg overflow-hidden">
+            <div class="flex border-b">
+                <button id="loginTab" onclick="switchTab('login')" class="flex-1 py-2 px-4 text-center font-semibold focus:outline-none">Login</button>
+                <button id="registerTab" onclick="switchTab('register')" class="flex-1 py-2 px-4 text-center font-semibold focus:outline-none">Register</button>
+            </div>
+            <div id="loginForm" class="p-6">
+                <input type="email" id="loginEmail" placeholder="Email" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-3">
+                <input type="password" id="loginPassword" placeholder="Password" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-3">
+                <button onclick="login()" class="w-full bg-blue-500 text-white py-2 rounded-md hover:bg-blue-600 transition duration-300">Login</button>
+            </div>
+            <div id="registerForm" class="p-6 hidden">
+                <input type="email" id="registerEmail" placeholder="Email" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-3">
+                <input type="password" id="registerPassword" placeholder="Password" class="w-full px-3 py-2 border border-gray-300 rounded-md mb-3">
+                <button onclick="register()" class="w-full bg-green-500 text-white py-2 rounded-md hover:bg-green-600 transition duration-300">Register</button>
+            </div>
         </div>
 
-        <div id="userInfo" class="hidden">
-            <h2>Welcome, <span id="userEmail"></span></h2>
-            <button onclick="logout()">Logout</button>
-            
-            <h2>Create New Chatbot</h2>
-            <input type="text" id="urlInput" placeholder="Enter website URL">
-            <button onclick="processUrl()">Process URL</button>
+        <div id="userInfo" class="hidden max-w-2xl mx-auto bg-white shadow-md rounded-lg overflow-hidden mt-8">
+            <div class="p-6">
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-xl font-semibold">Welcome, <span id="userEmail" class="font-normal"></span></h2>
+                    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300">Logout</button>
+                </div>
+                
+                <h2 class="text-xl font-semibold mb-4">Create New Chatbot</h2>
+                <div class="flex space-x-2">
+                    <input type="text" id="urlInput" placeholder="Enter website URL" class="flex-grow px-3 py-2 border border-gray-300 rounded-md">
+                    <button onclick="processUrl()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300">Process URL</button>
+                </div>
 
-            <h2>Your API Keys</h2>
-            <ul id="apiKeyList"></ul>
+                <h2 class="text-xl font-semibold mt-8 mb-4">Your API Keys</h2>
+                <ul id="apiKeyList" class="list-disc pl-5 space-y-2"></ul>
+            </div>
         </div>
 
-        <div id="result"></div>
+        <div id="result" class="mt-8 max-w-2xl mx-auto"></div>
     </div>
 
     <script>
         let currentUser = null;
+
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+
+            if (tab === 'login') {
+                loginTab.classList.add('bg-blue-500', 'text-white');
+                registerTab.classList.remove('bg-green-500', 'text-white');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                registerTab.classList.add('bg-green-500', 'text-white');
+                loginTab.classList.remove('bg-blue-500', 'text-white');
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+        }
 
         async function register() {
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             try {
                 const response = await axios.post('/register', { email, password });
-                alert(response.data.message);
+                showNotification(response.data.message, 'success');
+                switchTab('login');  // Switch to login tab after successful registration
             } catch (error) {
-                alert(error.response.data.error);
+                showNotification(error.response.data.error, 'error');
             }
         }
 
@@ -109,10 +89,12 @@
             try {
                 const response = await axios.post('/login', { email, password });
                 currentUser = email;
+                localStorage.setItem('currentUser', email);
                 updateUI();
                 fetchApiKeys();
+                showNotification('Logged in successfully', 'success');
             } catch (error) {
-                alert(error.response.data.error);
+                showNotification(error.response.data.error, 'error');
             }
         }
 
@@ -120,9 +102,12 @@
             try {
                 await axios.post('/logout');
                 currentUser = null;
+                localStorage.removeItem('currentUser');
                 updateUI();
+                showNotification('Logged out successfully', 'success');
             } catch (error) {
                 console.error('Logout error:', error);
+                showNotification('Error logging out', 'error');
             }
         }
 
@@ -138,6 +123,7 @@
             } else {
                 authForms.classList.remove('hidden');
                 userInfo.classList.add('hidden');
+                switchTab('login');  // Reset to login tab when logging out
             }
         }
 
@@ -149,10 +135,12 @@
                 response.data.api_keys.forEach(key => {
                     const li = document.createElement('li');
                     li.textContent = key;
+                    li.className = 'text-gray-700';
                     apiKeyList.appendChild(li);
                 });
             } catch (error) {
                 console.error('Error fetching API keys:', error);
+                showNotification('Error fetching API keys', 'error');
             }
         }
 
@@ -163,18 +151,23 @@
             try {
                 const response = await axios.post('/process_url', { url: url });
                 resultDiv.innerHTML = `
-                    <h2>Processing Complete</h2>
-                    <p>Your API Key: ${response.data.api_key}</p>
-                    <h3>Integration Code:</h3>
-                    <textarea id="integration-code" readonly></textarea>
+                    <div class="bg-white shadow-md rounded-lg overflow-hidden">
+                        <div class="p-6">
+                            <h2 class="text-xl font-semibold mb-4">Processing Complete</h2>
+                            <p class="mb-4">Your API Key: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.api_key}</span></p>
+                            <h3 class="text-lg font-semibold mb-2">Integration Code:</h3>
+                            <textarea id="integration-code" readonly class="w-full h-40 p-2 border border-gray-300 rounded-md font-mono text-sm"></textarea>
+                        </div>
+                    </div>
                 `;
                 if (response.data.integration_code) {
                     document.getElementById('integration-code').value = response.data.integration_code;
                 } else {
                     console.error('Integration code not found in response');
-                    resultDiv.innerHTML += '<p>Error: Integration code not found in response</p>';
+                    resultDiv.innerHTML += '<p class="text-red-500 mt-4">Error: Integration code not found in response</p>';
                 }
                 fetchApiKeys();  // Refresh the API key list
+                showNotification('URL processed successfully', 'success');
             } catch (error) {
                 console.error('Error:', error);
                 let errorMessage = 'An unknown error occurred';
@@ -185,12 +178,39 @@
                 } else {
                     errorMessage = error.message;
                 }
-                resultDiv.innerHTML = `<p>Error: ${errorMessage}</p>`;
+                resultDiv.innerHTML = `<p class="text-red-500">${errorMessage}</p>`;
+                showNotification(errorMessage, 'error');
             }
         }
 
-        // Initialize the UI
-        updateUI();
+        function showNotification(message, type) {
+            const notification = document.createElement('div');
+            notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        }
+
+        // Check for existing session on page load
+        window.addEventListener('load', () => {
+            const storedUser = localStorage.getItem('currentUser');
+            if (storedUser) {
+                currentUser = storedUser;
+                updateUI();
+                fetchApiKeys();
+            } else {
+                switchTab('login');
+            }
+        });
+
+        // Add event listener for beforeunload to persist session
+        window.addEventListener('beforeunload', () => {
+            if (currentUser) {
+                localStorage.setItem('currentUser', currentUser);
+            }
+        });
     </script>
 </body>
 </html>
