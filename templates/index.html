@@ -71,6 +71,28 @@
                 resultDiv.innerHTML = `<p>Error: ${error.response?.data?.error || 'An unknown error occurred'}</p>`;
             }
         }
+        const chatWithAI = async (input) => {
+    try {
+        const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {
+            input: input,
+            api_key: '{api_key}'
+        });
+        return response.data.response;
+    } catch (error) {
+        console.error('Error:', error);
+        if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            return `Error: ${error.response.data.error || 'Unknown server error'}`;
+        } else if (error.request) {
+            // The request was made but no response was received
+            return 'Error: No response received from the server. Please check your internet connection.';
+        } else {
+            // Something happened in setting up the request that triggered an Error
+            return `Error: ${error.message}`;
+        }
+    }
+};
     </script>
 </body>
 </html>

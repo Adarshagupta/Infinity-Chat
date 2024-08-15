@@ -114,22 +114,19 @@ def process_url():
 
 @app.route('/chat', methods=['POST'])
 def chat():
-    user_input = request.json.get('input')
-    api_key = request.json.get('api_key')
-
-    if not user_input or not api_key:
-        return jsonify({"error": "Input and API key are required"}), 400
-
     try:
+        user_input = request.json.get('input')
+        api_key = request.json.get('api_key')
+
+        if not user_input or not api_key:
+            return jsonify({"error": "Input and API key are required"}), 400
+
         # In a real scenario, you'd retrieve the fine-tuned data using the api_key
-        # For now, we'll use a dummy context
         context = "This is a dummy context for the fine-tuned model."
 
         messages = [{
-            "role":
-            "system",
-            "content":
-            f"You are a chatbot trained on the following website content: {context}"
+            "role": "system",
+            "content": f"You are a chatbot trained on the following website content: {context}"
         }, {
             "role": "user",
             "content": user_input
@@ -146,9 +143,12 @@ def chat():
             stop=["<|eot_id|>", "<|eom_id|>"])
 
         return jsonify({"response": response.choices[0].message.content})
+    except requests.exceptions.RequestException as e:
+        return jsonify({"error": f"Network error: {str(e)}"}), 503
+    except Together.APIError as e:
+        return jsonify({"error": f"Together API error: {str(e)}"}), 500
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)
