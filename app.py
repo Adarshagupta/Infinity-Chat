@@ -70,157 +70,117 @@ def chatbot_script():
             app.logger.error("API key not provided in request")
             return jsonify({"error": "API key is required"}), 400
         script = f'''
-(function() {{
-    function loadChatbot() {{
-        var chatbotDiv = document.createElement('div');
-        chatbotDiv.id = 'ai-chatbot';
-        chatbotDiv.innerHTML = `
-            <div id="chat-header">
-                <span>AI Chatbot</span>
-                <span id="toggle-chat" style="cursor: pointer;">−</span>
-            </div>
-            <div id="chat-body" style="display: block;">
+    (function() {{
+        function loadChatbot() {{
+            var chatbotDiv = document.createElement('div');
+            chatbotDiv.id = 'ai-chatbot';
+            chatbotDiv.innerHTML = `
+                <div id="chat-header">AI Chatbot</div>
                 <div id="chat-messages"></div>
                 <div id="chat-input">
                     <input type="text" id="user-input" placeholder="Type your message...">
                     <button onclick="sendMessage()">Send</button>
                 </div>
-            </div>
-        `;
-        document.body.appendChild(chatbotDiv);
-        
-        var style = document.createElement('style');
-        style.textContent = `
-            #ai-chatbot {{
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: 300px;
-                height: 400px;
-                background-color: #ffffff;
-                border-radius: 10px;
-                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-                display: flex;
-                flex-direction: column;
-                font-family: Arial, sans-serif;
-                z-index: 1000;
-                transition: all 0.3s ease-in-out;
-            }}
-            #chat-header {{
-                background-color: #007bff;
-                color: white;
-                padding: 10px;
-                font-weight: bold;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                border-radius: 10px 10px 0 0;
-            }}
-            #chat-body {{
-                background-color: #f1f1f1;
-                border-radius: 0 0 10px 10px;
-                flex-grow: 1;
-                display: flex;
-                flex-direction: column;
-            }}
-            #chat-messages {{
-                flex-grow: 1;
-                overflow-y: auto;
-                padding: 10px;
-                background-color: #ffffff;
-            }}
-            #chat-input {{
-                padding: 10px;
-                border-top: 1px solid #ddd;
-                display: flex;
-                background-color: #ffffff;
-            }}
-            #user-input {{
-                flex-grow: 1;
-                padding: 8px;
-                margin-right: 5px;
-                border: 1px solid #ddd;
-                border-radius: 5px;
-            }}
-            #chat-input button {{
-                padding: 8px 15px;
-                background-color: #007bff;
-                color: white;
-                border: none;
-                border-radius: 5px;
-                cursor: pointer;
-                transition: background-color 0.2s;
-            }}
-            #chat-input button:hover {{
-                background-color: #0056b3;
-            }}
-        `;
-        document.head.appendChild(style);
-        
-        // Toggle chat visibility
-        document.getElementById('toggle-chat').addEventListener('click', function() {{
-            const chatBody = document.getElementById('chat-body');
-            const toggleChat = document.getElementById('toggle-chat');
-            if (chatBody.style.display === 'none') {{
-                chatBody.style.display = 'block';
-                toggleChat.textContent = '−';
-            }} else {{
-                chatBody.style.display = 'none';
-                toggleChat.textContent = '+';
-            }}
-        }});
+            `;
+            document.body.appendChild(chatbotDiv);
+            
+            var style = document.createElement('style');
+            style.textContent = `
+                #ai-chatbot {{
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    width: 300px;
+                    height: 400px;
+                    background-color: #f1f1f1;
+                    border-radius: 10px;
+                    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+                    display: flex;
+                    flex-direction: column;
+                    overflow: hidden;
+                    font-family: Arial, sans-serif;
+                }}
+                #chat-header {{
+                    background-color: #007bff;
+                    color: white;
+                    padding: 10px;
+                    font-weight: bold;
+                }}
+                #chat-messages {{
+                    flex-grow: 1;
+                    overflow-y: auto;
+                    padding: 10px;
+                }}
+                #chat-input {{
+                    padding: 10px;
+                    border-top: 1px solid #ddd;
+                    display: flex;
+                }}
+                #user-input {{
+                    flex-grow: 1;
+                    padding: 5px;
+                    margin-right: 5px;
+                }}
+                #chat-input button {{
+                    padding: 5px 10px;
+                    background-color: #007bff;
+                    color: white;
+                    border: none;
+                    cursor: pointer;
+                }}
+            `;
+            document.head.appendChild(style);
+            
+            window.chatWithAI = async function(input) {{
+                try {{
+                    const response = await fetch('https://chatcat-s1ny.onrender.com/chat', {{
+                        method: 'POST',
+                        headers: {{
+                            'Content-Type': 'application/json',
+                        }},
+                        body: JSON.stringify({{
+                            input: input,
+                            api_key: '{api_key}'
+                        }})
+                    }});
+                    const data = await response.json();
+                    return data.response;
+                }} catch (error) {{
+                    console.error('Error:', error);
+                    return `Error: ${{error.message || 'Unknown error occurred'}}`;
+                }}
+            }};
 
-        window.chatWithAI = async function(input) {{
-            try {{
-                const response = await fetch('https://chatcat-s1ny.onrender.com/chat', {{
-                    method: 'POST',
-                    headers: {{
-                        'Content-Type': 'application/json',
-                    }},
-                    body: JSON.stringify({{
-                        input: input,
-                        api_key: '{api_key}'
-                    }})
-                }});
-                const data = await response.json();
-                return data.response;
-            }} catch (error) {{
-                console.error('Error:', error);
-                return `Error: ${{error.message || 'Unknown error occurred'}}`;
-            }}
-        }};
+            window.addMessage = function(sender, message) {{
+                const chatMessages = document.getElementById('chat-messages');
+                const messageElement = document.createElement('div');
+                messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
+                chatMessages.appendChild(messageElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+            }};
 
-        window.addMessage = function(sender, message) {{
-            const chatMessages = document.getElementById('chat-messages');
-            const messageElement = document.createElement('div');
-            messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
-            chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }};
+            window.sendMessage = async function() {{
+                const userInput = document.getElementById('user-input');
+                const message = userInput.value.trim();
+                if (message) {{
+                    addMessage('You', message);
+                    userInput.value = '';
+                    const response = await chatWithAI(message);
+                    addMessage('AI', response);
+                }}
+            }};
 
-        window.sendMessage = async function() {{
-            const userInput = document.getElementById('user-input');
-            const message = userInput.value.trim();
-            if (message) {{
-                addMessage('You', message);
-                userInput.value = '';
-                const response = await chatWithAI(message);
-                addMessage('AI', response);
-            }}
-        }};
+            // Initialize chat
+            addMessage('AI', 'Hello! How can I assist you today?');
+        }}
 
-        // Initialize chat
-        addMessage('AI', 'Hello! How can I assist you today?');
-    }}
-
-    if (document.readyState === 'complete') {{
-        loadChatbot();
-    }} else {{
-        window.addEventListener('load', loadChatbot);
-    }}
-}})();
-'''
-
+        if (document.readyState === 'complete') {{
+            loadChatbot();
+        }} else {{
+            window.addEventListener('load', loadChatbot);
+        }}
+    }})();
+    '''
         app.logger.info(f"Successfully generated chatbot script for API key: {api_key}")
         return Response(script, mimetype='application/javascript')
     except Exception as e:
