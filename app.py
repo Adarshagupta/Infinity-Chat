@@ -297,6 +297,29 @@ def chatbot_design():
     addMessage('AI', 'Hello! How can I assist you today?');
     </script>
     '''
+@app.route('/delete_api_key', methods=['POST'])
+def delete_api_key():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    api_key = request.json.get('api_key')
+    if not api_key:
+        return jsonify({"error": "No API key provided"}), 400
+
+    user = User.query.get(session['user_id'])
+    api_keys = json.loads(user.api_keys)
+    
+    if api_key in api_keys:
+        api_keys.remove(api_key)
+        user.api_keys = json.dumps(api_keys)
+        db.session.commit()
+        
+        # Also remove the extracted text for this API key
+        extracted_texts.pop(api_key, None)
+        
+        return jsonify({"message": "API key deleted successfully"}), 200
+    else:
+        return jsonify({"error": "API key not found"}), 404
     
     return Response(design, mimetype='text/html')
 
