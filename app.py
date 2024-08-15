@@ -70,9 +70,7 @@ def chatbot_script():
     
     script = f'''
     (function() {{
-        var script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js';
-        script.onload = function() {{
+        function loadChatbot() {{
             var chatbotDiv = document.createElement('div');
             chatbotDiv.id = 'ai-chatbot';
             chatbotDiv.innerHTML = `
@@ -99,6 +97,7 @@ def chatbot_script():
                     display: flex;
                     flex-direction: column;
                     overflow: hidden;
+                    font-family: Arial, sans-serif;
                 }}
                 #chat-header {{
                     background-color: #007bff;
@@ -114,34 +113,40 @@ def chatbot_script():
                 #chat-input {{
                     padding: 10px;
                     border-top: 1px solid #ddd;
+                    display: flex;
                 }}
                 #user-input {{
-                    width: 80%;
+                    flex-grow: 1;
                     padding: 5px;
+                    margin-right: 5px;
                 }}
                 #chat-input button {{
-                    width: 18%;
-                    padding: 5px;
+                    padding: 5px 10px;
+                    background-color: #007bff;
+                    color: white;
+                    border: none;
+                    cursor: pointer;
                 }}
             `;
             document.head.appendChild(style);
             
             window.chatWithAI = async function(input) {{
                 try {{
-                    const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
-                        input: input,
-                        api_key: '{api_key}'
+                    const response = await fetch('https://chatcat-s1ny.onrender.com/chat', {{
+                        method: 'POST',
+                        headers: {{
+                            'Content-Type': 'application/json',
+                        }},
+                        body: JSON.stringify({{
+                            input: input,
+                            api_key: '{api_key}'
+                        }})
                     }});
-                    return response.data.response;
+                    const data = await response.json();
+                    return data.response;
                 }} catch (error) {{
                     console.error('Error:', error);
-                    if (error.response) {{
-                        return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
-                    }} else if (error.request) {{
-                        return 'Network Error: No response received from the server. Please check your internet connection.';
-                    }} else {{
-                        return `Error: ${{error.message}}`;
-                    }}
+                    return `Error: ${{error.message || 'Unknown error occurred'}}`;
                 }}
             }};
 
@@ -166,8 +171,13 @@ def chatbot_script():
 
             // Initialize chat
             addMessage('AI', 'Hello! How can I assist you today?');
-        }};
-        document.head.appendChild(script);
+        }}
+
+        if (document.readyState === 'complete') {{
+            loadChatbot();
+        }} else {{
+            window.addEventListener('load', loadChatbot);
+        }}
     }})();
     '''
     
