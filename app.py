@@ -6,11 +6,21 @@ import os
 import json
 from dotenv import load_dotenv
 import html
+import logging
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
 
 # Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
+
+# Set up logging
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+# Set up rate limiting
+limiter = Limiter(app, key_func=get_remote_address)
 
 # Get the API key from the environment variable
 together_api_key = os.getenv('TOGETHER_API_KEY')
@@ -19,18 +29,15 @@ if not together_api_key:
 
 client = Together(api_key=together_api_key)
 
-
 def extract_text_from_url(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     return ' '.join([p.text for p in soup.find_all('p')])
 
-
 def simulate_fine_tuning(extracted_text):
     # In a real scenario, you would use this data to fine-tune a model
     # For now, we'll just store it and use it as context
     return json.dumps({"context": extracted_text})
-
 
 def generate_integration_code(api_key):
     return f'''
@@ -55,7 +62,13 @@ const chatWithAI = async (input) => {{
         return response.data.response;
     }} catch (error) {{
         console.error('Error:', error);
-        return 'An error occurred while chatting with the AI.';
+        if (error.response) {{
+            return `Error: ${{error.response.data.error || 'Unknown server error'}}`;
+        }} else if (error.request) {{
+            return 'Error: No response received from the server. Please check your internet connection.';
+        }} else {{
+            return `Error: ${{error.message}}`;
+        }}
     }}
 }};
 
@@ -83,13 +96,12 @@ addMessage('AI', 'Hello! How can I assist you today?');
 </script>
 '''
 
-
 @app.route('/')
 def index():
     return render_template('index.html')
 
-
 @app.route('/process_url', methods=['POST'])
+@limiter.limit("5 per minute")
 def process_url():
     url = request.json.get('url')
     if not url:
@@ -106,13 +118,14 @@ def process_url():
         return jsonify({
             "message": "Processing complete",
             "api_key": api_key,
-            "integration_code": integration_code  # Note: removed html.escape()
+            "integration_code": integration_code
         })
     except Exception as e:
+        logger.error(f"Error in process_url: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-
 @app.route('/chat', methods=['POST'])
+@limiter.limit("5 per minute")
 def chat():
     try:
         user_input = request.json.get('input')
@@ -132,6 +145,7 @@ def chat():
             "content": user_input
         }]
 
+        logger.info(f"Sending request to Together API with input: {user_input}")
         response = client.chat.completions.create(
             model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
             messages=messages,
@@ -141,13 +155,17 @@ def chat():
             top_k=50,
             repetition_penalty=1,
             stop=["<|eot_id|>", "<|eom_id|>"])
+        logger.info(f"Received response from Together API: {response}")
 
         return jsonify({"response": response.choices[0].message.content})
     except requests.exceptions.RequestException as e:
+        logger.error(f"Network error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Network error: {str(e)}"}), 503
     except Together.APIError as e:
+        logger.error(f"Together API error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Together API error: {str(e)}"}), 500
     except Exception as e:
+        logger.error(f"Unexpected error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 if __name__ == '__main__':

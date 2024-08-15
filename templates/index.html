@@ -6,49 +6,59 @@
     <title>AI Chatbot Creator</title>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <style>
-        textarea {
-            width: 100%;
-            height: 200px;
-            margin-top: 10px;
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        h1 {
+            color: #333;
+        }
+        input[type="text"] {
+            width: 70%;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #result {
+            margin-top: 20px;
+            padding: 20px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         #integration-code {
             width: 100%;
             height: 300px;
             margin-top: 10px;
+            padding: 10px;
             white-space: pre-wrap;
             word-wrap: break-word;
+            border: 1px solid #ddd;
+            border-radius: 5px;
         }
     </style>
 </head>
 <body>
     <h1>AI Chatbot Creator</h1>
-    <input type="text" id="urlInput" placeholder="Enter website URL">
-    <button onclick="processUrl()">Process URL</button>
+    <div>
+        <input type="text" id="urlInput" placeholder="Enter website URL">
+        <button onclick="processUrl()">Process URL</button>
+    </div>
     <div id="result"></div>
 
     <script>
-        async function processUrl() {
-            const url = document.getElementById('urlInput').value;
-            const resultDiv = document.getElementById('result');
-
-            try {
-                const response = await axios.post('/process_url', { url: url });
-                resultDiv.innerHTML = `
-                    <h2>Processing Complete</h2>
-                    <p>Your API Key: ${response.data.api_key}</p>
-                    <h3>Integration Code:</h3>
-                    <textarea readonly></textarea>
-                `;
-                if (response.data.integration_code) {
-                    document.querySelector('textarea').innerHTML = response.data.integration_code;
-                } else {
-                    console.error('Integration code not found in response');
-                    resultDiv.innerHTML += '<p>Error: Integration code not found in response</p>';
-                }
-            } catch (error) {
-                resultDiv.innerHTML = `<p>Error: ${error.response?.data?.error || 'An unknown error occurred'}</p>`;
-            }
-        }
         async function processUrl() {
             const url = document.getElementById('urlInput').value;
             const resultDiv = document.getElementById('result');
@@ -68,31 +78,18 @@
                     resultDiv.innerHTML += '<p>Error: Integration code not found in response</p>';
                 }
             } catch (error) {
-                resultDiv.innerHTML = `<p>Error: ${error.response?.data?.error || 'An unknown error occurred'}</p>`;
+                console.error('Error:', error);
+                let errorMessage = 'An unknown error occurred';
+                if (error.response) {
+                    errorMessage = error.response.data.error || 'Server error';
+                } else if (error.request) {
+                    errorMessage = 'No response received from the server. Please check your internet connection.';
+                } else {
+                    errorMessage = error.message;
+                }
+                resultDiv.innerHTML = `<p>Error: ${errorMessage}</p>`;
             }
         }
-        const chatWithAI = async (input) => {
-    try {
-        const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {
-            input: input,
-            api_key: '{api_key}'
-        });
-        return response.data.response;
-    } catch (error) {
-        console.error('Error:', error);
-        if (error.response) {
-            // The request was made and the server responded with a status code
-            // that falls out of the range of 2xx
-            return `Error: ${error.response.data.error || 'Unknown server error'}`;
-        } else if (error.request) {
-            // The request was made but no response was received
-            return 'Error: No response received from the server. Please check your internet connection.';
-        } else {
-            // Something happened in setting up the request that triggered an Error
-            return `Error: ${error.message}`;
-        }
-    }
-};
     </script>
 </body>
 </html>

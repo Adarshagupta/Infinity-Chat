@@ -3,3 +3,5 @@ requests
 beautifulsoup4
 together
 python-dotenv
+html
+flask-limiter
