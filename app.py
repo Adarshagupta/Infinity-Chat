@@ -48,7 +48,7 @@ def generate_integration_code(api_key):
 <script>
 const chatWithAI = async (input) => {{
     try {{
-        const response = await axios.post('https://5000-adarshagupta-chatcat-9t7zgsl5x7t.ws-us115.gitpod.io/chat', {{
+        const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
             input: input,
             api_key: '{api_key}'
         }});
