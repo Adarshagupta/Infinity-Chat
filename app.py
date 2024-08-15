@@ -17,7 +17,7 @@ import uuid
 load_dotenv()
 
 app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+CORS(app, resources={r"/*": {"origins": "*"}})
 
 # Set up logging
 logging.basicConfig(level=logging.INFO)
@@ -64,11 +64,12 @@ def generate_integration_code(api_key):
 '''
 @app.route('/chatbot.js')
 def chatbot_script():
-    api_key = request.args.get('api_key')
-    if not api_key:
-        return jsonify({"error": "API key is required"}), 400
-    
-    script = f'''
+    try:
+        api_key = request.args.get('api_key')
+        if not api_key:
+            app.logger.error("API key not provided in request")
+            return jsonify({"error": "API key is required"}), 400
+            script = f'''
     (function() {{
         function loadChatbot() {{
             var chatbotDiv = document.createElement('div');
@@ -180,8 +181,22 @@ def chatbot_script():
         }}
     }})();
     '''
+            app.logger.info(f"Successfully generated chatbot script for API key: {api_key}")
+        return Response(script, mimetype='application/javascript')
+    except Exception as e:
+        app.logger.error(f"Error in chatbot_script route: {str(e)}", exc_info=True)
+        return jsonify({"error": "Internal server error"}), 500
     
     return Response(script, mimetype='application/javascript')
+
+@app.route('/test_db')
+def test_db():
+    try:
+        db.session.query("1").from_statement(text("SELECT 1")).all()
+        return "Database connection successful"
+    except Exception as e:
+        app.logger.error(f"Database connection error: {str(e)}")
+        return f"Database connection failed: {str(e)}"
 
 @app.route('/')
 def index():
@@ -399,6 +414,19 @@ def delete_api_key():
         return jsonify({"error": "API key not found"}), 404
     
     return Response(design, mimetype='text/html')
+
+@app.route('/test_together_api')
+def test_together_api():
+    try:
+        response = client.chat.completions.create(
+            model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+            messages=[{"role": "user", "content": "Hello"}],
+            max_tokens=5
+        )
+        return "Together API connection successful"
+    except Exception as e:
+        app.logger.error(f"Together API connection error: {str(e)}")
+        return f"Together API connection failed: {str(e)}"
 
 if __name__ == '__main__':
     with app.app_context():
