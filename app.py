@@ -1,4 +1,6 @@
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, session
+from flask_sqlalchemy import SQLAlchemy
+from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from bs4 import BeautifulSoup
 from together import Together
@@ -9,6 +11,7 @@ import logging
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
+import uuid
 
 # Load environment variables from .env file
 load_dotenv()
@@ -27,6 +30,11 @@ limiter = Limiter(
     default_limits=["200 per day", "50 per hour"]
 )
 
+# Configure SQLAlchemy
+app.config['SECRET_KEY'] = 'your_secret_key'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///users.db'
+db = SQLAlchemy(app)
+
 # Get the API key from the environment variable
 together_api_key = os.getenv('TOGETHER_API_KEY')
 if not together_api_key:
@@ -36,6 +44,13 @@ client = Together(api_key=together_api_key)
 
 # Store extracted text for each API key
 extracted_texts = {}
+
+# User model
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    email = db.Column(db.String(120), unique=True, nullable=False)
+    password = db.Column(db.String(255), nullable=False)
+    api_keys = db.Column(db.Text)  # Store as JSON string
 
 def extract_text_from_url(url):
     response = requests.get(url)
@@ -58,7 +73,7 @@ def generate_integration_code(api_key):
 <script>
 const chatWithAI = async (input) => {{
     try {{
-        const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
+        const response = await axios.post('https://your-backend-url.com/chat', {{
             input: input,
             api_key: '{api_key}'
         }});
@@ -103,21 +118,61 @@ addMessage('AI', 'Hello! How can I assist you today?');
 def index():
     return render_template('index.html')
 
-@app.route('/test', methods=['GET'])
-def test():
-    return "Server is running!"
+@app.route('/register', methods=['POST'])
+def register():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    
+    if User.query.filter_by(email=email).first():
+        return jsonify({"error": "Email already registered"}), 400
+    
+    hashed_password = generate_password_hash(password)
+    new_user = User(email=email, password=hashed_password, api_keys='[]')
+    db.session.add(new_user)
+    db.session.commit()
+    
+    return jsonify({"message": "User registered successfully"}), 201
+
+@app.route('/login', methods=['POST'])
+def login():
+    data = request.json
+    email = data.get('email')
+    password = data.get('password')
+    
+    user = User.query.filter_by(email=email).first()
+    if user and check_password_hash(user.password, password):
+        session['user_id'] = user.id
+        return jsonify({"message": "Logged in successfully"}), 200
+    
+    return jsonify({"error": "Invalid credentials"}), 401
+
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('user_id', None)
+    return jsonify({"message": "Logged out successfully"}), 200
 
 @app.route('/process_url', methods=['POST'])
 @limiter.limit("5 per minute")
 def process_url():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
     url = request.json.get('url')
     if not url:
         return jsonify({"error": "No URL provided"}), 400
 
     try:
         extracted_text = extract_text_from_url(url)
-        api_key = f"user_{os.urandom(16).hex()}"  # Generate a unique API key
-        extracted_texts[api_key] = extracted_text  # Store the extracted text
+        api_key = f"user_{uuid.uuid4().hex}"
+        extracted_texts[api_key] = extracted_text
+
+        user = User.query.get(session['user_id'])
+        api_keys = json.loads(user.api_keys)
+        api_keys.append(api_key)
+        user.api_keys = json.dumps(api_keys)
+        db.session.commit()
+
         integration_code = generate_integration_code(api_key)
 
         return jsonify({
@@ -172,5 +227,16 @@ def chat():
         logger.error(f"Unexpected error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
+@app.route('/user/api_keys', methods=['GET'])
+def get_user_api_keys():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    user = User.query.get(session['user_id'])
+    api_keys = json.loads(user.api_keys)
+    return jsonify({"api_keys": api_keys})
+
 if __name__ == '__main__':
+    with app.app_context():
+        db.create_all()
     app.run(debug=True)

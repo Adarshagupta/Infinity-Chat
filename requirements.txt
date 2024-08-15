@@ -1,7 +1,9 @@
 Flask
+Flask-SQLAlchemy
+Flask-Cors
+python-dotenv
 requests
 beautifulsoup4
-python-dotenv
-Flask-Limiter
-Flask-Cors
 together
+Werkzeug
+Flask-Limiter

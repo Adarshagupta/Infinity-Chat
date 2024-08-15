@@ -13,13 +13,21 @@
             padding: 20px;
             background-color: #f4f4f4;
         }
-        h1 {
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        h1, h2 {
             color: #333;
         }
-        input[type="text"] {
-            width: 70%;
+        input[type="text"], input[type="password"], input[type="email"] {
+            width: 100%;
             padding: 10px;
-            margin-right: 10px;
+            margin-bottom: 10px;
         }
         button {
             padding: 10px 20px;
@@ -27,20 +35,17 @@
             color: white;
             border: none;
             cursor: pointer;
+            margin-right: 10px;
         }
         button:hover {
             background-color: #0056b3;
         }
-        #result {
+        #result, #userInfo {
             margin-top: 20px;
-            padding: 20px;
-            background-color: white;
-            border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0,0,0,0.1);
         }
         #integration-code {
             width: 100%;
-            height: 300px;
+            height: 200px;
             margin-top: 10px;
             padding: 10px;
             white-space: pre-wrap;
@@ -48,17 +53,109 @@
             border: 1px solid #ddd;
             border-radius: 5px;
         }
+        .hidden {
+            display: none;
+        }
     </style>
 </head>
 <body>
-    <h1>AI Chatbot Creator</h1>
-    <div>
-        <input type="text" id="urlInput" placeholder="Enter website URL">
-        <button onclick="processUrl()">Process URL</button>
+    <div class="container">
+        <h1>AI Chatbot Creator</h1>
+        
+        <div id="authForms">
+            <h2>Register</h2>
+            <input type="email" id="registerEmail" placeholder="Email">
+            <input type="password" id="registerPassword" placeholder="Password">
+            <button onclick="register()">Register</button>
+
+            <h2>Login</h2>
+            <input type="email" id="loginEmail" placeholder="Email">
+            <input type="password" id="loginPassword" placeholder="Password">
+            <button onclick="login()">Login</button>
+        </div>
+
+        <div id="userInfo" class="hidden">
+            <h2>Welcome, <span id="userEmail"></span></h2>
+            <button onclick="logout()">Logout</button>
+            
+            <h2>Create New Chatbot</h2>
+            <input type="text" id="urlInput" placeholder="Enter website URL">
+            <button onclick="processUrl()">Process URL</button>
+
+            <h2>Your API Keys</h2>
+            <ul id="apiKeyList"></ul>
+        </div>
+
+        <div id="result"></div>
     </div>
-    <div id="result"></div>
 
     <script>
+        let currentUser = null;
+
+        async function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            try {
+                const response = await axios.post('/register', { email, password });
+                alert(response.data.message);
+            } catch (error) {
+                alert(error.response.data.error);
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            try {
+                const response = await axios.post('/login', { email, password });
+                currentUser = email;
+                updateUI();
+                fetchApiKeys();
+            } catch (error) {
+                alert(error.response.data.error);
+            }
+        }
+
+        async function logout() {
+            try {
+                await axios.post('/logout');
+                currentUser = null;
+                updateUI();
+            } catch (error) {
+                console.error('Logout error:', error);
+            }
+        }
+
+        function updateUI() {
+            const authForms = document.getElementById('authForms');
+            const userInfo = document.getElementById('userInfo');
+            const userEmailSpan = document.getElementById('userEmail');
+
+            if (currentUser) {
+                authForms.classList.add('hidden');
+                userInfo.classList.remove('hidden');
+                userEmailSpan.textContent = currentUser;
+            } else {
+                authForms.classList.remove('hidden');
+                userInfo.classList.add('hidden');
+            }
+        }
+
+        async function fetchApiKeys() {
+            try {
+                const response = await axios.get('/user/api_keys');
+                const apiKeyList = document.getElementById('apiKeyList');
+                apiKeyList.innerHTML = '';
+                response.data.api_keys.forEach(key => {
+                    const li = document.createElement('li');
+                    li.textContent = key;
+                    apiKeyList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error fetching API keys:', error);
+            }
+        }
+
         async function processUrl() {
             const url = document.getElementById('urlInput').value;
             const resultDiv = document.getElementById('result');
@@ -77,6 +174,7 @@
                     console.error('Integration code not found in response');
                     resultDiv.innerHTML += '<p>Error: Integration code not found in response</p>';
                 }
+                fetchApiKeys();  // Refresh the API key list
             } catch (error) {
                 console.error('Error:', error);
                 let errorMessage = 'An unknown error occurred';
@@ -90,6 +188,9 @@
                 resultDiv.innerHTML = `<p>Error: ${errorMessage}</p>`;
             }
         }
+
+        // Initialize the UI
+        updateUI();
     </script>
 </body>
 </html>
