@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session
+from flask import Flask, request, jsonify, render_template, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
@@ -62,14 +62,14 @@ def generate_integration_code(api_key):
 <!-- AI Chatbot Integration -->
 <script src="https://chatcat-s1ny.onrender.com/chatbot.js?api_key={api_key}"></script>
 '''
-@app.route('/chatbot.js')
+@app.route('/chatbot.js', methods=['GET', 'POST'])
 def chatbot_script():
     try:
         api_key = request.args.get('api_key')
         if not api_key:
             app.logger.error("API key not provided in request")
             return jsonify({"error": "API key is required"}), 400
-            script = f'''
+        script = f'''
     (function() {{
         function loadChatbot() {{
             var chatbotDiv = document.createElement('div');
@@ -181,13 +181,11 @@ def chatbot_script():
         }}
     }})();
     '''
-            app.logger.info(f"Successfully generated chatbot script for API key: {api_key}")
+        app.logger.info(f"Successfully generated chatbot script for API key: {api_key}")
         return Response(script, mimetype='application/javascript')
     except Exception as e:
         app.logger.error(f"Error in chatbot_script route: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
-    
-    return Response(script, mimetype='application/javascript')
 
 @app.route('/test_db')
 def test_db():
@@ -250,6 +248,7 @@ def process_url():
         extracted_text = extract_text_from_url(url)
         api_key = f"user_{uuid.uuid4().hex}"
         extracted_texts[api_key] = extracted_text
+        app.logger.info(f"Extracted text for API key {api_key}: {extracted_text[:100]}...")  # Log first 100 chars
 
         user = User.query.get(session['user_id'])
         api_keys = json.loads(user.api_keys)
@@ -265,7 +264,7 @@ def process_url():
             "integration_code": integration_code
         })
     except Exception as e:
-        logger.error(f"Error in process_url: {str(e)}", exc_info=True)
+        app.logger.error(f"Error in process_url: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
 @app.route('/chat', methods=['POST'])
@@ -279,6 +278,7 @@ def chat():
             return jsonify({"error": "Input and API key are required"}), 400
 
         context = extracted_texts.get(api_key, "No context available for this API key.")
+        app.logger.info(f"Context for API key {api_key}: {context[:100]}...")  # Log first 100 chars
 
         messages = [{
             "role": "system",
@@ -316,7 +316,7 @@ Instructions for providing responses:
         logger.error(f"Together API error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Together API error: {str(e)}"}), 500
     except Exception as e:
-        logger.error(f"Unexpected error in chat route: {str(e)}", exc_info=True)
+        app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @app.route('/user/api_keys', methods=['GET'])
