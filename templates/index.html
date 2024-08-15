@@ -150,6 +150,7 @@
 
             try {
                 const response = await axios.post('/process_url', { url: url });
+                console.log('Full API response:', response.data);  // Log the full response
                 resultDiv.innerHTML = `
                     <div class="bg-white shadow-md rounded-lg overflow-hidden">
                         <div class="p-6">

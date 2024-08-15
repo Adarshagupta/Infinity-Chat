@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session
+from flask import Flask, request, jsonify, render_template, session, Response
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
@@ -56,63 +56,6 @@ def extract_text_from_url(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     return ' '.join([p.text for p in soup.find_all('p')])
-
-def generate_integration_code(api_key):
-    return f'''
-<!-- AI Chatbot -->
-<div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background-color: #f1f1f1; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;">
-    <div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;">AI Chatbot</div>
-    <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
-    <div style="padding: 10px; border-top: 1px solid #ddd;">
-        <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
-        <button onclick="sendMessage()" style="width: 18%; padding: 5px;">Send</button>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-const chatWithAI = async (input) => {{
-    try {{
-        const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
-            input: input,
-            api_key: '{api_key}'
-        }});
-        return response.data.response;
-    }} catch (error) {{
-        console.error('Error:', error);
-        if (error.response) {{
-            return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
-        }} else if (error.request) {{
-            return 'Network Error: No response received from the server. Please check your internet connection.';
-        }} else {{
-            return `Error: ${{error.message}}`;
-        }}
-    }}
-}};
-
-function addMessage(sender, message) {{
-    const chatMessages = document.getElementById('chat-messages');
-    const messageElement = document.createElement('div');
-    messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-}}
-
-async function sendMessage() {{
-    const userInput = document.getElementById('user-input');
-    const message = userInput.value.trim();
-    if (message) {{
-        addMessage('You', message);
-        userInput.value = '';
-        const response = await chatWithAI(message);
-        addMessage('AI', response);
-    }}
-}}
-
-// Initialize chat
-addMessage('AI', 'Hello! How can I assist you today?');
-</script>
-'''
 
 @app.route('/')
 def index():
@@ -173,16 +116,107 @@ def process_url():
         user.api_keys = json.dumps(api_keys)
         db.session.commit()
 
-        integration_code = generate_integration_code(api_key)
+        integration_code = generate_integration_script(api_key)
 
-        return jsonify({
+        response_data = {
             "message": "Processing complete",
             "api_key": api_key,
             "integration_code": integration_code
-        })
+        }
+        logger.info(f"Sending response: {response_data}")
+        return jsonify(response_data)
     except Exception as e:
         logger.error(f"Error in process_url: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
+
+def generate_integration_script(api_key):
+    return f'''
+<script>
+(function() {{
+    var script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js';
+    script.onload = function() {{
+        var chatbotScript = document.createElement('script');
+        chatbotScript.textContent = `
+            axios.get('https://chatcat-s1ny.onrender.com/chatbot-design?api_key={api_key}')
+                .then(function(response) {{
+                    var div = document.createElement('div');
+                    div.innerHTML = response.data;
+                    document.body.appendChild(div);
+                }})
+                .catch(function(error) {{
+                    console.error('Error loading chatbot:', error);
+                }});
+        `;
+        document.body.appendChild(chatbotScript);
+    }};
+    document.body.appendChild(script);
+}})();
+</script>
+'''
+
+@app.route('/chatbot-design', methods=['GET'])
+def chatbot_design():
+    api_key = request.args.get('api_key')
+    if not api_key:
+        return jsonify({"error": "API key is required"}), 400
+
+    design = f'''
+    <!-- AI Chatbot -->
+    <div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background-color: #f1f1f1; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;">
+        <div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;">AI Chatbot</div>
+        <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
+        <div style="padding: 10px; border-top: 1px solid #ddd;">
+            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
+            <button onclick="sendMessage()" style="width: 18%; padding: 5px;">Send</button>
+        </div>
+    </div>
+
+    <script>
+    const chatWithAI = async (input) => {{
+        try {{
+            const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
+                input: input,
+                api_key: '{api_key}'
+            }});
+            return response.data.response;
+        }} catch (error) {{
+            console.error('Error:', error);
+            if (error.response) {{
+                return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
+            }} else if (error.request) {{
+                return 'Network Error: No response received from the server. Please check your internet connection.';
+            }} else {{
+                return `Error: ${{error.message}}`;
+            }}
+        }}
+    }};
+
+    function addMessage(sender, message) {{
+        const chatMessages = document.getElementById('chat-messages');
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }}
+
+    async function sendMessage() {{
+        const userInput = document.getElementById('user-input');
+        const message = userInput.value.trim();
+        if (message) {{
+            addMessage('You', message);
+            userInput.value = '';
+            const response = await chatWithAI(message);
+            addMessage('AI', response);
+        }}
+    }}
+
+    // Initialize chat
+    addMessage('AI', 'Hello! How can I assist you today?');
+    </script>
+    '''
+    
+    return Response(design, mimetype='text/html')
 
 @app.route('/chat', methods=['POST'])
 @limiter.limit("5 per minute")
@@ -235,70 +269,6 @@ def get_user_api_keys():
     user = User.query.get(session['user_id'])
     api_keys = json.loads(user.api_keys)
     return jsonify({"api_keys": api_keys})
-
-@app.route('/chatbot-design', methods=['GET'])
-def chatbot_design():
-    api_key = request.args.get('api_key')
-    if not api_key:
-        return jsonify({"error": "API key is required"}), 400
-
-    design = f'''
-    <!-- AI Chatbot -->
-    <div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background-color: #f1f1f1; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;">
-        <div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;">AI Chatbot</div>
-        <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
-        <div style="padding: 10px; border-top: 1px solid #ddd;">
-            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
-            <button onclick="sendMessage()" style="width: 18%; padding: 5px;">Send</button>
-        </div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <script>
-    const chatWithAI = async (input) => {{
-        try {{
-            const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
-                input: input,
-                api_key: '{api_key}'
-            }});
-            return response.data.response;
-        }} catch (error) {{
-            console.error('Error:', error);
-            if (error.response) {{
-                return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
-            }} else if (error.request) {{
-                return 'Network Error: No response received from the server. Please check your internet connection.';
-            }} else {{
-                return `Error: ${{error.message}}`;
-            }}
-        }}
-    }};
-
-    function addMessage(sender, message) {{
-        const chatMessages = document.getElementById('chat-messages');
-        const messageElement = document.createElement('div');
-        messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }}
-
-    async function sendMessage() {{
-        const userInput = document.getElementById('user-input');
-        const message = userInput.value.trim();
-        if (message) {{
-            addMessage('You', message);
-            userInput.value = '';
-            const response = await chatWithAI(message);
-            addMessage('AI', response);
-        }}
-    }}
-
-    // Initialize chat
-    addMessage('AI', 'Hello! How can I assist you today?');
-    </script>
-    '''
-    
-    return Response(design, mimetype='text/html')
 
 if __name__ == '__main__':
     with app.app_context():
