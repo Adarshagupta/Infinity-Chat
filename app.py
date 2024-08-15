@@ -198,7 +198,15 @@ def chat():
 
         messages = [{
             "role": "system",
-            "content": f"You are a chatbot trained on the following website content: {context}"
+            "content": f"""You are a helpful AI assistant trained on the following website content: {context}
+
+Instructions for providing responses:
+1. Start with a brief, direct answer to the user's question.
+2. If applicable, provide 2-3 key points or examples to support your answer.
+3. Use bullet points or numbered lists for clarity when appropriate.
+4. If the question is unclear, politely ask for clarification.
+5. Keep your total response under 150 words unless more detail is explicitly requested.
+6. End with a follow-up question or suggestion if relevant."""
         }, {
             "role": "user",
             "content": user_input
@@ -206,7 +214,7 @@ def chat():
 
         logger.info(f"Sending request to Together API with input: {user_input}")
         response = client.chat.completions.create(
-            model="meta-llama/Meta-Llama-3.1-8B-Instruct-Turbo",
+            model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
             messages=messages,
             max_tokens=512,
             temperature=0.7,
