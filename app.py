@@ -138,15 +138,98 @@ def generate_integration_script(api_key):
     script.onload = function() {{
         var chatbotScript = document.createElement('script');
         chatbotScript.textContent = `
-            axios.get('https://chatcat-s1ny.onrender.com/chatbot-design?api_key={api_key}')
-                .then(function(response) {{
-                    var div = document.createElement('div');
-                    div.innerHTML = response.data;
-                    document.body.appendChild(div);
-                }})
-                .catch(function(error) {{
-                    console.error('Error loading chatbot:', error);
-                }});
+            document.addEventListener('DOMContentLoaded', function() {{
+                console.log('DOM fully loaded and parsed');
+                axios.get('https://chatcat-s1ny.onrender.com/chatbot-design?api_key={api_key}')
+                    .then(function(response) {{
+                        var div = document.createElement('div');
+                        div.innerHTML = response.data;
+                        document.body.appendChild(div);
+                        
+                        // Initialize chatbot functionality
+                        const apiKey = '{api_key}';
+                        console.log('API Key:', apiKey);
+
+                        const chatWithAI = async (input) => {{
+                            console.log('Sending message to AI:', input);
+                            try {{
+                                const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
+                                    input: input,
+                                    api_key: apiKey
+                                }});
+                                console.log('Received response from AI:', response.data);
+                                return response.data.response;
+                            }} catch (error) {{
+                                console.error('Error in chatWithAI:', error);
+                                throw error;
+                            }}
+                        }};
+
+                        function addMessage(sender, message) {{
+                            console.log(`Adding message from ${{sender}}:`, message);
+                            const chatMessages = document.getElementById('chat-messages');
+                            if (chatMessages) {{
+                                const messageElement = document.createElement('div');
+                                messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
+                                chatMessages.appendChild(messageElement);
+                                chatMessages.scrollTop = chatMessages.scrollHeight;
+                            }} else {{
+                                console.error('Chat messages container not found');
+                            }}
+                        }}
+
+                        async function sendMessage() {{
+                            console.log('sendMessage function called');
+                            const userInput = document.getElementById('user-input');
+                            if (!userInput) {{
+                                console.error('User input element not found');
+                                return;
+                            }}
+                            const message = userInput.value.trim();
+                            if (message) {{
+                                console.log('User sending message:', message);
+                                addMessage('You', message);
+                                userInput.value = '';
+                                try {{
+                                    const response = await chatWithAI(message);
+                                    console.log('Received AI response:', response);
+                                    addMessage('AI', response);
+                                }} catch (error) {{
+                                    console.error('Error in sendMessage:', error);
+                                    addMessage('AI', 'Sorry, there was an error processing your request.');
+                                }}
+                            }}
+                        }}
+
+                        // Initialize chat
+                        console.log('Initializing chat');
+                        addMessage('AI', 'Hello! How can I assist you today?');
+
+                        // Add event listener for Enter key
+                        const userInputElement = document.getElementById('user-input');
+                        if (userInputElement) {{
+                            userInputElement.addEventListener('keypress', function(event) {{
+                                if (event.key === 'Enter') {{
+                                    sendMessage();
+                                }}
+                            }});
+                        }} else {{
+                            console.error('User input element not found');
+                        }}
+
+                        // Add event listener for send button
+                        const sendButton = document.getElementById('send-button');
+                        if (sendButton) {{
+                            sendButton.addEventListener('click', sendMessage);
+                            console.log('Send button event listener added');
+                        }} else {{
+                            console.error('Send button not found');
+                        }}
+                    }})
+                    .catch(function(error) {{
+                        console.error('Error loading chatbot:', error);
+                    }});
+            }});
         `;
         document.body.appendChild(chatbotScript);
     }};
@@ -154,87 +237,6 @@ def generate_integration_script(api_key):
 }})();
 </script>
 '''
-
-@app.route('/chatbot-design', methods=['GET'])
-def chatbot_design():
-    api_key = request.args.get('api_key')
-    if not api_key:
-        return jsonify({"error": "API key is required"}), 400
-
-    design = f'''
-    <!-- AI Chatbot -->
-    <div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; height: 400px; background-color: #f1f1f1; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden;">
-        <div style="background-color: #007bff; color: white; padding: 10px; font-weight: bold;">AI Chatbot</div>
-        <div id="chat-messages" style="flex-grow: 1; overflow-y: auto; padding: 10px;"></div>
-        <div style="padding: 10px; border-top: 1px solid #ddd;">
-            <input type="text" id="user-input" placeholder="Type your message..." style="width: 80%; padding: 5px;">
-            <button id="send-button" style="width: 18%; padding: 5px;">Send</button>
-        </div>
-    </div>
-
-    <script>
-    console.log('Chatbot script loaded');
-    const apiKey = '{api_key}';
-    console.log('API Key:', apiKey);
-
-    const chatWithAI = async (input) => {{
-        console.log('Sending message to AI:', input);
-        try {{
-            const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
-                input: input,
-                api_key: apiKey
-            }});
-            console.log('Received response from AI:', response.data);
-            return response.data.response;
-        }} catch (error) {{
-            console.error('Error in chatWithAI:', error);
-            throw error;
-        }}
-    }};
-
-    function addMessage(sender, message) {{
-        console.log(`Adding message from ${{sender}}:`, message);
-        const chatMessages = document.getElementById('chat-messages');
-        const messageElement = document.createElement('div');
-        messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }}
-
-    async function sendMessage() {{
-        console.log('sendMessage function called');
-        const userInput = document.getElementById('user-input');
-        const message = userInput.value.trim();
-        if (message) {{
-            console.log('User sending message:', message);
-            addMessage('You', message);
-            userInput.value = '';
-            try {{
-                const response = await chatWithAI(message);
-                console.log('Received AI response:', response);
-                addMessage('AI', response);
-            }} catch (error) {{
-                console.error('Error in sendMessage:', error);
-                addMessage('AI', 'Sorry, there was an error processing your request.');
-            }}
-        }}
-    }}
-
-    // Initialize chat
-    console.log('Initializing chat');
-    addMessage('AI', 'Hello! How can I assist you today?');
-
-    // Add event listener for Enter key
-    document.getElementById('user-input').addEventListener('keypress', function(event) {{
-        if (event.key === 'Enter') {{
-            sendMessage();
-        }}
-    }});
-
-    // Add event listener for send button
-    document.getElementById('send-button').addEventListener('click', sendMessage);
-    </script>
-    '''
     
     return Response(design, mimetype='text/html')
 
