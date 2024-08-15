@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot Creator</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        textarea {
+            width: 100%;
+            height: 200px;
+            margin-top: 10px;
+        }
+        #integration-code {
+            width: 100%;
+            height: 300px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+    </style>
+</head>
+<body>
+    <h1>AI Chatbot Creator</h1>
+    <input type="text" id="urlInput" placeholder="Enter website URL">
+    <button onclick="processUrl()">Process URL</button>
+    <div id="result"></div>
+
+    <script>
+        async function processUrl() {
+            const url = document.getElementById('urlInput').value;
+            const resultDiv = document.getElementById('result');
+
+            try {
+                const response = await axios.post('/process_url', { url: url });
+                resultDiv.innerHTML = `
+                    <h2>Processing Complete</h2>
+                    <p>Your API Key: ${response.data.api_key}</p>
+                    <h3>Integration Code:</h3>
+                    <textarea readonly></textarea>
+                `;
+                if (response.data.integration_code) {
+                    document.querySelector('textarea').innerHTML = response.data.integration_code;
+                } else {
+                    console.error('Integration code not found in response');
+                    resultDiv.innerHTML += '<p>Error: Integration code not found in response</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Error: ${error.response?.data?.error || 'An unknown error occurred'}</p>`;
+            }
+        }
+        async function processUrl() {
+            const url = document.getElementById('urlInput').value;
+            const resultDiv = document.getElementById('result');
+
+            try {
+                const response = await axios.post('/process_url', { url: url });
+                resultDiv.innerHTML = `
+                    <h2>Processing Complete</h2>
+                    <p>Your API Key: ${response.data.api_key}</p>
+                    <h3>Integration Code:</h3>
+                    <textarea id="integration-code" readonly></textarea>
+                `;
+                if (response.data.integration_code) {
+                    document.getElementById('integration-code').value = response.data.integration_code;
+                } else {
+                    console.error('Integration code not found in response');
+                    resultDiv.innerHTML += '<p>Error: Integration code not found in response</p>';
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `<p>Error: ${error.response?.data?.error || 'An unknown error occurred'}</p>`;
+            }
+        }
+    </script>
+</body>
+</html>
