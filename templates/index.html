@@ -51,8 +51,12 @@
             <h2 class="text-2xl font-semibold mb-6">Welcome, <span id="userEmail" class="font-normal text-gray-600"></span></h2>
             <div class="mb-8">
                 <h3 class="text-xl font-semibold mb-4">Create New Chatbot</h3>
-                <div class="flex space-x-2">
-                    <input type="text" id="urlInput" placeholder="Enter website URL" class="flex-grow px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <div class="flex flex-col space-y-2">
+                    <input type="text" id="urlInput" placeholder="Enter website URL" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <select id="llmSelect" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="together">Together AI</option>
+                        <option value="openai">OpenAI</option>
+                    </select>
                     <button onclick="processUrl()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300">Process</button>
                 </div>
             </div>
@@ -70,6 +74,13 @@
                 <textarea id="integration-code" readonly class="w-full h-40 p-2 border border-gray-300 rounded-md font-mono text-sm"></textarea>
             </div>
         </div>
+
+        <div id="loader" class="hidden fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-4 rounded-lg shadow-lg">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500"></div>
+                <p class="mt-4 text-gray-700">Processing...</p>
+            </div>
+        </div>
     </main>
 
     <div id="ai-chatbot" class="fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden">
@@ -81,9 +92,17 @@
         </div>
         <div id="chatbot-content" class="hidden">
             <div id="chat-messages" class="h-80 overflow-y-auto p-4"></div>
-            <div class="border-t border-gray-200 p-4 flex">
-                <input type="text" id="user-input" placeholder="Type your message..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <button onclick="sendMessage()" class="bg-blue-600 text-white px-6 py-2 rounded-r-lg hover:bg-blue-700 transition duration-300">Send</button>
+            <div class="border-t border-gray-200 p-4 flex flex-col">
+                <div class="flex mb-2">
+                    <select id="model-select" class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="together">Together AI</option>
+                        <option value="openai">OpenAI</option>
+                    </select>
+                </div>
+                <div class="flex">
+                    <input type="text" id="user-input" placeholder="Type your message..." class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <button onclick="sendMessage()" class="bg-blue-600 text-white px-6 py-2 rounded-r-lg hover:bg-blue-700 transition duration-300">Send</button>
+                </div>
             </div>
         </div>
     </div>
@@ -202,16 +221,23 @@
 
         async function processUrl() {
             const url = document.getElementById('urlInput').value;
+            const llm = document.getElementById('llmSelect').value;
             const resultDiv = document.getElementById('result');
             const apiKeyResultDiv = document.getElementById('apiKeyResult');
             const integrationCodeTextarea = document.getElementById('integration-code');
+            const loader = document.getElementById('loader');
+
+            loader.classList.remove('hidden');
 
             try {
-                const response = await axios.post('/process_url', { url: url });
+                const response = await axios.post('/process_url', { url: url, llm: llm });
                 console.log('Full API response:', response.data);
                 
                 resultDiv.classList.remove('hidden');
-                apiKeyResultDiv.innerHTML = `<p class="mb-2">Your API Key: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.api_key}</span></p>`;
+                apiKeyResultDiv.innerHTML = `
+                    <p class="mb-2">Your API Key: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.api_key}</span></p>
+                    <p class="mb-2">Selected LLM: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.llm}</span></p>
+                `;
                 
                 if (response.data.integration_code) {
                     integrationCodeTextarea.value = response.data.integration_code;
@@ -233,8 +259,34 @@
                 }
                 resultDiv.innerHTML = `<p class="text-red-500">${errorMessage}</p>`;
                 showNotification(errorMessage, 'error');
+            } finally {
+                loader.classList.add('hidden');
             }
         }
+
+        async function fetchApiKeys() {
+            try {
+                const response = await axios.get('/user/api_keys');
+                const apiKeyList = document.getElementById('apiKeyList');
+                apiKeyList.innerHTML = '';
+                response.data.api_keys.forEach(key => {
+                    const li = document.createElement('li');
+                    li.className = 'flex justify-between items-center mb-2';
+                    li.innerHTML = `
+                        <span class="text-gray-700">${key.api_key} (${key.llm})</span>
+                        <div>
+                            <button onclick="selectApiKey('${key.api_key}', '${key.llm}')" class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition duration-300 mr-2">Select</button>
+                            <button onclick="deleteApiKey('${key.api_key}')" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 transition duration-300">Delete</button>
+                        </div>
+                    `;
+                    apiKeyList.appendChild(li);
+                });
+            } catch (error) {
+                console.error('Error fetching API keys:', error);
+                showNotification('Error fetching API keys', 'error');
+            }
+        }
+
 
         function showNotification(message, type) {
             const notification = document.createElement('div');
@@ -257,10 +309,11 @@
             }
         }
 
-        function selectApiKey(apiKey) {
+        function selectApiKey(apiKey, llm) {
             currentApiKey = apiKey;
-            console.log('Selected API key:', currentApiKey);
-            showNotification(`API key ${apiKey} selected for chatbot`, 'success');
+            currentLLM = llm;
+            console.log('Selected API key:', currentApiKey, 'with LLM:', currentLLM);
+            showNotification(`API key ${apiKey} (${llm}) selected for chatbot`, 'success');
             
             const apiKeyElements = document.querySelectorAll('#apiKeyList li');
             apiKeyElements.forEach(el => {
@@ -272,19 +325,21 @@
             }
 
             localStorage.setItem('currentApiKey', apiKey);
+            localStorage.setItem('currentLLM', llm);
         }
 
         const chatWithAI = async (input) => {
-            console.log('Attempting to chat with API key:', currentApiKey);
-            if (!currentApiKey) {
+            console.log('Attempting to chat with API key:', currentApiKey, 'and LLM:', currentLLM);
+            if (!currentApiKey || !currentLLM) {
                 showNotification('Please select an API key first', 'error');
                 return 'Error: No API key selected';
             }
             try {
-                console.log('Sending chat request with API key:', currentApiKey);
+                console.log('Sending chat request with API key:', currentApiKey, 'and LLM:', currentLLM);
                 const response = await axios.post('/chat', {
                     input: input,
-                    api_key: currentApiKey
+                    api_key: currentApiKey,
+                    model: currentLLM
                 });
                 console.log('Received response:', response.data);
                 return response.data.response;
@@ -293,6 +348,8 @@
                 return 'Error: Unable to get a response from the AI';
             }
         };
+
+
 
         function toggleChatbot() {
             const chatbotContent = document.getElementById('chatbot-content');
@@ -316,7 +373,7 @@
             const aiResponse = await chatWithAI(userMessage);
             
             // Add AI response to chat
-            chatMessages.innerHTML += `<div class="mb-2"><strong>AI:</strong> ${aiResponse}</div>`;
+            chatMessages.innerHTML += `<div class="mb-2"><strong>${currentLLM === 'together' ? 'Together AI' : 'OpenAI'}:</strong> ${aiResponse}</div>`;
             
             // Scroll to bottom of chat
             chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -329,6 +386,7 @@
                 e.preventDefault(); // Prevent the default link behavior
                 logout();
             });
+            
 
             // Check if user is already logged in (e.g., from a previous session)
             const savedUser = localStorage.getItem('currentUser');
@@ -339,11 +397,15 @@
             }
 
             // Check if an API key was previously selected
+            // Check if an API key and LLM were previously selected
             const savedApiKey = localStorage.getItem('currentApiKey');
-            if (savedApiKey) {
+            const savedLLM = localStorage.getItem('currentLLM');
+            if (savedApiKey && savedLLM) {
                 currentApiKey = savedApiKey;
-                console.log('Loaded saved API key:', currentApiKey);
+                currentLLM = savedLLM;
+                console.log('Loaded saved API key:', currentApiKey, 'with LLM:', currentLLM);
             }
+
 
             // Add event listener for chat input
             document.getElementById('user-input').addEventListener('keypress', function(e) {
