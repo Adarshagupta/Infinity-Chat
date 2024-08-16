@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify, render_template, session, Response
+from flask import Flask, request, jsonify, render_template, session, Response, send_file
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
@@ -93,7 +93,7 @@ def design2():
 
 @app.route('/design3.css')
 def design3():
-    return send_file('design3.css', mimetype='text/css')
+    return send_file('design3.css', mimetype='text/css')git 
 
 @app.route('/test_db')
 def test_db():
