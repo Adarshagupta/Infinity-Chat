@@ -184,7 +184,7 @@ def chat():
 
         if not user_input or not api_key:
             return jsonify({"error": "Input and API key are required"}), 400
-
+        
         context = extracted_texts.get(api_key, "No context available for this API key.")
         app.logger.info(f"Context for API key {api_key}: {context[:100]}...")  # Log first 100 chars
 
