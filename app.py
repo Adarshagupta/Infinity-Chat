@@ -57,6 +57,8 @@ def extract_text_from_url(url):
     soup = BeautifulSoup(response.text, 'html.parser')
     return ' '.join([p.text for p in soup.find_all('p')])
 
+
+
 def generate_integration_code(api_key):
     return f'''
 <!-- AI Chatbot Integration -->
