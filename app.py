@@ -27,7 +27,7 @@ logger = logging.getLogger(__name__)
 limiter = Limiter(
     key_func=get_remote_address,
     app=app,
-    default_limits=["200 per day", "100 per hour"]
+    default_limits=["2000 per day", "1000 per hour"]
 )
 
 # Configure SQLAlchemy
@@ -89,6 +89,7 @@ def chatbot_script():
                         <input type="text" id="user-input" placeholder="Type your message...">
                         <button onclick="sendMessage()">Send</button>
                     </div>
+                    <p>powered by ChatCat</p>
                 </div>
             `;
             document.body.appendChild(chatbotDiv);
