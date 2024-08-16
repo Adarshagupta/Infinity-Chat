@@ -18,13 +18,17 @@ import uuid
 load_dotenv()
 
 # Get the API keys from the environment variables
-openai_api_key = os.getenv('OPENAI_API_KEY')
 together_api_key = os.getenv('TOGETHER_API_KEY')
+openai_api_key = os.getenv('OPENAI_API_KEY')
 
+if not together_api_key:
+    raise ValueError("No Together API key set for TOGETHER_API_KEY")
 if not openai_api_key:
     raise ValueError("No OpenAI API key set for OPENAI_API_KEY")
 
-client = OpenAI(api_key=openai_api_key)
+together_client = Together(api_key=together_api_key)
+openai_client = OpenAI(api_key=openai_api_key)
+
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -45,13 +49,6 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key_for_deve
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///users.db')
 db = SQLAlchemy(app)
 
-
-if not together_api_key:
-    raise ValueError("No Together API key set for TOGETHER_API_KEY")
-if not openai_api_key:
-    raise ValueError("No OpenAI API key set for OPENAI_API_KEY")
-
-client = Together(api_key=together_api_key)
 
 # Store extracted text for each API key
 extracted_texts = {}
@@ -397,7 +394,7 @@ Instructions for providing responses:
         logger.info(f"Sending request to {llm.capitalize()} API with input: {user_input}")
 
         if llm == 'together':
-            response = client.chat.completions.create(
+            response = together_client.chat.completions.create(
                 model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
                 messages=messages,
                 max_tokens=512,
@@ -408,13 +405,14 @@ Instructions for providing responses:
                 stop=["<|eot_id|>", "<|eom_id|>"])
             ai_response = response.choices[0].message.content
         elif llm == 'openai':
-            response = client.chat.completions.create(model="gpt-3.5-turbo",
-            messages=messages,
-            max_tokens=512,
-            temperature=0.7,
-            top_p=0.7,
-            frequency_penalty=0,
-            presence_penalty=0)
+            response = openai_client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                max_tokens=512,
+                temperature=0.7,
+                top_p=0.7,
+                frequency_penalty=0,
+                presence_penalty=0)
             ai_response = response.choices[0].message.content
         else:
             return jsonify({"error": "Invalid LLM specified"}), 400
@@ -423,7 +421,7 @@ Instructions for providing responses:
 
         return jsonify({"response": ai_response})
     except Exception as e:
-        app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
+        logger.error(f"Error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @app.route('/user/api_keys', methods=['GET'])
@@ -550,22 +548,24 @@ def test_apis():
     openai_result = "Failed"
 
     try:
-        response = client.chat.completions.create(
+        response = together_client.chat.completions.create(
             model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
             messages=[{"role": "user", "content": "Hello"}],
             max_tokens=5
         )
         together_result = "Success"
     except Exception as e:
-        app.logger.error(f"Together API connection error: {str(e)}")
+        logger.error(f"Together API connection error: {str(e)}")
 
     try:
-        response = client.chat.completions.create(model="gpt-3.5-turbo",
-        messages=[{"role": "user", "content": "Hello"}],
-        max_tokens=5)
+        response = openai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": "Hello"}],
+            max_tokens=5
+        )
         openai_result = "Success"
     except Exception as e:
-        app.logger.error(f"OpenAI API connection error: {str(e)}")
+        logger.error(f"OpenAI API connection error: {str(e)}")
 
     return f"Together API: {together_result}, OpenAI API: {openai_result}"
 
