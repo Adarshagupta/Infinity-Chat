@@ -13,26 +13,32 @@
 10. [Conclusion](#conclusion)
 
 ## Introduction
-The AI Chatbot Creator is a web application that allows users to create and integrate AI chatbots into their websites. The chatbots are powered by the Together API and can be trained on content extracted from any given URL. This documentation provides a detailed guide on how to use the application, its features, and the underlying technologies.
+The AI Chatbot Creator is a web application designed to empower users to create, deploy, and manage AI-powered chatbots seamlessly. These chatbots are trained on content extracted from user-provided URLs and are capable of delivering real-time, context-aware responses. The application leverages the Together API for advanced AI capabilities, ensuring high-quality interactions.
 
 ## Features
-- **User Authentication**: Register, login, and logout functionality.
-- **API Key Management**: Generate and manage API keys for chatbot integration.
-- **URL Processing**: Extract text content from any URL to train the chatbot.
-- **Chatbot Integration**: Generate integration code to embed the chatbot on any website.
-- **Real-time Chat**: Chat with the AI-powered chatbot in real-time.
-- **Rate Limiting**: Protect API endpoints from abuse with rate limiting.
+- **User Authentication**: Secure registration, login, and logout functionalities to manage user accounts.
+- **API Key Management**: Users can generate, view, and delete API keys for chatbot integration.
+- **URL Processing**: Extract text content from any URL to train the chatbot, ensuring it understands the context of the website.
+- **Chatbot Integration**: Generate custom integration code snippets to embed the chatbot on any website.
+- **Real-time Chat**: Engage in real-time conversations with the AI-powered chatbot directly through the web interface.
+- **Rate Limiting**: Protect API endpoints from abuse with configurable rate limits to ensure system stability.
 
 ## Technologies Used
-- **Flask**: Python web framework for backend development.
-- **SQLAlchemy**: SQL toolkit and ORM for database management.
-- **Together API**: AI model for generating chatbot responses.
-- **BeautifulSoup**: Python library for extracting text from HTML.
-- **Flask-Limiter**: Rate limiting for Flask routes.
-- **Flask-CORS**: Cross-Origin Resource Sharing for Flask.
-- **HTML/CSS/JavaScript**: Frontend development.
+- **Flask**: A lightweight WSGI web application framework in Python, used for backend development.
+- **SQLAlchemy**: A SQL toolkit and Object-Relational Mapping (ORM) library for Python, used for database management.
+- **Together API**: An advanced AI model that powers the chatbot's conversational capabilities.
+- **BeautifulSoup**: A Python library used for parsing HTML and extracting text content from web pages.
+- **Flask-Limiter**: A Flask extension for rate limiting API endpoints to prevent abuse.
+- **Flask-CORS**: A Flask extension to handle Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible.
+- **HTML/CSS/JavaScript**: Standard web technologies for frontend development.
 
 ## Installation
+### Prerequisites
+- Python 3.7+
+- pip (Python package installer)
+- Virtualenv (optional but recommended)
+
+### Steps
 1. **Clone the repository**:
     ```bash
     git clone https://github.com/your-repo/ai-chatbot-creator.git
@@ -71,26 +77,134 @@ The AI Chatbot Creator is a web application that allows users to create and inte
     ```
 
 ## API Endpoints
+### User Authentication
 - **POST /register**: Register a new user.
+    - **Request Body**:
+        ```json
+        {
+            "email": "user@example.com",
+            "password": "secure_password"
+        }
+        ```
+    - **Response**:
+        ```json
+        {
+            "message": "User registered successfully"
+        }
+        ```
+
 - **POST /login**: Log in an existing user.
+    - **Request Body**:
+        ```json
+        {
+            "email": "user@example.com",
+            "password": "secure_password"
+        }
+        ```
+    - **Response**:
+        ```json
+        {
+            "message": "Logged in successfully"
+        }
+        ```
+
 - **POST /logout**: Log out the current user.
+    - **Response**:
+        ```json
+        {
+            "message": "Logged out successfully"
+        }
+        ```
+
+### URL Processing
 - **POST /process_url**: Process a URL to extract text content.
+    - **Request Body**:
+        ```json
+        {
+            "url": "https://example.com"
+        }
+        ```
+    - **Response**:
+        ```json
+        {
+            "message": "Processing complete",
+            "api_key": "generated_api_key",
+            "integration_code": "<script src='...'></script>"
+        }
+        ```
+
+### Chatbot Interaction
 - **POST /chat**: Interact with the AI chatbot.
+    - **Request Body**:
+        ```json
+        {
+            "input": "Hello, how are you?",
+            "api_key": "your_api_key"
+        }
+        ```
+    - **Response**:
+        ```json
+        {
+            "response": "I'm doing well, thank you! How can I assist you today?"
+        }
+        ```
+
+### API Key Management
 - **GET /user/api_keys**: Get all API keys for the current user.
+    - **Response**:
+        ```json
+        {
+            "api_keys": ["key1", "key2"]
+        }
+        ```
+
 - **POST /delete_api_key**: Delete an API key.
+    - **Request Body**:
+        ```json
+        {
+            "api_key": "key_to_delete"
+        }
+        ```
+    - **Response**:
+        ```json
+        {
+            "message": "API key deleted successfully"
+        }
+        ```
+
+### Chatbot Design
 - **GET /chatbot-design**: Get the chatbot design HTML.
+    - **Query Parameter**:
+        ```
+        api_key=your_api_key
+        ```
+    - **Response**:
+        ```html
+        <div id="ai-chatbot">...</div>
+        ```
+
+### Testing Together API
 - **GET /test_together_api**: Test the connection to the Together API.
+    - **Response**:
+        ```
+        Together API connection successful
+        ```
 
 ## Frontend Implementation
-The frontend is built using HTML, CSS, and JavaScript. The chatbot integration script is dynamically generated and can be embedded on any website using the provided API key.
+The frontend is developed using HTML, CSS, and JavaScript, providing a user-friendly interface for interacting with the backend services.
 
 ### Example Chatbot Integration Script
+To embed the chatbot on your website, include the following script in your HTML:
 ```html
 <script src="https://chatcat-s1ny.onrender.com/chatbot.js?api_key=your_api_key"></script>
 ```
 
 ### Chatbot Design
-The chatbot design can be customized using CSS. The default design includes a header, chat messages area, and input field.
+The chatbot interface is designed to be intuitive and visually appealing. The default design includes:
+- A header displaying the chatbot title.
+- A chat messages area where messages are displayed.
+- An input field for users to type their messages.
+- A send button to submit messages.
 
 ```html
 <div id="ai-chatbot">
@@ -107,13 +221,51 @@ The chatbot design can be customized using CSS. The default design includes a he
 
 ### JavaScript Functions
 - **chatWithAI(input)**: Sends a message to the AI chatbot and returns the response.
+    ```javascript
+    async function chatWithAI(input) {
+        try {
+            const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {
+                input: input,
+                api_key: 'your_api_key'
+            });
+            return response.data.response;
+        } catch (error) {
+            console.error('Error:', error);
+            return 'Error: Unable to get a response from the AI';
+        }
+    }
+    ```
+
 - **addMessage(sender, message)**: Adds a message to the chat messages area.
+    ```javascript
+    function addMessage(sender, message) {
+        const chatMessages = document.getElementById('chat-messages');
+        const messageElement = document.createElement('div');
+        messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+        chatMessages.appendChild(messageElement);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+    ```
+
 - **sendMessage()**: Sends the user's input to the chatbot and displays the response.
+    ```javascript
+    async function sendMessage() {
+        const userInput = document.getElementById('user-input');
+        const message = userInput.value.trim();
+        if (message) {
+            addMessage('You', message);
+            userInput.value = '';
+            const response = await chatWithAI(message);
+            addMessage('AI', response);
+        }
+    }
+    ```
 
 ## Backend Implementation
-The backend is built using Flask and SQLAlchemy. It handles user authentication, API key management, URL processing, and chatbot interactions.
+The backend is built using Flask, providing robust APIs for user management, chatbot training, and real-time chat interactions.
 
 ### User Model
+The `User` model is defined using SQLAlchemy to manage user data, including email, password, and API keys.
 ```python
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -123,6 +275,7 @@ class User(db.Model):
 ```
 
 ### URL Processing
+The `extract_text_from_url` function uses BeautifulSoup to parse HTML and extract text content from web pages.
 ```python
 def extract_text_from_url(url):
     response = requests.get(url)
@@ -131,6 +284,7 @@ def extract_text_from_url(url):
 ```
 
 ### Chatbot Interaction
+The `/chat` endpoint interacts with the Together API to generate responses based on the extracted text content.
 ```python
 @app.route('/chat', methods=['POST'])
 def chat():
@@ -207,4 +361,4 @@ def chat():
 - **Test Together API**: Use the `/test_together_api` endpoint to test the connection to the Together API.
 
 ## Conclusion
-The AI Chatbot Creator provides a powerful and flexible solution for integrating AI-powered chatbots into any website. With its user-friendly interface and robust backend, users can easily create, manage, and integrate chatbots tailored to their specific needs. By following this documentation, you can leverage the full potential of the application and enhance your website's user experience.
+The AI Chatbot Creator offers a comprehensive solution for integrating AI-powered chatbots into any website. With its intuitive frontend, robust backend, and advanced AI capabilities, users can create, manage, and deploy chatbots tailored to their specific needs. By following this detailed documentation, you can harness the full potential of the application and enhance your website's user experience.
