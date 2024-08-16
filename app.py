@@ -5,8 +5,6 @@ import requests
 from bs4 import BeautifulSoup
 from together import Together
 from openai import OpenAI
-
-client = OpenAI(api_key=openai_api_key)
 import os
 import json
 from dotenv import load_dotenv
@@ -18,6 +16,15 @@ import uuid
 
 # Load environment variables from .env file
 load_dotenv()
+
+# Get the API keys from the environment variables
+openai_api_key = os.getenv('OPENAI_API_KEY')
+together_api_key = os.getenv('TOGETHER_API_KEY')
+
+if not openai_api_key:
+    raise ValueError("No OpenAI API key set for OPENAI_API_KEY")
+
+client = OpenAI(api_key=openai_api_key)
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -38,9 +45,6 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key_for_deve
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///users.db')
 db = SQLAlchemy(app)
 
-# Get the API keys from the environment variables
-together_api_key = os.getenv('TOGETHER_API_KEY')
-openai_api_key = os.getenv('OPENAI_API_KEY')
 
 if not together_api_key:
     raise ValueError("No Together API key set for TOGETHER_API_KEY")
@@ -341,7 +345,7 @@ def process_url():
 
         user = User.query.get(session['user_id'])
         api_keys = json.loads(user.api_keys)
-        api_keys.append({"api_key": api_key, "llm": llm})
+        api_keys.append({"api_key": api_key, "llm": llm})  # Store as a dictionary
         user.api_keys = json.dumps(api_keys)
         db.session.commit()
 
@@ -513,29 +517,32 @@ def chatbot_design():
 @app.route('/delete_api_key', methods=['POST'])
 def delete_api_key():
     if 'user_id' not in session:
+        app.logger.error("User not logged in")
         return jsonify({"error": "User not logged in"}), 401
 
-    api_key = request.json.get('api_key')
-    if not api_key:
+    api_key_to_delete = request.json.get('api_key')
+    if not api_key_to_delete:
+        app.logger.error("No API key provided")
         return jsonify({"error": "No API key provided"}), 400
 
     user = User.query.get(session['user_id'])
     api_keys = json.loads(user.api_keys)
 
-    if api_key in api_keys:
-        api_keys.remove(api_key)
-        user.api_keys = json.dumps(api_keys)
-        db.session.commit()
+    app.logger.info(f"Current API keys: {api_keys}")
+    app.logger.info(f"Attempting to delete API key: {api_key_to_delete}")
 
-        # Also remove the extracted text for this API key
-        extracted_texts.pop(api_key, None)
+    # Handle both string keys and dictionary entries
+    api_keys = [key for key in api_keys if (isinstance(key, str) and key != api_key_to_delete) or 
+                (isinstance(key, dict) and key.get('api_key') != api_key_to_delete)]
 
-        return jsonify({"message": "API key deleted successfully"}), 200
-    else:
-        return jsonify({"error": "API key not found"}), 404
+    user.api_keys = json.dumps(api_keys)
+    db.session.commit()
 
-    return Response(design, mimetype='text/html')
+    # Also remove the extracted text for this API key
+    extracted_texts.pop(api_key_to_delete, None)
 
+    app.logger.info(f"API keys after deletion: {api_keys}")
+    return jsonify({"message": "API key deleted successfully"}), 200
 
 @app.route('/test_apis')
 def test_apis():
@@ -566,4 +573,4 @@ def test_apis():
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, port=5300)
+    app.run(debug=True, port=5400)
