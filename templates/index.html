@@ -110,6 +110,7 @@
     <script>
         let currentUser = null;
         let currentApiKey = null;
+        let currentLLM = null;
 
         function switchTab(tab) {
             const loginTab = document.getElementById('loginTab');
@@ -133,18 +134,28 @@
         async function register() {
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
+            const loader = document.getElementById('loader');
+
+            loader.classList.remove('hidden');
+
             try {
                 const response = await axios.post('/register', { email, password });
                 showNotification(response.data.message, 'success');
                 switchTab('login');
             } catch (error) {
                 showNotification(error.response.data.error, 'error');
+            } finally {
+                loader.classList.add('hidden');
             }
         }
 
         async function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
+            const loader = document.getElementById('loader');
+
+            loader.classList.remove('hidden');
+
             try {
                 const response = await axios.post('/login', { email, password });
                 currentUser = email;
@@ -154,21 +165,31 @@
                 showNotification('Logged in successfully', 'success');
             } catch (error) {
                 showNotification(error.response.data.error, 'error');
+            } finally {
+                loader.classList.add('hidden');
             }
         }
 
         async function logout() {
+            const loader = document.getElementById('loader');
+
+            loader.classList.remove('hidden');
+
             try {
                 await axios.post('/logout');
                 currentUser = null;
                 currentApiKey = null;
+                currentLLM = null;
                 localStorage.removeItem('currentUser');
                 localStorage.removeItem('currentApiKey');
+                localStorage.removeItem('currentLLM');
                 updateUI();
                 showNotification('Logged out successfully', 'success');
             } catch (error) {
                 console.error('Logout error:', error);
                 showNotification('Error logging out', 'error');
+            } finally {
+                loader.classList.add('hidden');
             }
         }
 
@@ -205,10 +226,10 @@
                     const li = document.createElement('li');
                     li.className = 'flex justify-between items-center mb-2';
                     li.innerHTML = `
-                        <span class="text-gray-700">${key}</span>
+                        <span class="text-gray-700">${key.api_key} (${key.llm})</span>
                         <div>
-                            <button onclick="selectApiKey('${key}')" class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition duration-300 mr-2">Select</button>
-                            <button onclick="deleteApiKey('${key}')" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 transition duration-300">Delete</button>
+                            <button onclick="selectApiKey('${key.api_key}', '${key.llm}')" class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition duration-300 mr-2">Select</button>
+                            <button onclick="deleteApiKey('${key.api_key}')" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 transition duration-300">Delete</button>
                         </div>
                     `;
                     apiKeyList.appendChild(li);
@@ -264,30 +285,6 @@
             }
         }
 
-        async function fetchApiKeys() {
-            try {
-                const response = await axios.get('/user/api_keys');
-                const apiKeyList = document.getElementById('apiKeyList');
-                apiKeyList.innerHTML = '';
-                response.data.api_keys.forEach(key => {
-                    const li = document.createElement('li');
-                    li.className = 'flex justify-between items-center mb-2';
-                    li.innerHTML = `
-                        <span class="text-gray-700">${key.api_key} (${key.llm})</span>
-                        <div>
-                            <button onclick="selectApiKey('${key.api_key}', '${key.llm}')" class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition duration-300 mr-2">Select</button>
-                            <button onclick="deleteApiKey('${key.api_key}')" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 transition duration-300">Delete</button>
-                        </div>
-                    `;
-                    apiKeyList.appendChild(li);
-                });
-            } catch (error) {
-                console.error('Error fetching API keys:', error);
-                showNotification('Error fetching API keys', 'error');
-            }
-        }
-
-
         function showNotification(message, type) {
             const notification = document.createElement('div');
             notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
@@ -299,6 +296,10 @@
         }
 
         async function deleteApiKey(apiKey) {
+            const loader = document.getElementById('loader');
+
+            loader.classList.remove('hidden');
+
             try {
                 const response = await axios.post('/delete_api_key', { api_key: apiKey });
                 showNotification('API key deleted successfully', 'success');
@@ -306,6 +307,8 @@
             } catch (error) {
                 console.error('Error deleting API key:', error);
                 showNotification('Error deleting API key', 'error');
+            } finally {
+                loader.classList.add('hidden');
             }
         }
 
@@ -349,8 +352,6 @@
             }
         };
 
-
-
         function toggleChatbot() {
             const chatbotContent = document.getElementById('chatbot-content');
             const chatbotToggle = document.getElementById('chatbot-toggle');
@@ -387,7 +388,6 @@
                 logout();
             });
             
-
             // Check if user is already logged in (e.g., from a previous session)
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
@@ -396,7 +396,6 @@
                 fetchApiKeys();
             }
 
-            // Check if an API key was previously selected
             // Check if an API key and LLM were previously selected
             const savedApiKey = localStorage.getItem('currentApiKey');
             const savedLLM = localStorage.getItem('currentLLM');
@@ -405,7 +404,6 @@
                 currentLLM = savedLLM;
                 console.log('Loaded saved API key:', currentApiKey, 'with LLM:', currentLLM);
             }
-
 
             // Add event listener for chat input
             document.getElementById('user-input').addEventListener('keypress', function(e) {
