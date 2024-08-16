@@ -88,8 +88,9 @@ def chatbot_script():
                     <div id="chat-input" class="chat-input">
                         <input type="text" id="user-input" placeholder="Type your message...">
                         <button onclick="sendMessage()">Send</button>
+                        <p style="text-align: center; font-size: 0.7em; color: #888;">powered by ChatCat</p>                </div>
+
                     </div>
-<p style="text-align: center; font-size: 0.7em; color: #888;">powered by ChatCat</p>                </div>
             `;
             document.body.appendChild(chatbotDiv);
             
