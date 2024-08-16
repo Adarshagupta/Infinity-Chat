@@ -93,7 +93,7 @@ def design2():
 
 @app.route('/design3.css')
 def design3():
-    return send_file('design3.css', mimetype='text/css')git 
+    return send_file('design3.css', mimetype='text/css')
 
 @app.route('/test_db')
 def test_db():
