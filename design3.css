@@ -1,0 +1,24 @@
+#ai-chatbot {
+    background: linear-gradient(135deg, #FDE68A, #FCA5A5);
+    border: none;
+    border-radius: 20px 20px 0 0;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+#chat-header {
+    background-color: #F59E0B;
+    color: #292524;
+}
+#chat-input button {
+    background-color: #D97706;
+}
+#chat-input button:hover {
+    background-color: #B45309;
+}
+.ai-message p {
+    background-color: #FEF3C7;
+    color: #292524;
+}
+.user-message p {
+    background-color: #FEE2E2;
+    color: #292524;
+}
