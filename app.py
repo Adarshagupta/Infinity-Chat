@@ -4,7 +4,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from bs4 import BeautifulSoup
 from together import Together
-import openai
+from openai import OpenAI
+
+client = OpenAI(api_key=openai_api_key)
 import os
 import json
 from dotenv import load_dotenv
@@ -46,7 +48,6 @@ if not openai_api_key:
     raise ValueError("No OpenAI API key set for OPENAI_API_KEY")
 
 client = Together(api_key=together_api_key)
-openai.api_key = openai_api_key
 
 # Store extracted text for each API key
 extracted_texts = {}
@@ -293,15 +294,15 @@ def register():
     data = request.json
     email = data.get('email')
     password = data.get('password')
-    
+
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already registered"}), 400
-    
+
     hashed_password = generate_password_hash(password)
     new_user = User(email=email, password=hashed_password, api_keys='[]')
     db.session.add(new_user)
     db.session.commit()
-    
+
     return jsonify({"message": "User registered successfully"}), 201
 
 @app.route('/login', methods=['POST'])
@@ -309,12 +310,12 @@ def login():
     data = request.json
     email = data.get('email')
     password = data.get('password')
-    
+
     user = User.query.filter_by(email=email).first()
     if user and check_password_hash(user.password, password):
         session['user_id'] = user.id
         return jsonify({"message": "Logged in successfully"}), 200
-    
+
     return jsonify({"error": "Invalid credentials"}), 401
 
 @app.route('/logout', methods=['POST'])
@@ -337,7 +338,7 @@ def process_url():
         extracted_text = extract_text_from_url(url)
         api_key = f"user_{uuid.uuid4().hex}"
         extracted_texts[api_key] = {"text": extracted_text, "llm": llm}
-        
+
         user = User.query.get(session['user_id'])
         api_keys = json.loads(user.api_keys)
         api_keys.append({"api_key": api_key, "llm": llm})
@@ -403,16 +404,14 @@ Instructions for providing responses:
                 stop=["<|eot_id|>", "<|eom_id|>"])
             ai_response = response.choices[0].message.content
         elif llm == 'openai':
-            response = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=messages,
-                max_tokens=512,
-                temperature=0.7,
-                top_p=0.7,
-                frequency_penalty=0,
-                presence_penalty=0
-            )
-            ai_response = response.choices[0].message['content']
+            response = client.chat.completions.create(model="gpt-3.5-turbo",
+            messages=messages,
+            max_tokens=512,
+            temperature=0.7,
+            top_p=0.7,
+            frequency_penalty=0,
+            presence_penalty=0)
+            ai_response = response.choices[0].message.content
         else:
             return jsonify({"error": "Invalid LLM specified"}), 400
 
@@ -522,19 +521,19 @@ def delete_api_key():
 
     user = User.query.get(session['user_id'])
     api_keys = json.loads(user.api_keys)
-    
+
     if api_key in api_keys:
         api_keys.remove(api_key)
         user.api_keys = json.dumps(api_keys)
         db.session.commit()
-        
+
         # Also remove the extracted text for this API key
         extracted_texts.pop(api_key, None)
-        
+
         return jsonify({"message": "API key deleted successfully"}), 200
     else:
         return jsonify({"error": "API key not found"}), 404
-    
+
     return Response(design, mimetype='text/html')
 
 
@@ -542,7 +541,7 @@ def delete_api_key():
 def test_apis():
     together_result = "Failed"
     openai_result = "Failed"
-    
+
     try:
         response = client.chat.completions.create(
             model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
@@ -552,17 +551,15 @@ def test_apis():
         together_result = "Success"
     except Exception as e:
         app.logger.error(f"Together API connection error: {str(e)}")
-    
+
     try:
-        response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Hello"}],
-            max_tokens=5
-        )
+        response = client.chat.completions.create(model="gpt-3.5-turbo",
+        messages=[{"role": "user", "content": "Hello"}],
+        max_tokens=5)
         openai_result = "Success"
     except Exception as e:
         app.logger.error(f"OpenAI API connection error: {str(e)}")
-    
+
     return f"Together API: {together_result}, OpenAI API: {openai_result}"
 
 
