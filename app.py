@@ -581,7 +581,6 @@ def test_apis():
 
     return f"Together API: {together_result}, OpenAI API: {openai_result}"
 
-
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
