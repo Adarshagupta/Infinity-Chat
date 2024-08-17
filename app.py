@@ -299,7 +299,7 @@ def index():
 def about():
     return render_template('about.html')
 
-@app.route('/projects')
+@app.route('/project')
 def projects():
     return render_template('products.html')
 
