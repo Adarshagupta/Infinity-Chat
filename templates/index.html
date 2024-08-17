@@ -83,7 +83,7 @@
         </div>
     </main>
 
-    <div id="ai-chatbot" class="fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden">
+    <div id="ai-chatbot" class="fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden hidden">
         <div class="bg-blue-600 text-white p-4 cursor-pointer flex justify-between items-center" onclick="toggleChatbot()">
             <span class="font-semibold text-lg">AI Chatbot</span>
             <svg id="chatbot-toggle" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -201,6 +201,7 @@
             const profileLink = document.getElementById('profileLink');
             const result = document.getElementById('result');
             const header = document.getElementById('header');
+            const chatbot = document.getElementById('ai-chatbot');
 
             if (currentUser) {
                 authForms.classList.add('hidden');
@@ -209,6 +210,7 @@
                 logoutLink.classList.remove('hidden');
                 profileLink.classList.remove('hidden');
                 header.classList.remove('hidden');
+                chatbot.classList.remove('hidden');
             } else {
                 authForms.classList.remove('hidden');
                 userInfo.classList.add('hidden');
@@ -216,6 +218,7 @@
                 logoutLink.classList.add('hidden');
                 profileLink.classList.add('hidden');
                 header.classList.add('hidden');
+                chatbot.classList.add('hidden');
                 switchTab('login');
             }
         }
