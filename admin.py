@@ -4,7 +4,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from bs4 import BeautifulSoup
 from together import Together
-from openai import OpenAI
 import os
 import json
 from dotenv import load_dotenv
@@ -16,19 +15,6 @@ import uuid
 
 # Load environment variables from .env file
 load_dotenv()
-
-# Get the API keys from the environment variables
-together_api_key = os.getenv('TOGETHER_API_KEY')
-openai_api_key = os.getenv('OPENAI_API_KEY')
-
-if not together_api_key:
-    raise ValueError("No Together API key set for TOGETHER_API_KEY")
-if not openai_api_key:
-    raise ValueError("No OpenAI API key set for OPENAI_API_KEY")
-
-together_client = Together(api_key=together_api_key)
-openai_client = OpenAI(api_key=openai_api_key)
-
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -49,6 +35,12 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key_for_deve
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///users.db')
 db = SQLAlchemy(app)
 
+# Get the API key from the environment variable
+together_api_key = os.getenv('TOGETHER_API_KEY')
+if not together_api_key:
+    raise ValueError("No Together API key set for TOGETHER_API_KEY")
+
+client = Together(api_key=together_api_key)
 
 # Store extracted text for each API key
 extracted_texts = {}
@@ -64,6 +56,7 @@ def extract_text_from_url(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     return ' '.join([p.text for p in soup.find_all('p')])
+
 
 
 def generate_integration_code(api_key):
@@ -96,9 +89,8 @@ def chatbot_script():
                         <input type="text" id="user-input" placeholder="Type your message...">
                         <button onclick="sendMessage()">Send</button>
                     </div>
-                   <p style="text-align: center; font-size: 0.7em; color: #888;">powered by <a href="#">ChatCat</a></p>               
-                   </div>
-
+                    <p>powered by ChatCat</p>
+                </div>
             `;
             document.body.appendChild(chatbotDiv);
             
@@ -288,39 +280,27 @@ def test_db():
         return f"Database connection failed: {str(e)}"
 
 @app.route('/')
-def home():
+def index():
     return render_template('home.html')
 
 @app.route('/api')
-def index():
+def api():
     return render_template('index.html')
-
-@app.route('/about')
-def about():
-    return render_template('about.html')
-
-@app.route('/projects')
-def projects():
-    return render_template('products.html')
-
-@app.route('/contact')
-def contact():
-    return render_template('contact.html')
 
 @app.route('/register', methods=['POST'])
 def register():
     data = request.json
     email = data.get('email')
     password = data.get('password')
-
+    
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already registered"}), 400
-
+    
     hashed_password = generate_password_hash(password)
     new_user = User(email=email, password=hashed_password, api_keys='[]')
     db.session.add(new_user)
     db.session.commit()
-
+    
     return jsonify({"message": "User registered successfully"}), 201
 
 @app.route('/login', methods=['POST'])
@@ -328,12 +308,12 @@ def login():
     data = request.json
     email = data.get('email')
     password = data.get('password')
-
+    
     user = User.query.filter_by(email=email).first()
     if user and check_password_hash(user.password, password):
         session['user_id'] = user.id
         return jsonify({"message": "Logged in successfully"}), 200
-
+    
     return jsonify({"error": "Invalid credentials"}), 401
 
 @app.route('/logout', methods=['POST'])
@@ -348,18 +328,18 @@ def process_url():
         return jsonify({"error": "User not logged in"}), 401
 
     url = request.json.get('url')
-    llm = request.json.get('llm')
-    if not url or not llm:
-        return jsonify({"error": "URL and LLM choice are required"}), 400
+    if not url:
+        return jsonify({"error": "No URL provided"}), 400
 
     try:
         extracted_text = extract_text_from_url(url)
         api_key = f"user_{uuid.uuid4().hex}"
-        extracted_texts[api_key] = {"text": extracted_text, "llm": llm}
+        extracted_texts[api_key] = extracted_text
+        app.logger.info(f"Extracted text for API key {api_key}: {extracted_text[:100]}...")  # Log first 100 chars
 
         user = User.query.get(session['user_id'])
         api_keys = json.loads(user.api_keys)
-        api_keys.append({"api_key": api_key, "llm": llm})  # Store as a dictionary
+        api_keys.append(api_key)
         user.api_keys = json.dumps(api_keys)
         db.session.commit()
 
@@ -368,7 +348,6 @@ def process_url():
         return jsonify({
             "message": "Processing complete",
             "api_key": api_key,
-            "llm": llm,
             "integration_code": integration_code
         })
     except Exception as e:
@@ -385,12 +364,8 @@ def chat():
         if not user_input or not api_key:
             return jsonify({"error": "Input and API key are required"}), 400
 
-        context_data = extracted_texts.get(api_key)
-        if not context_data:
-            return jsonify({"error": "Invalid API key"}), 400
-
-        context = context_data["text"]
-        llm = context_data["llm"]
+        context = extracted_texts.get(api_key, "No context available for this API key.")
+        app.logger.info(f"Context for API key {api_key}: {context[:100]}...")  # Log first 100 chars
 
         messages = [{
             "role": "system",
@@ -408,37 +383,27 @@ Instructions for providing responses:
             "content": user_input
         }]
 
-        logger.info(f"Sending request to {llm.capitalize()} API with input: {user_input}")
+        logger.info(f"Sending request to Together API with input: {user_input}")
+        response = client.chat.completions.create(
+            model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+            messages=messages,
+            max_tokens=512,
+            temperature=0.7,
+            top_p=0.7,
+            top_k=50,
+            repetition_penalty=1,
+            stop=["<|eot_id|>", "<|eom_id|>"])
+        logger.info(f"Received response from Together API: {response}")
 
-        if llm == 'together':
-            response = together_client.chat.completions.create(
-                model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
-                messages=messages,
-                max_tokens=512,
-                temperature=0.7,
-                top_p=0.7,
-                top_k=50,
-                repetition_penalty=1,
-                stop=["<|eot_id|>", "<|eom_id|>"])
-            ai_response = response.choices[0].message.content
-        elif llm == 'openai':
-            response = openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=messages,
-                max_tokens=512,
-                temperature=0.7,
-                top_p=0.7,
-                frequency_penalty=0,
-                presence_penalty=0)
-            ai_response = response.choices[0].message.content
-        else:
-            return jsonify({"error": "Invalid LLM specified"}), 400
-
-        logger.info(f"Received response from {llm.capitalize()} API: {ai_response}")
-
-        return jsonify({"response": ai_response})
+        return jsonify({"response": response.choices[0].message.content})
+    except requests.exceptions.RequestException as e:
+        logger.error(f"Network error in chat route: {str(e)}", exc_info=True)
+        return jsonify({"error": f"Network error: {str(e)}"}), 503
+    except Together.APIError as e:
+        logger.error(f"Together API error in chat route: {str(e)}", exc_info=True)
+        return jsonify({"error": f"Together API error: {str(e)}"}), 500
     except Exception as e:
-        logger.error(f"Error in chat route: {str(e)}", exc_info=True)
+        app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 @app.route('/user/api_keys', methods=['GET'])
@@ -532,62 +497,43 @@ def chatbot_design():
 @app.route('/delete_api_key', methods=['POST'])
 def delete_api_key():
     if 'user_id' not in session:
-        app.logger.error("User not logged in")
         return jsonify({"error": "User not logged in"}), 401
 
-    api_key_to_delete = request.json.get('api_key')
-    if not api_key_to_delete:
-        app.logger.error("No API key provided")
+    api_key = request.json.get('api_key')
+    if not api_key:
         return jsonify({"error": "No API key provided"}), 400
 
     user = User.query.get(session['user_id'])
     api_keys = json.loads(user.api_keys)
+    
+    if api_key in api_keys:
+        api_keys.remove(api_key)
+        user.api_keys = json.dumps(api_keys)
+        db.session.commit()
+        
+        # Also remove the extracted text for this API key
+        extracted_texts.pop(api_key, None)
+        
+        return jsonify({"message": "API key deleted successfully"}), 200
+    else:
+        return jsonify({"error": "API key not found"}), 404
+    
+    return Response(design, mimetype='text/html')
 
-    app.logger.info(f"Current API keys: {api_keys}")
-    app.logger.info(f"Attempting to delete API key: {api_key_to_delete}")
-
-    # Handle both string keys and dictionary entries
-    api_keys = [key for key in api_keys if (isinstance(key, str) and key != api_key_to_delete) or 
-                (isinstance(key, dict) and key.get('api_key') != api_key_to_delete)]
-
-    user.api_keys = json.dumps(api_keys)
-    db.session.commit()
-
-    # Also remove the extracted text for this API key
-    extracted_texts.pop(api_key_to_delete, None)
-
-    app.logger.info(f"API keys after deletion: {api_keys}")
-    return jsonify({"message": "API key deleted successfully"}), 200
-
-@app.route('/test_apis')
-def test_apis():
-    together_result = "Failed"
-    openai_result = "Failed"
-
+@app.route('/test_together_api')
+def test_together_api():
     try:
-        response = together_client.chat.completions.create(
+        response = client.chat.completions.create(
             model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
             messages=[{"role": "user", "content": "Hello"}],
             max_tokens=5
         )
-        together_result = "Success"
+        return "Together API connection successful"
     except Exception as e:
-        logger.error(f"Together API connection error: {str(e)}")
-
-    try:
-        response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Hello"}],
-            max_tokens=5
-        )
-        openai_result = "Success"
-    except Exception as e:
-        logger.error(f"OpenAI API connection error: {str(e)}")
-
-    return f"Together API: {together_result}, OpenAI API: {openai_result}"
-
+        app.logger.error(f"Together API connection error: {str(e)}")
+        return f"Together API connection failed: {str(e)}"
 
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, port=5410)
+    app.run(debug=True)

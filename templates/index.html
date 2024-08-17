@@ -19,7 +19,7 @@
     </style>
 </head>
 <body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
-    <nav class="glass fixed w-full z-10 py-4 shadow-md">
+    <nav id="header" class="glass fixed w-full z-10 py-4 shadow-md hidden">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <h1 class="text-2xl font-bold text-gray-800">AI Chatbot Creator</h1>
             <div class="space-x-4">
@@ -200,6 +200,7 @@
             const logoutLink = document.getElementById('logoutLink');
             const profileLink = document.getElementById('profileLink');
             const result = document.getElementById('result');
+            const header = document.getElementById('header');
 
             if (currentUser) {
                 authForms.classList.add('hidden');
@@ -207,12 +208,14 @@
                 userEmailSpan.textContent = currentUser;
                 logoutLink.classList.remove('hidden');
                 profileLink.classList.remove('hidden');
+                header.classList.remove('hidden');
             } else {
                 authForms.classList.remove('hidden');
                 userInfo.classList.add('hidden');
                 result.classList.add('hidden');
                 logoutLink.classList.add('hidden');
                 profileLink.classList.add('hidden');
+                header.classList.add('hidden');
                 switchTab('login');
             }
         }
