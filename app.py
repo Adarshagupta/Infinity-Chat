@@ -29,7 +29,6 @@ if not openai_api_key:
 together_client = Together(api_key=together_api_key)
 openai_client = OpenAI(api_key=openai_api_key)
 
-
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
@@ -49,22 +48,25 @@ app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key_for_deve
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///users.db')
 db = SQLAlchemy(app)
 
-
-# Store extracted text for each API key
-extracted_texts = {}
-
 # User model
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
-    api_keys = db.Column(db.Text)  # Store as JSON string
+    api_keys = db.relationship('APIKey', backref='user', lazy=True)
+
+# APIKey model
+class APIKey(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    key = db.Column(db.String(255), unique=True, nullable=False)
+    llm = db.Column(db.String(50), nullable=False)
+    extracted_text = db.Column(db.Text, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
 
 def extract_text_from_url(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, 'html.parser')
     return ' '.join([p.text for p in soup.find_all('p')])
-
 
 def generate_integration_code(api_key):
     return f'''
@@ -272,12 +274,12 @@ def chatbot_script():
         }}
     }})();
     '''
-
         app.logger.info(f"Successfully generated chatbot script for API key: {api_key}")
         return Response(script, mimetype='application/javascript')
     except Exception as e:
         app.logger.error(f"Error in chatbot_script route: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
+
 @app.route('/test_db')
 def test_db():
     try:
@@ -355,12 +357,14 @@ def process_url():
     try:
         extracted_text = extract_text_from_url(url)
         api_key = f"user_{uuid.uuid4().hex}"
-        extracted_texts[api_key] = {"text": extracted_text, "llm": llm}
-
-        user = User.query.get(session['user_id'])
-        api_keys = json.loads(user.api_keys)
-        api_keys.append({"api_key": api_key, "llm": llm})  # Store as a dictionary
-        user.api_keys = json.dumps(api_keys)
+        
+        new_api_key = APIKey(
+            key=api_key,
+            llm=llm,
+            extracted_text=extracted_text,
+            user_id=session['user_id']
+        )
+        db.session.add(new_api_key)
         db.session.commit()
 
         integration_code = generate_integration_code(api_key)
@@ -385,12 +389,12 @@ def chat():
         if not user_input or not api_key:
             return jsonify({"error": "Input and API key are required"}), 400
 
-        context_data = extracted_texts.get(api_key)
-        if not context_data:
+        api_key_data = APIKey.query.filter_by(key=api_key).first()
+        if not api_key_data:
             return jsonify({"error": "Invalid API key"}), 400
 
-        context = context_data["text"]
-        llm = context_data["llm"]
+        context = api_key_data.extracted_text
+        llm = api_key_data.llm
 
         messages = [{
             "role": "system",
@@ -447,7 +451,7 @@ def get_user_api_keys():
         return jsonify({"error": "User not logged in"}), 401
 
     user = User.query.get(session['user_id'])
-    api_keys = json.loads(user.api_keys)
+    api_keys = [{"api_key": key.key, "llm": key.llm} for key in user.api_keys]
     return jsonify({"api_keys": api_keys})
 
 @app.route('/chatbot-design', methods=['GET'])
@@ -540,24 +544,15 @@ def delete_api_key():
         app.logger.error("No API key provided")
         return jsonify({"error": "No API key provided"}), 400
 
-    user = User.query.get(session['user_id'])
-    api_keys = json.loads(user.api_keys)
-
-    app.logger.info(f"Current API keys: {api_keys}")
-    app.logger.info(f"Attempting to delete API key: {api_key_to_delete}")
-
-    # Handle both string keys and dictionary entries
-    api_keys = [key for key in api_keys if (isinstance(key, str) and key != api_key_to_delete) or 
-                (isinstance(key, dict) and key.get('api_key') != api_key_to_delete)]
-
-    user.api_keys = json.dumps(api_keys)
-    db.session.commit()
-
-    # Also remove the extracted text for this API key
-    extracted_texts.pop(api_key_to_delete, None)
-
-    app.logger.info(f"API keys after deletion: {api_keys}")
-    return jsonify({"message": "API key deleted successfully"}), 200
+    api_key = APIKey.query.filter_by(key=api_key_to_delete, user_id=session['user_id']).first()
+    if api_key:
+        db.session.delete(api_key)
+        db.session.commit()
+        app.logger.info(f"API key deleted: {api_key_to_delete}")
+        return jsonify({"message": "API key deleted successfully"}), 200
+    else:
+        app.logger.error(f"API key not found: {api_key_to_delete}")
+        return jsonify({"error": "API key not found"}), 404
 
 @app.route('/test_apis')
 def test_apis():
