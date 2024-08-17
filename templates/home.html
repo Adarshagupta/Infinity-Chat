@@ -5,7 +5,7 @@
 
 <head>
     <meta charset="utf-8" />
-    <title>NeuroWeb - Webflow HTML website template</title>
+    <title>NeuroWeb - Empowering Your Business with AI Solutions</title>
     <meta
         content="Build your AI agency site with the NeuroWeb template. Showcase your services and projects effortlessly."
         name="description" />
@@ -78,6 +78,35 @@
 #ph-badge:hover {
   opacity: 1;
 }
+.nav-menu {
+        display: flex;
+        justify-content: space-between; /* Space between menus and login/signup button */
+        align-items: center; /* Center items vertically */
+    }
+
+    .nav-menu-container {
+        display: flex;
+        align-items: center; /* Center items vertically */
+    }
+
+    .nav-link {
+        margin-right: 10px; /* Add some space between links */
+    }
+
+    .login-signup-button {
+        background-color: #333; /* Dark gray background */
+        color: #fff; /* White text */
+        padding: 10px 20px; /* Some padding */
+        border: none; /* No border */
+        border-radius: 5px; /* Rounded corners */
+        text-decoration: none; /* Remove underline */
+        display: inline-block; /* Make the link behave like a button */
+        transition: background-color 0.3s ease; /* Smooth transition for hover effect */
+    }
+
+    .login-signup-button:hover {
+        background-color: #555; /* Slightly lighter gray on hover */
+    }
     </style>
     <link href="https://fonts.googleapis.com" rel="preconnect" />
     <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin="anonymous" />
@@ -94,47 +123,39 @@
 
 <body>
     <div data-animation="default" data-collapse="medium" data-duration="400" data-easing="ease" data-easing2="ease"
-        role="banner" class="navbar w-nav">
-        <div class="container-full w-container">
-            <div class="w-layout-grid grid-navbar"><a href="/"
-                    id="w-node-_8e6fd8cb-586c-defd-8afd-f121ace00be0-ace00bdd" aria-current="page"
-                    class="brand w-nav-brand w--current"><img
-                        src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png" width="50px"
-                        loading="lazy" alt="Image" class="logo" /></a>
-                <nav role="navigation" id="w-node-_8e6fd8cb-586c-defd-8afd-f121ace00be2-ace00bdd"
-                    class="nav-menu w-nav-menu"><a href="/" aria-current="page"
-                        class="nav-link w-nav-link w--current">Home</a><a href="/about"
-                        class="nav-link w-nav-link">About</a>
+    role="banner" class="navbar w-nav">
+    <div class="container-full w-container">
+        <div class="w-layout-grid grid-navbar">
+            <a href="/" id="w-node-_8e6fd8cb-586c-defd-8afd-f121ace00be0-ace00bdd" aria-current="page"
+                class="brand w-nav-brand w--current"><img
+                    src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png" width="50px"
+                    loading="lazy" alt="Image" class="logo" /></a>
+            <nav role="navigation" id="w-node-_8e6fd8cb-586c-defd-8afd-f121ace00be2-ace00bdd"
+                class="nav-menu w-nav-menu">
+                <div class="nav-menu-container">
+                    <a href="/" aria-current="page" class="nav-link w-nav-link w--current">Home</a>
+                    <a href="/about" class="nav-link w-nav-link">About</a>
                     <div data-hover="true" data-delay="0" data-w-id="8e6fd8cb-586c-defd-8afd-f121ace00be7"
                         class="dropdown w-dropdown">
-                        <div class="dropdown-toggle nav-link w-dropdown-toggle">
-                            <div>Pages</div>
-                            <div class="dropdown-icon w-icon-dropdown-toggle"></div>
+                        <div class="nav-link w-dropdown-toggle">
+                            <div>Research</div>
                         </div>
-                        <nav class="dropdown-list w-dropdown-list"><a href="/" aria-current="page"
-                                class="dropdown-link w-dropdown-link w--current">Home</a><a href="/home-2"
-                                class="dropdown-link w-dropdown-link">Home 2</a><a href="/about"
-                                class="dropdown-link w-dropdown-link">About</a><a href="/service"
-                                class="dropdown-link w-dropdown-link">Services</a><a href="/service-static"
-                                class="dropdown-link w-dropdown-link">Service Static</a><a href="/project"
-                                class="dropdown-link w-dropdown-link">Projects</a><a href="/career"
-                                class="dropdown-link w-dropdown-link">Career</a><a href="/contact"
-                                class="dropdown-link w-dropdown-link">Contact</a><a href="/blog"
-                                class="dropdown-link w-dropdown-link">Blog</a><a href="/privacy-policy"
-                                class="dropdown-link w-dropdown-link">Privacy Policy</a>
-
-                        </nav>
-
-                    </div><a href="/project" class="nav-link w-nav-link">Projects</a><a href="/contact"
-                        class="nav-link w-nav-link">Contact</a>
-                    <a href="/api" class="nav-link w-nav-link">API</a>
-                </nav>
-                <div class="navbar-right">
-                    <div id="w-node-_8e6fd8cb-586c-defd-8afd-f121ace00c06-ace00bdd" class="menu-button w-nav-button">
-                        <div class="w-icon-nav-menu"></div>
                     </div>
+                    <a href="/project" class="nav-link w-nav-link">Projects</a>
+                    <a href="/contact" class="nav-link w-nav-link">Contact</a>
+                    <a href="/api" class="nav-link w-nav-link">API</a>
+                </div>
+                <a href="/login" class="nav-link w-nav-link login-signup-button">Login/Signup</a>
+            </nav>
+            <div class="navbar-right">
+                <div id="w-node-_8e6fd8cb-586c-defd-8afd-f121ace00c06-ace00bdd" class="menu-button w-nav-button">
+                    <div class="w-icon-nav-menu"></div>
                 </div>
             </div>
+        </div>
+    </div>
+</div>
+
         </div>
     </div>
     <section data-w-id="ce9fc8c0-32f4-011b-b85f-5f016f237000" class="hero-section">
@@ -164,7 +185,7 @@
                                     Solutions</span></h1>
                         </div><a href="#" data-w-id="ce9fc8c0-32f4-011b-b85f-5f016f237013"
                             class="button-icon-dark w-inline-block">
-                            <div class="button-text">Explore projects</div><img
+                            <div class="button-text">Start Building</div><img
                                 style="-webkit-transform:translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);-moz-transform:translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);-ms-transform:translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);transform:translate3d(0, 0, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0)"
                                 loading="lazy" alt="button-icon"
                                 src="https://cdn.prod.website-files.com/664d982b9069e771ae51d8f6/664dc631146152d195eb5327_button-icon.svg"
