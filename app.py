@@ -96,7 +96,7 @@ def chatbot_script():
                         <input type="text" id="user-input" placeholder="Type your message...">
                         <button onclick="sendMessage()">Send</button>
                     </div>
-                   <p style="text-align: center; font-size: 0.7em; color: #888;">powered by <a href="#">ChatCat</a></p>               
+                   <p style="text-align: center; font-size: 0.7em; color: #888;">powered by <a href="#">NeuroWeb</a></p>               
                    </div>
 
             `;

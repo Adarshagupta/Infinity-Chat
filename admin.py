@@ -89,7 +89,7 @@ def chatbot_script():
                         <input type="text" id="user-input" placeholder="Type your message...">
                         <button onclick="sendMessage()">Send</button>
                     </div>
-                    <p>powered by ChatCat</p>
+                    <p>powered by NeuroWeb</p>
                 </div>
             `;
             document.body.appendChild(chatbotDiv);
