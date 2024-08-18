@@ -398,15 +398,34 @@ def chat():
 
         messages = [{
             "role": "system",
-            "content": f"""You are a helpful AI assistant trained on the following website content: {context}
+            "content": f"""You are a highly specialized AI assistant trained on the following website content: {context}
 
-Instructions for providing responses:
-1. Start with a brief, direct answer to the user's question.
-2. If applicable, provide 2-3 key points or examples to support your answer.
-3. Use bullet points or numbered lists for clarity when appropriate.
-4. If the question is unclear, politely ask for clarification.
-5. Keep your total response under 150 words unless more detail is explicitly requested.
-6. End with a follow-up question or suggestion if relevant."""
+Instruction set for responses:
+1. Provide an immediate, concise answer to the user's query in 1-2 sentences.
+2. If relevant, offer 2-3 key points or examples, using bullet points for clarity.
+3. For complex queries, break down information into numbered steps or categories.
+4. Actively seek clarification on ambiguous questions.
+5. Strictly limit responses to 100 words unless explicitly asked for more detail.
+6. End with a pointed follow-up question or actionable suggestion.
+
+E-commerce specific instructions:
+7. For product searches, extract and display:
+   - Product name
+   - Price
+   - Brief description (max 15 words)
+   - Thumbnail image URL
+   - 'Shop Now' button with product URL
+8. Compare similar products in a concise table format when applicable.
+9. Highlight special offers, discounts, or limited-time deals.
+10. Suggest complementary products or accessories.
+
+Tone and style:
+11. Maintain a professional yet conversational tone.
+12. Use industry-specific terminology when appropriate.
+13. Emphasize unique selling points and value propositions.
+14. Anticipate and address common customer concerns or objections.
+
+If more information is needed, prompt the user with 'Get more info?'"""
         }, {
             "role": "user",
             "content": user_input
@@ -418,7 +437,7 @@ Instructions for providing responses:
             response = together_client.chat.completions.create(
                 model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
                 messages=messages,
-                max_tokens=512,
+                max_tokens=300,
                 temperature=0.7,
                 top_p=0.7,
                 top_k=50,
@@ -440,10 +459,45 @@ Instructions for providing responses:
 
         logger.info(f"Received response from {llm.capitalize()} API: {ai_response}")
 
-        return jsonify({"response": ai_response})
+        # Process the AI response for e-commerce functionality
+        processed_response = process_ecommerce_response(ai_response)
+
+        return jsonify(processed_response)
     except Exception as e:
         logger.error(f"Error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+def process_ecommerce_response(response):
+    import re
+
+    product_info = re.search(r'Product: (.*?)\nPrice: (.*?)\nDescription: (.*?)\nImage: (.*?)\nURL: (.*?)(\n|$)', response)
+    
+    if product_info:
+        product_data = {
+            "name": product_info.group(1),
+            "price": product_info.group(2),
+            "description": product_info.group(3),
+            "image_url": product_info.group(4),
+            "product_url": product_info.group(5)
+        }
+        
+        # Generate HTML for product display
+        product_html = f"""
+        <div class="product-card">
+            <img src="{product_data['image_url']}" alt="{product_data['name']}" class="product-image">
+            <h3>{product_data['name']}</h3>
+            <p class="price">{product_data['price']}</p>
+            <p class="description">{product_data['description']}</p>
+            <a href="{product_data['product_url']}" class="shop-button">Shop Now</a>
+        </div>
+        """
+        
+        return {
+            "response": response,
+            "product_html": product_html
+        }
+    else:
+        return {"response": response}
 
 @app.route('/user/api_keys', methods=['GET'])
 def get_user_api_keys():
@@ -454,84 +508,6 @@ def get_user_api_keys():
     api_keys = [{"api_key": key.key, "llm": key.llm} for key in user.api_keys]
     return jsonify({"api_keys": api_keys})
 
-@app.route('/chatbot-design', methods=['GET'])
-def chatbot_design():
-    api_key = request.args.get('api_key')
-    if not api_key:
-        return jsonify({"error": "API key is required"}), 400
-
-    design = f'''
-<div id="ai-chatbot" style="position: fixed; bottom: 20px; right: 20px; width: 300px; font-family: Arial, sans-serif; transition: all 0.3s ease-in-out; z-index: 1000;">
-    <div id="chat-header" style="background-color: #007bff; color: white; padding: 10px; font-weight: bold; cursor: pointer; border-radius: 10px 10px 0 0; display: flex; justify-content: space-between; align-items: center;">
-        <span>AI Chatbot</span>
-        <span id="toggle-chat" style="font-size: 20px;">−</span>
-    </div>
-    <div id="chat-body" style="display: block; background-color: #f1f1f1; border-radius: 0 0 10px 10px; overflow: hidden; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <div id="chat-messages" style="height: 300px; overflow-y: auto; padding: 10px;"></div>
-        <div style="padding: 10px; border-top: 1px solid #ddd; display: flex;">
-            <input type="text" id="user-input" placeholder="Type your message..." style="flex-grow: 1; padding: 5px; margin-right: 5px;">
-            <button onclick="sendMessage()" style="padding: 5px 10px; background-color: #007bff; color: white; border: none; cursor: pointer;">Send</button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-<script>
-    const chatWithAI = async (input) => {{
-        try {{
-            const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {{
-                input: input,
-                api_key: '{api_key}'
-            }});
-            return response.data.response;
-        }} catch (error) {{
-            console.error('Error:', error);
-            if (error.response) {{
-                return `Server Error: ${{error.response.data.error || 'Unknown server error'}}`;
-            }} else if (error.request) {{
-                return 'Network Error: No response received from the server. Please check your internet connection.';
-            }} else {{
-                return `Error: ${{error.message}}`;
-            }}
-        }}
-    }};
-
-    function addMessage(sender, message) {{
-        const chatMessages = document.getElementById('chat-messages');
-        const messageElement = document.createElement('div');
-        messageElement.innerHTML = `<strong>${{sender}}:</strong> ${{message}}`;
-        chatMessages.appendChild(messageElement);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }}
-
-    async function sendMessage() {{
-        const userInput = document.getElementById('user-input');
-        const message = userInput.value.trim();
-        if (message) {{
-            addMessage('You', message);
-            userInput.value = '';
-            const response = await chatWithAI(message);
-            addMessage('AI', response);
-        }}
-    }}
-
-    // Toggle chat visibility
-    document.getElementById('chat-header').addEventListener('click', function() {{
-        const chatBody = document.getElementById('chat-body');
-        const toggleChat = document.getElementById('toggle-chat');
-        if (chatBody.style.display === 'none') {{
-            chatBody.style.display = 'block';
-            toggleChat.textContent = '−';
-        }} else {{
-            chatBody.style.display = 'none';
-            toggleChat.textContent = '+';
-        }}
-    }});
-
-    // Initialize chat
-    addMessage('AI', 'Hello! How can I assist you today?');
-</script>
-'''
 
 @app.route('/delete_api_key', methods=['POST'])
 def delete_api_key():
