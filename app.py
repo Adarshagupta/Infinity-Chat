@@ -88,24 +88,32 @@ def chatbot_script():
             var chatbotDiv = document.createElement('div');
             chatbotDiv.id = 'ai-chatbot';
             chatbotDiv.innerHTML = `
-                <div id="chat-header" class="chatbot-header">
-                    <span>AI Assistant</span>
-                    <svg id="chatbot-toggle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <polyline points="6 9 12 15 18 9"></polyline>
+                <div id="chatbot-popup-button" class="chatbot-popup-button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
                     </svg>
                 </div>
-                <div id="chatbot-content" class="chatbot-content">
-                    <div id="chat-messages" class="chat-messages"></div>
-                    <div id="chat-input" class="chat-input">
-                        <input type="text" id="user-input" placeholder="Type your message...">
-                        <button id="send-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                        </button>
+                <div id="chatbot-container" class="chatbot-container" style="display: none;">
+                    <div id="chat-header" class="chatbot-header">
+                        <span>AI Assistant</span>
+                        <svg id="chatbot-close" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
                     </div>
-                    <p class="powered-by">powered by <a href="#">NeuroWeb</a></p>               
+                    <div id="chatbot-content" class="chatbot-content">
+                        <div id="chat-messages" class="chat-messages"></div>
+                        <div id="chat-input" class="chat-input">
+                            <input type="text" id="user-input" placeholder="Type your message...">
+                            <button id="send-button">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                        <p class="powered-by">powered by <a href="#">NeuroWeb</a></p>               
+                    </div>
                 </div>
             `;
             document.body.appendChild(chatbotDiv);
@@ -116,7 +124,30 @@ def chatbot_script():
                     position: fixed;
                     bottom: 20px;
                     right: 20px;
-                    width: 380px;
+                    z-index: 1000;
+                }}
+                .chatbot-popup-button {{
+                    width: 60px;
+                    height: 60px;
+                    border-radius: 50%;
+                    background-color: #4A5568;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    cursor: pointer;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                    transition: all 0.3s ease;
+                }}
+                .chatbot-popup-button:hover {{
+                    transform: scale(1.1);
+                }}
+                .chatbot-popup-button svg {{
+                    width: 30px;
+                    height: 30px;
+                    color: white;
+                }}
+                .chatbot-container {{
+                    width: 350px;
                     background: #ffffff;
                     border-radius: 20px;
                     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
@@ -125,34 +156,32 @@ def chatbot_script():
                     overflow: hidden;
                     transition: all 0.3s ease;
                     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                }}
-                #ai-chatbot:hover {{
-                    transform: translateY(-5px);
-                    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+                    position: absolute;
+                    bottom: 80px;
+                    right: 0;
                 }}
                 .chatbot-header {{
                     background-color: #4A5568;
                     color: white;
-                    padding: 20px;
+                    padding: 15px;
                     font-weight: 600;
-                    font-size: 18px;
+                    font-size: 16px;
                     display: flex;
                     justify-content: space-between;
                     align-items: center;
+                }}
+                #chatbot-close {{
                     cursor: pointer;
                 }}
-                #chatbot-toggle {{
-                    transition: transform 0.3s ease;
-                }}
                 .chatbot-content {{
-                    height: 500px;
+                    height: 450px;
                     display: flex;
                     flex-direction: column;
                 }}
                 .chat-messages {{
                     flex-grow: 1;
                     overflow-y: auto;
-                    padding: 24px;
+                    padding: 20px;
                 }}
                 .chat-messages::-webkit-scrollbar {{
                     width: 6px;
@@ -165,17 +194,17 @@ def chatbot_script():
                     border-radius: 20px;
                 }}
                 .chat-input {{
-                    padding: 20px;
+                    padding: 15px;
                     border-top: 1px solid #E2E8F0;
                     display: flex;
                 }}
                 #user-input {{
                     flex-grow: 1;
-                    padding: 12px 20px;
+                    padding: 10px 15px;
                     border: none;
                     border-radius: 30px;
                     margin-right: 10px;
-                    font-size: 16px;
+                    font-size: 14px;
                     background-color: #F7FAFC;
                     transition: all 0.3s ease;
                 }}
@@ -188,7 +217,7 @@ def chatbot_script():
                     background-color: #4299E1;
                     color: white;
                     border: none;
-                    padding: 12px;
+                    padding: 10px;
                     border-radius: 50%;
                     cursor: pointer;
                     transition: background-color 0.3s ease;
@@ -200,16 +229,17 @@ def chatbot_script():
                     background-color: #3182CE;
                 }}
                 .message {{
-                    margin-bottom: 16px;
+                    margin-bottom: 15px;
                     display: flex;
                     flex-direction: column;
                 }}
                 .message p {{
                     display: inline-block;
-                    padding: 12px 18px;
+                    padding: 10px 15px;
                     border-radius: 18px;
                     max-width: 80%;
                     line-height: 1.4;
+                    font-size: 14px;
                 }}
                 .ai-message p {{
                     background-color: #F3F4F6;
@@ -227,8 +257,8 @@ def chatbot_script():
                 .product-card {{
                     border: 1px solid #E2E8F0;
                     border-radius: 12px;
-                    padding: 16px;
-                    margin-top: 12px;
+                    padding: 15px;
+                    margin-top: 10px;
                     background-color: #FFFFFF;
                     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
                     transition: all 0.3s ease;
@@ -239,13 +269,13 @@ def chatbot_script():
                 }}
                 .product-image {{
                     width: 100%;
-                    max-height: 180px;
+                    max-height: 150px;
                     object-fit: cover;
                     border-radius: 8px;
-                    margin-bottom: 12px;
+                    margin-bottom: 10px;
                 }}
                 .product-card h3 {{
-                    font-size: 18px;
+                    font-size: 16px;
                     margin: 0 0 8px 0;
                     color: #2D3748;
                 }}
@@ -253,21 +283,21 @@ def chatbot_script():
                     font-weight: bold;
                     color: #4A5568;
                     margin: 0 0 8px 0;
-                    font-size: 16px;
+                    font-size: 14px;
                 }}
                 .product-card .description {{
-                    font-size: 14px;
+                    font-size: 12px;
                     color: #718096;
-                    margin: 0 0 12px 0;
+                    margin: 0 0 10px 0;
                 }}
                 .shop-button {{
                     display: inline-block;
                     background-color: #48BB78;
                     color: white;
-                    padding: 10px 16px;
-                    border-radius: 8px;
+                    padding: 8px 12px;
+                    border-radius: 6px;
                     text-decoration: none;
-                    font-size: 14px;
+                    font-size: 12px;
                     transition: background-color 0.3s ease;
                     text-align: center;
                 }}
@@ -276,14 +306,46 @@ def chatbot_script():
                 }}
                 .powered-by {{
                     text-align: center;
-                    font-size: 0.75rem;
+                    font-size: 0.7rem;
                     color: #A0AEC0;
                     margin: 0;
-                    padding: 10px;
+                    padding: 8px;
                 }}
                 .powered-by a {{
                     color: #4299E1;
                     text-decoration: none;
+                }}
+                .replying-status {{
+                    display: flex;
+                    align-items: center;
+                    padding: 8px;
+                    background-color: #F3F4F6;
+                    border-radius: 18px;
+                    margin-bottom: 15px;
+                    font-size: 12px;
+                    color: #4A5568;
+                }}
+                .replying-status .dots {{
+                    display: flex;
+                    margin-left: 8px;
+                }}
+                .replying-status .dot {{
+                    width: 6px;
+                    height: 6px;
+                    border-radius: 50%;
+                    background-color: #4A5568;
+                    margin: 0 2px;
+                    animation: pulse 1.5s infinite ease-in-out;
+                }}
+                .replying-status .dot:nth-child(2) {{
+                    animation-delay: 0.2s;
+                }}
+                .replying-status .dot:nth-child(3) {{
+                    animation-delay: 0.4s;
+                }}
+                @keyframes pulse {{
+                    0%, 100% {{ opacity: 0.4; }}
+                    50% {{ opacity: 1; }}
                 }}
             `;
             document.head.appendChild(style);
@@ -341,17 +403,41 @@ def chatbot_script():
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }};
 
+            window.showReplyingStatus = function() {{
+                const chatMessages = document.getElementById('chat-messages');
+                const statusElement = document.createElement('div');
+                statusElement.className = 'replying-status';
+                statusElement.innerHTML = `
+                    AI is replying
+                    <div class="dots">
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                        <div class="dot"></div>
+                    </div>
+                `;
+                chatMessages.appendChild(statusElement);
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                return statusElement;
+            }};
+
+            window.removeReplyingStatus = function(statusElement) {{
+                if (statusElement && statusElement.parentNode) {{
+                    statusElement.parentNode.removeChild(statusElement);
+                }}
+            }};
+
             window.sendMessage = async function() {{
                 const userInput = document.getElementById('user-input');
                 const message = userInput.value.trim();
                 if (message) {{
                     addMessage('You', message);
                     userInput.value = '';
+                    const statusElement = showReplyingStatus();
                     const response = await chatWithAI(message);
+                    removeReplyingStatus(statusElement);
                     addMessage('AI', response);
                 }}
             }};
-
             // Add event listener for the send button
             document.getElementById('send-button').addEventListener('click', sendMessage);
 
@@ -391,7 +477,7 @@ def chatbot_script():
     except Exception as e:
         app.logger.error(f"Error in chatbot_script route: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
-        
+
 @app.route('/test_db')
 def test_db():
     try:
