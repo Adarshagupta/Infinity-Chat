@@ -162,6 +162,13 @@
                         class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300">Process</button>
                 </div>
             </div>
+            <div class="mb-8">
+                <h3 class="text-xl font-semibold mb-4">Upload CSV Dataset <span style="font-size: small; color: red;">(Premium)</span></h3>
+                <div class="flex flex-col space-y-2">
+                    <input type="file" id="csvFileInput" accept=".csv" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <button onclick="uploadCSV()" class="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700 transition duration-300">Upload CSV</button>
+                </div>
+            </div>
             <div>
                 <h3 class="text-xl font-semibold mb-4">Your API Keys</h3>
                 <div id="recentApiKey" class="mb-4">
@@ -517,25 +524,25 @@
         }
 
         const chatWithAI = async (input) => {
-            console.log('Attempting to chat with API key:', currentApiKey, 'and LLM:', currentLLM);
-            if (!currentApiKey || !currentLLM) {
-                showNotification('Please select an API key first', 'error');
-                return 'Error: No API key selected';
-            }
-            try {
-                console.log('Sending chat request with API key:', currentApiKey, 'and LLM:', currentLLM);
-                const response = await axios.post('/chat', {
-                    input: input,
-                    api_key: currentApiKey,
-                    model: currentLLM
-                });
-                console.log('Received response:', response.data);
-                return response.data.response;
-            } catch (error) {
-                console.error('Error:', error);
-                return 'Error: Unable to get a response from the AI';
-            }
-        };
+    console.log('Attempting to chat with API key:', currentApiKey, 'and LLM:', currentLLM);
+    if (!currentApiKey || !currentLLM) {
+        showNotification('Please select an API key first', 'error');
+        return 'Error: No API key selected';
+    }
+    try {
+        console.log('Sending chat request with API key:', currentApiKey, 'and LLM:', currentLLM);
+        const response = await axios.post('/chat', {
+            input: input,
+            api_key: currentApiKey,
+            model: currentLLM
+        });
+        console.log('Received response:', response.data);
+        return response.data.response;
+    } catch (error) {
+        console.error('Error:', error);
+        return 'Error: Unable to get a response from the AI';
+    }
+};
 
         function toggleChatbot() {
             const chatbotContent = document.getElementById('chatbot-content');
@@ -608,6 +615,37 @@
                 }
             });
         });
+        async function uploadCSV() {
+    const fileInput = document.getElementById('csvFileInput');
+    const file = fileInput.files[0];
+    const loader = document.getElementById('loader');
+
+    if (!file) {
+        showNotification('Please select a CSV file', 'error');
+        return;
+    }
+
+    const formData = new FormData();
+    formData.append('file', file);
+
+    loader.classList.remove('hidden');
+
+    try {
+        const response = await axios.post('/upload_csv', formData, {
+            headers: {
+                'Content-Type': 'multipart/form-data'
+            }
+        });
+        showNotification('CSV file uploaded and processed successfully', 'success');
+        // Optionally, you can update the UI or fetch updated data here
+    } catch (error) {
+        console.error('Error uploading CSV:', error);
+        showNotification(error.response?.data?.error || 'Error uploading CSV', 'error');
+    } finally {
+        loader.classList.add('hidden');
+        fileInput.value = ''; // Clear the file input
+    }
+}
     </script>
 </body>
 
