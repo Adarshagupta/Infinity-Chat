@@ -74,7 +74,6 @@ def generate_integration_code(api_key):
 <!-- AI Chatbot Integration -->
 <script src="https://chatcat-s1ny.onrender.com/chatbot.js?api_key={api_key}"></script>
 '''
-
 @app.route('/chatbot.js', methods=['GET', 'POST'])
 def chatbot_script():
     try:
@@ -438,6 +437,7 @@ def chatbot_script():
                     addMessage('AI', response);
                 }}
             }};
+
             // Add event listener for the send button
             document.getElementById('send-button').addEventListener('click', sendMessage);
 
@@ -449,34 +449,36 @@ def chatbot_script():
             }});
 
             // Add toggle functionality
-            document.getElementById('chat-header').addEventListener('click', function() {{
-                var content = document.getElementById('chatbot-content');
-                var toggle = document.getElementById('chatbot-toggle');
-                if (content.style.display === 'none') {{
-                    content.style.display = 'flex';
-                    toggle.style.transform = 'rotate(180deg)';
-                }} else {{
-                    content.style.display = 'none';
-                    toggle.style.transform = 'rotate(0deg)';
-                }}
-            }});
+            document.getElementById('chatbot-popup-button').addEventListener('click', function() {
+                var container = document.getElementById('chatbot-container');
+                if (container.style.display === 'none') {
+                    container.style.display = 'flex';
+                } else {
+                    container.style.display = 'none';
+                }
+            });
+
+            // Add close functionality
+            document.getElementById('chatbot-close').addEventListener('click', function() {
+                document.getElementById('chatbot-container').style.display = 'none';
+            });
 
             // Initialize chat
             addMessage('AI', 'Hello! How can I assist you today?');
-        }}
+        }
 
-        if (document.readyState === 'complete') {{
+        if (document.readyState === 'complete') {
             loadChatbot();
-        }} else {{
+        } else {
             window.addEventListener('load', loadChatbot);
-        }}
-    }})();
+        }
+    })();
     '''
-        app.logger.info(f"Successfully generated chatbot script for API key: {api_key}")
         return Response(script, mimetype='application/javascript')
     except Exception as e:
-        app.logger.error(f"Error in chatbot_script route: {str(e)}", exc_info=True)
-        return jsonify({"error": "Internal server error"}), 500
+        app.logger.error(f"Error in chatbot_script: {str(e)}")
+        return jsonify({"error": "An error occurred while generating the chatbot script"}), 500
+
 
 @app.route('/test_db')
 def test_db():
