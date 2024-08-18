@@ -13,6 +13,7 @@ from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 import uuid
+import re
 
 # Load environment variables from .env file
 load_dotenv()
@@ -73,6 +74,7 @@ def generate_integration_code(api_key):
 <!-- AI Chatbot Integration -->
 <script src="https://chatcat-s1ny.onrender.com/chatbot.js?api_key={api_key}"></script>
 '''
+
 @app.route('/chatbot.js', methods=['GET', 'POST'])
 def chatbot_script():
     try:
@@ -207,6 +209,47 @@ def chatbot_script():
                 .user-message p {{
                     background-color: #EBF8FF;
                 }}
+                .product-card {{
+                    border: 1px solid #e2e8f0;
+                    border-radius: 8px;
+                    padding: 12px;
+                    margin-top: 8px;
+                    background-color: #f8fafc;
+                }}
+                .product-image {{
+                    width: 100%;
+                    max-height: 150px;
+                    object-fit: cover;
+                    border-radius: 4px;
+                    margin-bottom: 8px;
+                }}
+                .product-card h3 {{
+                    font-size: 16px;
+                    margin: 0 0 4px 0;
+                }}
+                .product-card .price {{
+                    font-weight: bold;
+                    color: #2d3748;
+                    margin: 0 0 4px 0;
+                }}
+                .product-card .description {{
+                    font-size: 14px;
+                    color: #4a5568;
+                    margin: 0 0 8px 0;
+                }}
+                .shop-button {{
+                    display: inline-block;
+                    background-color: #4299e1;
+                    color: white;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    text-decoration: none;
+                    font-size: 14px;
+                    transition: background-color 0.3s ease;
+                }}
+                .shop-button:hover {{
+                    background-color: #3182ce;
+                }}
             `;
             document.head.appendChild(style);
             
@@ -223,10 +266,10 @@ def chatbot_script():
                         }})
                     }});
                     const data = await response.json();
-                    return data.response;
+                    return data;
                 }} catch (error) {{
                     console.error('Error:', error);
-                    return `Error: ${{error.message || 'Unknown error occurred'}}`;
+                    return {{error: `Error: ${{error.message || 'Unknown error occurred'}}`}};
                 }}
             }};
 
@@ -234,7 +277,16 @@ def chatbot_script():
                 const chatMessages = document.getElementById('chat-messages');
                 const messageElement = document.createElement('div');
                 messageElement.className = `message ${{sender === 'You' ? 'user-message' : 'ai-message'}}`;
-                messageElement.innerHTML = `<p>${{message}}</p>`;
+                
+                if (typeof message === 'object' && message.product_html) {{
+                    messageElement.innerHTML = `
+                        <p>${{message.response}}</p>
+                        ${{message.product_html}}
+                    `;
+                }} else {{
+                    messageElement.innerHTML = `<p>${{message}}</p>`;
+                }}
+                
                 chatMessages.appendChild(messageElement);
                 chatMessages.scrollTop = chatMessages.scrollHeight;
             }};
@@ -319,7 +371,7 @@ def register():
         return jsonify({"error": "Email already registered"}), 400
 
     hashed_password = generate_password_hash(password)
-    new_user = User(email=email, password=hashed_password, api_keys='[]')
+    new_user = User(email=email, password=hashed_password)
     db.session.add(new_user)
     db.session.commit()
 
@@ -468,8 +520,6 @@ If more information is needed, prompt the user with 'Get more info?'"""
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 def process_ecommerce_response(response):
-    import re
-
     product_info = re.search(r'Product: (.*?)\nPrice: (.*?)\nDescription: (.*?)\nImage: (.*?)\nURL: (.*?)(\n|$)', response)
     
     if product_info:
@@ -488,7 +538,7 @@ def process_ecommerce_response(response):
             <h3>{product_data['name']}</h3>
             <p class="price">{product_data['price']}</p>
             <p class="description">{product_data['description']}</p>
-            <a href="{product_data['product_url']}" class="shop-button">Shop Now</a>
+            <a href="{product_data['product_url']}" class="shop-button" target="_blank">Shop Now</a>
         </div>
         """
         
@@ -507,7 +557,6 @@ def get_user_api_keys():
     user = User.query.get(session['user_id'])
     api_keys = [{"api_key": key.key, "llm": key.llm} for key in user.api_keys]
     return jsonify({"api_keys": api_keys})
-
 
 @app.route('/delete_api_key', methods=['POST'])
 def delete_api_key():
