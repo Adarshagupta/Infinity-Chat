@@ -98,11 +98,10 @@ def chatbot_script():
                     <div id="chat-messages" class="chat-messages"></div>
                     <div id="chat-input" class="chat-input">
                         <input type="text" id="user-input" placeholder="Type your message...">
-                        <button onclick="sendMessage()">Send</button>
+                        <button id="send-button">Send</button>
                     </div>
                    <p style="text-align: center; font-size: 0.7em; color: #888;">powered by <a href="#">NeuroWeb</a></p>               
-                   </div>
-
+                </div>
             `;
             document.body.appendChild(chatbotDiv);
             
@@ -278,11 +277,19 @@ def chatbot_script():
                 const messageElement = document.createElement('div');
                 messageElement.className = `message ${{sender === 'You' ? 'user-message' : 'ai-message'}}`;
                 
-                if (typeof message === 'object' && message.product_html) {{
-                    messageElement.innerHTML = `
-                        <p>${{message.response}}</p>
-                        ${{message.product_html}}
-                    `;
+                if (typeof message === 'object') {{
+                    if (message.product_html) {{
+                        messageElement.innerHTML = `
+                            <p>${{message.response}}</p>
+                            ${{message.product_html}}
+                        `;
+                    }} else if (message.response) {{
+                        messageElement.innerHTML = `<p>${{message.response}}</p>`;
+                    }} else if (message.error) {{
+                        messageElement.innerHTML = `<p class="error">${{message.error}}</p>`;
+                    }} else {{
+                        messageElement.innerHTML = `<p>Unexpected response format</p>`;
+                    }}
                 }} else {{
                     messageElement.innerHTML = `<p>${{message}}</p>`;
                 }}
@@ -301,6 +308,16 @@ def chatbot_script():
                     addMessage('AI', response);
                 }}
             }};
+
+            // Add event listener for the send button
+            document.getElementById('send-button').addEventListener('click', sendMessage);
+
+            // Add event listener for the Enter key in the input field
+            document.getElementById('user-input').addEventListener('keypress', function(e) {{
+                if (e.key === 'Enter') {{
+                    sendMessage();
+                }}
+            }});
 
             // Add toggle functionality
             document.getElementById('chat-header').addEventListener('click', function() {{
