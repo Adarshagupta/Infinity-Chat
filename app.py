@@ -278,10 +278,17 @@ def chatbot_script():
                 messageElement.className = `message ${{sender === 'You' ? 'user-message' : 'ai-message'}}`;
                 
                 if (typeof message === 'object') {{
-                    if (message.product_html) {{
+                    if (message.product_data) {{
+                        const productData = message.product_data;
                         messageElement.innerHTML = `
                             <p>${{message.response}}</p>
-                            ${{message.product_html}}
+                            <div class="product-card">
+                                <img src="${{productData.image_url}}" alt="${{productData.name}}" class="product-image">
+                                <h3>${{productData.name}}</h3>
+                                <p class="price">${{productData.price}}</p>
+                                <p class="description">${{productData.description}}</p>
+                                <a href="${{productData.product_url}}" class="shop-button" target="_blank">Shop Now</a>
+                            </div>
                         `;
                     }} else if (message.response) {{
                         messageElement.innerHTML = `<p>${{message.response}}</p>`;
@@ -548,20 +555,9 @@ def process_ecommerce_response(response):
             "product_url": product_info.group(5)
         }
         
-        # Generate HTML for product display
-        product_html = f"""
-        <div class="product-card">
-            <img src="{product_data['image_url']}" alt="{product_data['name']}" class="product-image">
-            <h3>{product_data['name']}</h3>
-            <p class="price">{product_data['price']}</p>
-            <p class="description">{product_data['description']}</p>
-            <a href="{product_data['product_url']}" class="shop-button" target="_blank">Shop Now</a>
-        </div>
-        """
-        
         return {
             "response": response,
-            "product_html": product_html
+            "product_data": product_data
         }
     else:
         return {"response": response}
