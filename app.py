@@ -449,30 +449,30 @@ def chatbot_script():
             }});
 
             // Add toggle functionality
-            document.getElementById('chatbot-popup-button').addEventListener('click', function() {
+            document.getElementById('chatbot-popup-button').addEventListener('click', function() {{
                 var container = document.getElementById('chatbot-container');
-                if (container.style.display === 'none') {
+                if (container.style.display === 'none') {{
                     container.style.display = 'flex';
-                } else {
+                }} else {{
                     container.style.display = 'none';
-                }
-            });
+                }}
+            }});
 
             // Add close functionality
-            document.getElementById('chatbot-close').addEventListener('click', function() {
+            document.getElementById('chatbot-close').addEventListener('click', function() {{
                 document.getElementById('chatbot-container').style.display = 'none';
-            });
+            }});
 
             // Initialize chat
             addMessage('AI', 'Hello! How can I assist you today?');
-        }
+        }}
 
-        if (document.readyState === 'complete') {
+        if (document.readyState === 'complete') {{
             loadChatbot();
-        } else {
+        }} else {{
             window.addEventListener('load', loadChatbot);
-        }
-    })();
+        }}
+    }})();
     '''
         return Response(script, mimetype='application/javascript')
     except Exception as e:
