@@ -89,7 +89,7 @@ def chatbot_script():
             chatbotDiv.id = 'ai-chatbot';
             chatbotDiv.innerHTML = `
                 <div id="chat-header" class="chatbot-header">
-                    <span>AI Chatbot</span>
+                    <span>AI Assistant</span>
                     <svg id="chatbot-toggle" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                         <polyline points="6 9 12 15 18 9"></polyline>
                     </svg>
@@ -98,9 +98,14 @@ def chatbot_script():
                     <div id="chat-messages" class="chat-messages"></div>
                     <div id="chat-input" class="chat-input">
                         <input type="text" id="user-input" placeholder="Type your message...">
-                        <button id="send-button">Send</button>
+                        <button id="send-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
                     </div>
-                   <p style="text-align: center; font-size: 0.7em; color: #888;">powered by <a href="#">NeuroWeb</a></p>               
+                    <p class="powered-by">powered by <a href="#">NeuroWeb</a></p>               
                 </div>
             `;
             document.body.appendChild(chatbotDiv);
@@ -111,25 +116,24 @@ def chatbot_script():
                     position: fixed;
                     bottom: 20px;
                     right: 20px;
-                    width: 350px;
-                    background: rgba(255, 255, 255, 0.25);
-                    backdrop-filter: blur(10px);
-                    border: 1px solid rgba(255, 255, 255, 0.18);
-                    border-radius: 15px 15px 0 0;
-                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+                    width: 380px;
+                    background: #ffffff;
+                    border-radius: 20px;
+                    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
                     display: flex;
                     flex-direction: column;
                     overflow: hidden;
                     transition: all 0.3s ease;
-                    font-family: Arial, sans-serif;
+                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 }}
                 #ai-chatbot:hover {{
-                    transform: scale(1.02);
+                    transform: translateY(-5px);
+                    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
                 }}
                 .chatbot-header {{
-                    background-color: #1a202c;
+                    background-color: #4A5568;
                     color: white;
-                    padding: 16px;
+                    padding: 20px;
                     font-weight: 600;
                     font-size: 18px;
                     display: flex;
@@ -141,7 +145,7 @@ def chatbot_script():
                     transition: transform 0.3s ease;
                 }}
                 .chatbot-content {{
-                    height: 450px;
+                    height: 500px;
                     display: flex;
                     flex-direction: column;
                 }}
@@ -151,103 +155,135 @@ def chatbot_script():
                     padding: 24px;
                 }}
                 .chat-messages::-webkit-scrollbar {{
-                    width: 8px;
+                    width: 6px;
                 }}
                 .chat-messages::-webkit-scrollbar-track {{
-                    background: #EDF2F7;
+                    background: #f1f1f1;
                 }}
                 .chat-messages::-webkit-scrollbar-thumb {{
-                    background-color: #CBD5E0;
+                    background-color: #888;
                     border-radius: 20px;
-                    border: 3px solid #EDF2F7;
                 }}
                 .chat-input {{
-                    padding: 16px;
+                    padding: 20px;
                     border-top: 1px solid #E2E8F0;
                     display: flex;
                 }}
                 #user-input {{
                     flex-grow: 1;
-                    padding: 8px 16px;
-                    border: 1px solid #E2E8F0;
-                    border-radius: 9999px;
-                    margin-right: 8px;
-                    font-size: 14px;
+                    padding: 12px 20px;
+                    border: none;
+                    border-radius: 30px;
+                    margin-right: 10px;
+                    font-size: 16px;
+                    background-color: #F7FAFC;
+                    transition: all 0.3s ease;
                 }}
                 #user-input:focus {{
                     outline: none;
-                    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
+                    box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
+                    background-color: #ffffff;
                 }}
-                .chat-input button {{
-                    background-color: #1a202c;
+                #send-button {{
+                    background-color: #4299E1;
                     color: white;
                     border: none;
-                    padding: 8px 16px;
-                    border-radius: 9999px;
+                    padding: 12px;
+                    border-radius: 50%;
                     cursor: pointer;
                     transition: background-color 0.3s ease;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                 }}
-                .chat-input button:hover {{
-                    background-color: #2d3748;
+                #send-button:hover {{
+                    background-color: #3182CE;
                 }}
                 .message {{
-                    margin-bottom: 12px;
+                    margin-bottom: 16px;
+                    display: flex;
+                    flex-direction: column;
                 }}
                 .message p {{
                     display: inline-block;
-                    padding: 8px 16px;
+                    padding: 12px 18px;
                     border-radius: 18px;
                     max-width: 80%;
+                    line-height: 1.4;
                 }}
                 .ai-message p {{
                     background-color: #F3F4F6;
+                    align-self: flex-start;
+                    border-bottom-left-radius: 4px;
                 }}
                 .user-message {{
-                    text-align: right;
+                    align-items: flex-end;
                 }}
                 .user-message p {{
-                    background-color: #EBF8FF;
+                    background-color: #4299E1;
+                    color: white;
+                    border-bottom-right-radius: 4px;
                 }}
                 .product-card {{
-                    border: 1px solid #e2e8f0;
-                    border-radius: 8px;
-                    padding: 12px;
-                    margin-top: 8px;
-                    background-color: #f8fafc;
+                    border: 1px solid #E2E8F0;
+                    border-radius: 12px;
+                    padding: 16px;
+                    margin-top: 12px;
+                    background-color: #FFFFFF;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+                    transition: all 0.3s ease;
+                }}
+                .product-card:hover {{
+                    transform: translateY(-3px);
+                    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
                 }}
                 .product-image {{
                     width: 100%;
-                    max-height: 150px;
+                    max-height: 180px;
                     object-fit: cover;
-                    border-radius: 4px;
-                    margin-bottom: 8px;
+                    border-radius: 8px;
+                    margin-bottom: 12px;
                 }}
                 .product-card h3 {{
-                    font-size: 16px;
-                    margin: 0 0 4px 0;
+                    font-size: 18px;
+                    margin: 0 0 8px 0;
+                    color: #2D3748;
                 }}
                 .product-card .price {{
                     font-weight: bold;
-                    color: #2d3748;
-                    margin: 0 0 4px 0;
+                    color: #4A5568;
+                    margin: 0 0 8px 0;
+                    font-size: 16px;
                 }}
                 .product-card .description {{
                     font-size: 14px;
-                    color: #4a5568;
-                    margin: 0 0 8px 0;
+                    color: #718096;
+                    margin: 0 0 12px 0;
                 }}
                 .shop-button {{
                     display: inline-block;
-                    background-color: #4299e1;
+                    background-color: #48BB78;
                     color: white;
-                    padding: 6px 12px;
-                    border-radius: 4px;
+                    padding: 10px 16px;
+                    border-radius: 8px;
                     text-decoration: none;
                     font-size: 14px;
                     transition: background-color 0.3s ease;
+                    text-align: center;
                 }}
                 .shop-button:hover {{
-                    background-color: #3182ce;
+                    background-color: #38A169;
+                }}
+                .powered-by {{
+                    text-align: center;
+                    font-size: 0.75rem;
+                    color: #A0AEC0;
+                    margin: 0;
+                    padding: 10px;
+                }}
+                .powered-by a {{
+                    color: #4299E1;
+                    text-decoration: none;
                 }}
             `;
             document.head.appendChild(style);
@@ -355,7 +391,7 @@ def chatbot_script():
     except Exception as e:
         app.logger.error(f"Error in chatbot_script route: {str(e)}", exc_info=True)
         return jsonify({"error": "Internal server error"}), 500
-
+        
 @app.route('/test_db')
 def test_db():
     try:
