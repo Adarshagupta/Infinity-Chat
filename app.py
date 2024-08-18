@@ -278,25 +278,23 @@ def chatbot_script():
                 messageElement.className = `message ${{sender === 'You' ? 'user-message' : 'ai-message'}}`;
                 
                 if (typeof message === 'object') {{
-                    if (message.product_data) {{
-                        const productData = message.product_data;
-                        messageElement.innerHTML = `
-                            <p>${{message.response}}</p>
-                            <div class="product-card">
-                                <img src="${{productData.image_url}}" alt="${{productData.name}}" class="product-image">
-                                <h3>${{productData.name}}</h3>
-                                <p class="price">${{productData.price}}</p>
-                                <p class="description">${{productData.description}}</p>
-                                <a href="${{productData.product_url}}" class="shop-button" target="_blank">Shop Now</a>
-                            </div>
-                        `;
-                    }} else if (message.response) {{
-                        messageElement.innerHTML = `<p>${{message.response}}</p>`;
-                    }} else if (message.error) {{
-                        messageElement.innerHTML = `<p class="error">${{message.error}}</p>`;
-                    }} else {{
-                        messageElement.innerHTML = `<p>Unexpected response format</p>`;
+                    let htmlContent = `<p>${{message.response}}</p>`;
+                    
+                    if (message.products && message.products.length > 0) {{
+                        message.products.forEach(product => {{
+                            htmlContent += `
+                                <div class="product-card">
+                                    <img src="${{product.image_url}}" alt="${{product.name}}" class="product-image">
+                                    <h3>${{product.name}}</h3>
+                                    <p class="price">${{product.price}}</p>
+                                    <p class="description">${{product.description}}</p>
+                                    <a href="${{product.product_url}}" class="shop-button" target="_blank">Shop Now</a>
+                                </div>
+                            `;
+                        }});
                     }}
+                    
+                    messageElement.innerHTML = htmlContent;
                 }} else {{
                     messageElement.innerHTML = `<p>${{message}}</p>`;
                 }}
@@ -485,12 +483,13 @@ Instruction set for responses:
 6. End with a pointed follow-up question or actionable suggestion.
 
 E-commerce specific instructions:
-7. For product searches, extract and display:
-   - Product name
-   - Price
-   - Brief description (max 15 words)
-   - Thumbnail image URL
-   - 'Shop Now' button with product URL
+7. For product searches, use the following format for each product:
+   Product: [Product Name]
+   Price: [Price]
+   Description: [Brief description (max 15 words)]
+   Image: [Actual image URL]
+   URL: [Actual product URL]
+7.5. Separate each product with three dashes: --- 
 8. Compare similar products in a concise table format when applicable.
 9. Highlight special offers, discounts, or limited-time deals.
 10. Suggest complementary products or accessories.
@@ -537,30 +536,35 @@ If more information is needed, prompt the user with 'Get more info?'"""
 
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
-
         return jsonify(processed_response)
+
     except Exception as e:
         logger.error(f"Error in chat route: {str(e)}", exc_info=True)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 def process_ecommerce_response(response):
-    product_info = re.search(r'Product: (.*?)\nPrice: (.*?)\nDescription: (.*?)\nImage: (.*?)\nURL: (.*?)(\n|$)', response)
-    
-    if product_info:
-        product_data = {
-            "name": product_info.group(1),
-            "price": product_info.group(2),
-            "description": product_info.group(3),
-            "image_url": product_info.group(4),
-            "product_url": product_info.group(5)
-        }
-        
-        return {
-            "response": response,
-            "product_data": product_data
-        }
-    else:
-        return {"response": response}
+    # Split the response into text and products
+    parts = response.split("Product:")
+    text_response = parts[0].strip()
+    products_text = "Product:" + "Product:".join(parts[1:])
+
+    # Extract product information
+    products = []
+    for product_text in products_text.split("---"):
+        product_info = re.search(r'Product: (.*?)\nPrice: (.*?)\nDescription: (.*?)\nImage: (.*?)\nURL: (.*?)(\n|$)', product_text, re.DOTALL)
+        if product_info:
+            products.append({
+                "name": product_info.group(1).strip(),
+                "price": product_info.group(2).strip(),
+                "description": product_info.group(3).strip(),
+                "image_url": product_info.group(4).strip(),
+                "product_url": product_info.group(5).strip()
+            })
+
+    return {
+        "response": text_response,
+        "products": products
+    }
 
 @app.route('/user/api_keys', methods=['GET'])
 def get_user_api_keys():
