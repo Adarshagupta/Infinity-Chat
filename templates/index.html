@@ -63,6 +63,53 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+
+        #sidebar {
+            position: fixed;
+            top: 0;
+            right: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: -2px 0 5px rgba(0, 0, 0, 0.1);
+            overflow-y: auto;
+            padding: 20px;
+        }
+
+        #chatbot-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 10px;
+            border-bottom: 1px solid #ccc;
+        }
+
+        #chat-input-container {
+            display: flex;
+            padding: 10px;
+        }
+
+        #chat-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        #send-button {
+            padding: 10px;
+            border: none;
+            background-color: #007bff;
+            color: white;
+            border-radius: 5px;
+            margin-left: 10px;
+            cursor: pointer;
+        }
     </style>
 </head>
 
@@ -103,6 +150,15 @@
             </div>
         </div>
     </nav>
+    <div id="sidebar">
+        <div id="chatbot-container">
+            <div id="chat-messages"></div>
+            <div id="chat-input-container">
+                <input type="text" id="chat-input" placeholder="Type your message...">
+                <button id="send-button" onclick="sendMessage()">Send</button>
+            </div>
+        </div>
+    </div>
     
 
     <main class="container mx-auto pt-24 p-6 flex flex-col items-center min-h-screen">
@@ -283,34 +339,7 @@
     </main>
 
 
-    <div id="ai-chatbot" class="fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden hidden">
-        <div class="bg-blue-600 text-white p-4 cursor-pointer flex justify-between items-center"
-            onclick="toggleChatbot()">
-            <span class="font-semibold text-lg">AI Chatbot</span>
-            <svg id="chatbot-toggle" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transform rotate-180" fill="none"
-                viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-            </svg>
-        </div>
-        <div id="chatbot-content" class="hidden">
-            <div id="chat-messages" class="h-80 overflow-y-auto p-4"></div>
-            <div class="border-t border-gray-200 p-4 flex flex-col">
-                <div class="flex mb-2">
-                    <select id="model-select"
-                        class="flex-grow px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <option value="together">Together AI</option>
-                        <option value="openai">OpenAI</option>
-                    </select>
-                </div>
-                <div class="flex">
-                    <input type="text" id="user-input" placeholder="Type your message..."
-                        class="flex-grow px-4 py-2 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <button onclick="sendMessage()"
-                        class="bg-blue-600 text-white px-6 py-2 rounded-r-lg hover:bg-blue-700 transition duration-300">Send</button>
-                </div>
-            </div>
-        </div>
-    </div>
+
 
     <script>
         let currentUser = null;
@@ -427,6 +456,7 @@
                 switchTab('login');
             }
         }
+
         async function fetchApiKeys() {
             try {
                 const response = await axios.get('/user/api_keys');
@@ -488,64 +518,64 @@
         }
 
         async function processUrl() {
-    const url = document.getElementById('urlInput').value;
-    const llm = document.getElementById('llmSelect').value;
-    const resultDiv = document.getElementById('result');
-    const apiKeyResultDiv = document.getElementById('apiKeyResult');
-    const integrationCodeTextarea = document.getElementById('integration-code');
-    const loader = document.getElementById('loader');
-    const loaderText = loader.querySelector('p');
+            const url = document.getElementById('urlInput').value;
+            const llm = document.getElementById('llmSelect').value;
+            const resultDiv = document.getElementById('result');
+            const apiKeyResultDiv = document.getElementById('apiKeyResult');
+            const integrationCodeTextarea = document.getElementById('integration-code');
+            const loader = document.getElementById('loader');
+            const loaderText = loader.querySelector('p');
 
+            loader.classList.remove('hidden');
 
-    loader.classList.remove('hidden');
+            // Simulated steps
+            const steps = [
+                'Fetching data...',
+                'Training LLM...',
+                'Generating API...'
+            ];
 
-    // Simulated steps
-    const steps = [
-        'Fetching data...',
-        'Training LLM...',
-        'Generating API...'
-    ];
+            try {
+                for (const step of steps) {
+                    loaderText.textContent = step;
+                    await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds delay
+                }
 
-    try {
-        for (const step of steps) {
-            loaderText.textContent = step;
-            await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds delay
+                const response = await axios.post('/process_url', { url: url, llm: llm });
+                console.log('Full API response:', response.data);
+
+                resultDiv.classList.remove('hidden');
+                apiKeyResultDiv.innerHTML = `
+                    <p class="mb-2">Your API Key: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.api_key}</span></p>
+                    <p class="mb-2">Selected LLM: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.llm}</span></p>
+                `;
+
+                if (response.data.integration_code) {
+                    integrationCodeTextarea.value = response.data.integration_code;
+                } else {
+                    integrationCodeTextarea.value = 'Integration code not found in response';
+                }
+
+                await fetchApiKeys(); // Refresh the API keys list
+                showNotification('URL processed successfully', 'success');
+            } catch (error) {
+                console.error('Error:', error);
+                let errorMessage = 'An unknown error occurred';
+                if (error.response) {
+                    errorMessage = error.response.data.error || 'Server error';
+                } else if (error.request) {
+                    errorMessage = 'No response received from the server. Please check your internet connection.';
+                } else {
+                    errorMessage = error.message;
+                }
+                resultDiv.innerHTML = `<p class="text-red-500">${errorMessage}</p>`;
+                showNotification(errorMessage, 'error');
+            } finally {
+                loader.classList.add('hidden');
+                loaderText.textContent = 'Processing...'; // Reset loader text
+            }
         }
 
-        const response = await axios.post('/process_url', { url: url, llm: llm });
-        console.log('Full API response:', response.data);
-
-        resultDiv.classList.remove('hidden');
-        apiKeyResultDiv.innerHTML = `
-            <p class="mb-2">Your API Key: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.api_key}</span></p>
-            <p class="mb-2">Selected LLM: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.llm}</span></p>
-        `;
-
-        if (response.data.integration_code) {
-            integrationCodeTextarea.value = response.data.integration_code;
-        } else {
-            integrationCodeTextarea.value = 'Integration code not found in response';
-        }
-
-        await fetchApiKeys(); // Refresh the API keys list
-        showNotification('URL processed successfully', 'success');
-    } catch (error) {
-        console.error('Error:', error);
-        let errorMessage = 'An unknown error occurred';
-        if (error.response) {
-            errorMessage = error.response.data.error || 'Server error';
-        } else if (error.request) {
-            errorMessage = 'No response received from the server. Please check your internet connection.';
-        } else {
-            errorMessage = error.message;
-        }
-        resultDiv.innerHTML = `<p class="text-red-500">${errorMessage}</p>`;
-        showNotification(errorMessage, 'error');
-    } finally {
-        loader.classList.add('hidden');
-        loaderText.textContent = 'Processing...'; // Reset loader text
-    }
-}
         function showNotification(message, type) {
             const notification = document.createElement('div');
             notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
@@ -555,6 +585,7 @@
                 notification.remove();
             }, 3000);
         }
+
         function addApiKeyButtons() {
             const apiKeyDropdown = document.getElementById('apiKeyDropdown');
             const buttonContainer = document.getElementById('apiKeyButtonContainer');
@@ -602,41 +633,33 @@
             if (selectedElement) {
                 selectedElement.classList.add('bg-blue-100');
             }
-
             localStorage.setItem('currentApiKey', apiKey);
             localStorage.setItem('currentLLM', llm);
         }
 
         const chatWithAI = async (input) => {
-    console.log('Attempting to chat with API key:', currentApiKey, 'and LLM:', currentLLM);
-    if (!currentApiKey || !currentLLM) {
-        showNotification('Please select an API key first', 'error');
-        return 'Error: No API key selected';
-    }
-    try {
-        console.log('Sending chat request with API key:', currentApiKey, 'and LLM:', currentLLM);
-        const response = await axios.post('/chat', {
-            input: input,
-            api_key: currentApiKey,
-            model: currentLLM
-        });
-        console.log('Received response:', response.data);
-        return response.data.response;
-    } catch (error) {
-        console.error('Error:', error);
-        return 'Error: Unable to get a response from the AI';
-    }
-};
-
-        function toggleChatbot() {
-            const chatbotContent = document.getElementById('chatbot-content');
-            const chatbotToggle = document.getElementById('chatbot-toggle');
-            chatbotContent.classList.toggle('hidden');
-            chatbotToggle.classList.toggle('rotate-180');
-        }
+            console.log('Attempting to chat with API key:', currentApiKey, 'and LLM:', currentLLM);
+            if (!currentApiKey || !currentLLM) {
+                showNotification('Please select an API key first', 'error');
+                return 'Error: No API key selected';
+            }
+            try {
+                console.log('Sending chat request with API key:', currentApiKey, 'and LLM:', currentLLM);
+                const response = await axios.post('/chat', {
+                    input: input,
+                    api_key: currentApiKey,
+                    model: currentLLM
+                });
+                console.log('Received response:', response.data);
+                return response.data.response;
+            } catch (error) {
+                console.error('Error:', error);
+                return 'Error: Unable to get a response from the AI';
+            }
+        };
 
         async function sendMessage() {
-            const userInput = document.getElementById('user-input');
+            const userInput = document.getElementById('chat-input');
             const chatMessages = document.getElementById('chat-messages');
 
             const userMessage = userInput.value.trim();
@@ -692,44 +715,45 @@
             }
 
             // Add event listener for chat input
-            document.getElementById('user-input').addEventListener('keypress', function (e) {
+            document.getElementById('chat-input').addEventListener('keypress', function (e) {
                 if (e.key === 'Enter') {
                     e.preventDefault();
                     sendMessage();
                 }
             });
         });
+
         async function uploadCSV() {
-    const fileInput = document.getElementById('csvFileInput');
-    const file = fileInput.files[0];
-    const loader = document.getElementById('loader');
+            const fileInput = document.getElementById('csvFileInput');
+            const file = fileInput.files[0];
+            const loader = document.getElementById('loader');
 
-    if (!file) {
-        showNotification('Please select a CSV file', 'error');
-        return;
-    }
-
-    const formData = new FormData();
-    formData.append('file', file);
-
-    loader.classList.remove('hidden');
-
-    try {
-        const response = await axios.post('/upload_csv', formData, {
-            headers: {
-                'Content-Type': 'multipart/form-data'
+            if (!file) {
+                showNotification('Please select a CSV file', 'error');
+                return;
             }
-        });
-        showNotification('CSV file uploaded and processed successfully', 'success');
-        // Optionally, you can update the UI or fetch updated data here
-    } catch (error) {
-        console.error('Error uploading CSV:', error);
-        showNotification(error.response?.data?.error || 'Error uploading CSV', 'error');
-    } finally {
-        loader.classList.add('hidden');
-        fileInput.value = ''; // Clear the file input
-    }
-}
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            loader.classList.remove('hidden');
+
+            try {
+                const response = await axios.post('/upload_csv', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data'
+                    }
+                });
+                showNotification('CSV file uploaded and processed successfully', 'success');
+                // Optionally, you can update the UI or fetch updated data here
+            } catch (error) {
+                console.error('Error uploading CSV:', error);
+                showNotification(error.response?.data?.error || 'Error uploading CSV', 'error');
+            } finally {
+                loader.classList.add('hidden');
+                fileInput.value = ''; // Clear the file input
+            }
+        }
     </script>
 </body>
 
