@@ -278,10 +278,10 @@ If more information is needed, prompt the user with 'Get more info?'"""
             response = together_client.chat.completions.create(
                 model="mistralai/Mistral-7B-Instruct-v0.3",
                 messages=messages,
-                max_tokens=300,
-                temperature=0.7,
-                top_p=0.7,
-                top_k=50,
+                max_tokens=100,
+                temperature=2,
+                top_p=1,
+                top_k=100,
                 repetition_penalty=1,
                 stop=["<|eot_id|>", "<|eom_id|>"])
             ai_response = response.choices[0].message.content
