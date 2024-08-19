@@ -240,6 +240,9 @@ def chat():
         if not api_key_data:
             return jsonify({"error": "Invalid API key"}), 400
 
+        # Define context using extracted_text from APIKey model
+        context = api_key_data.extracted_text
+
         messages = [{
             "role": "system",
             "content": f"""You are a highly specialized AI assistant trained on the following website content: {context}
