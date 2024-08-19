@@ -240,9 +240,6 @@ def chat():
         if not api_key_data:
             return jsonify({"error": "Invalid API key"}), 400
 
-        # Define context using extracted_text from APIKey model
-        context = api_key_data.extracted_text
-
         messages = [{
             "role": "system",
             "content": f"""You are a highly specialized AI assistant trained on the following website content: {context}
@@ -280,38 +277,36 @@ If more information is needed, prompt the user with 'Get more info?'"""
 
         logger.info(f"Sending request to {llm.capitalize()} API with input: {user_input}")
 
-        if user_input.lower() == "customer support":
-            ai_response = "Welcome to customer support! How can I assist you today?"
+        if llm == 'together':
+            response = together_client.chat.completions.create(
+                model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+                messages=messages,
+                max_tokens=100,
+                temperature=2,
+                top_p=1,
+                top_k=100,
+                repetition_penalty=1,
+                stop=["<|eot_id|>", "<|eom_id|>"])
+            ai_response = response.choices[0].message.content
+        elif llm == 'openai':
+            response = openai_client.chat.completions.create(
+                model="gpt-3.5-turbo",
+                messages=messages,
+                max_tokens=512,
+                temperature=0.7,
+                top_p=0.7,
+                frequency_penalty=0,
+                presence_penalty=0)
+            ai_response = response.choices[0].message.content
         else:
-            if llm == 'together':
-                response = together_client.chat.completions.create(
-                    model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
-                    messages=messages,
-                    max_tokens=100,
-                    temperature=2,
-                    top_p=1,
-                    top_k=100,
-                    repetition_penalty=1,
-                    stop=["<|eot_id|>", "<|eom_id|>"])
-                ai_response = response.choices[0].message.content
-            elif llm == 'openai':
-                response = openai_client.chat.completions.create(
-                    model="gpt-3.5-turbo",
-                    messages=messages,
-                    max_tokens=512,
-                    temperature=0.7,
-                    top_p=0.7,
-                    frequency_penalty=0,
-                    presence_penalty=0)
-                ai_response = response.choices[0].message.content
-            else:
-                return jsonify({"error": "Invalid LLM specified"}), 400
+            return jsonify({"error": "Invalid LLM specified"}), 400
 
         logger.info(f"Received response from {llm.capitalize()} API: {ai_response}")
 
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
 
+        # Record analytics
         # Record analytics
         end_time = time.time()
         response_time = end_time - start_time
