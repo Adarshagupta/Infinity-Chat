@@ -276,7 +276,7 @@ If more information is needed, prompt the user with 'Get more info?'"""
 
         if llm == 'together':
             response = together_client.chat.completions.create(
-                model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+                model="mistralai/Mistral-7B-Instruct-v0.3",
                 messages=messages,
                 max_tokens=300,
                 temperature=0.7,
@@ -303,11 +303,9 @@ If more information is needed, prompt the user with 'Get more info?'"""
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
 
-        record_analytics(api_key_data.user_id, api_key, '/chat', start_time, 200)
         return jsonify(processed_response)
     except Exception as e:
         logger.error(f"Error in chat route: {str(e)}", exc_info=True)
-        record_analytics(api_key_data.user_id if api_key_data else None, api_key, '/chat', start_time, 500)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 def process_ecommerce_response(response):
