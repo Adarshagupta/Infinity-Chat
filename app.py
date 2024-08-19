@@ -276,7 +276,7 @@ If more information is needed, prompt the user with 'Get more info?'"""
 
         if llm == 'together':
             response = together_client.chat.completions.create(
-                model="mistralai/Mistral-7B-Instruct-v0.3",
+                model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
                 messages=messages,
                 max_tokens=100,
                 temperature=2,
