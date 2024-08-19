@@ -1,159 +1,90 @@
+<!-- dashboard.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        .tab-content {
-            display: none;
+        /* Add some basic styling for the chat interface */
+        .chat-container {
+            border: 1px solid #ccc;
+            padding: 10px;
+            margin-top: 20px;
+            height: 300px;
+            overflow-y: scroll;
         }
-        .tab-content.active {
-            display: block;
+        .chat-input {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
         }
     </style>
 </head>
-<body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 font-sans">
-    <nav id="header" class="glass fixed w-full z-5 py-1 shadow-md">
-        <div class="container mx-auto px-6 flex justify-between items-center">
-            <div class="flex items-center">
-                <a href="javascript:history.back()" class="text-black hover:text-gray-700 transition duration-300 mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </a>
-                <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png"
-                    alt="NeuroWeb Logo" class="w-12 h-12 mr-4">
-                <h1 class="text-2xl font-bold">NeuroWeb</h1>
-            </div>
-            <a href="/api/dashboard">Dashbord</a>
-            <div class="dropdown">
-                <button class="flex items-center text-black hover:text-gray-700 transition duration-300">
-                    <img src="https://via.placeholder.com/40" alt="Profile" class="w-10 h-10 rounded-full mr-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <div class="dropdown-content">
-                    <a href="#" id="profileLink"
-                        class="text-black hover:text-gray-700 transition duration-300">Profile</a>
-                    <a href="#" id="logoutLink"
-                        class="text-black hover:text-gray-700 transition duration-300">Logout</a>
-                </div>
-            </div>
-        </div>
-    </nav>
-    
-    <nav id="header" class="glass fixed w-full z-10 py-4 shadow-md hidden">
-        <div class="container mx-auto px-6 flex justify-between items-center">
-            <div class="flex items-center">
-                <a href="javascript:history.back()" class="text-black hover:text-gray-700 transition duration-300 mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </a>
-                <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png"
-                    alt="NeuroWeb Logo" class="w-12 h-12 mr-4">
-                <h1 class="text-2xl font-bold">NeuroWeb</h1>
-            </div>
-            <div class="dropdown">
-                <button class="flex items-center text-black hover:text-gray-700 transition duration-300">
-                    <img src="https://via.placeholder.com/40" alt="Profile" class="w-10 h-10 rounded-full mr-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clip-rule="evenodd" />
-                    </svg>
-                </button>
-                <div class="dropdown-content">
-                    <a href="#" id="profileLink"
-                        class="text-black hover:text-gray-700 transition duration-300">Profile</a>
-                    <a href="#" id="logoutLink"
-                        class="text-black hover:text-gray-700 transition duration-300">Logout</a>
-                </div>
-            </div>
-        </div>
-    </nav>
+<body>
+    <h1>Dashboard</h1>
+    <div>
+        <!-- Existing dashboard content -->
+        <h2>API Keys</h2>
+        <ul>
+            {% for key in api_keys %}
+                <li>{{ key.key }} - {{ key.llm }}</li>
+            {% endfor %}
+        </ul>
+        <h2>Custom Prompts</h2>
+        <ul>
+            {% for prompt in custom_prompts %}
+                <li>{{ prompt.prompt }} - {{ prompt.response }}</li>
+            {% endfor %}
+        </ul>
+        <h2>Analytics</h2>
+        <ul>
+            {% for data in analytics_data %}
+                <li>{{ data.api_key }} - {{ data.endpoint }} - {{ data.timestamp }} - {{ data.response_time }} - {{ data.status_code }}</li>
+            {% endfor %}
+        </ul>
+    </div>
 
-    <main class="pt-20 max-w-4xl mx-auto p-6">
-        <div class="flex space-x-4 mb-6">
-            <button class="tab-button active" data-tab="api-keys">API Keys</button>
-            <button class="tab-button" data-tab="custom-prompts">Custom Prompts</button>
-            <button class="tab-button" data-tab="change-password">Change Password</button>
-        </div>
-
-        <section id="api-keys" class="tab-content active">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Your API Keys</h2>
-            <ul>
-                {% for key in api_keys %}
-                    <li class="bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105">
-                        <span>{{ key.key }}</span>
-                        <form action="{{ url_for('delete_api_key') }}" method="post">
-                            <input type="hidden" name="api_key_id" value="{{ key.id }}">
-                            <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
-                        </form>
-                    </li>
-                {% endfor %}
-            </ul>
-        </section>
-
-        <section id="custom-prompts" class="tab-content">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Custom Prompts</h2>
-            <ul>
-                {% for prompt in custom_prompts %}
-                    <li class="bg-gray-100 rounded-md p-4 mb-4 transition-transform duration-200 hover:bg-white hover:scale-105">
-                        <div>
-                            <strong>{{ prompt.prompt }}</strong>
-                            <p>{{ prompt.response }}</p>
-                        </div>
-                    </li>
-                {% endfor %}
-            </ul>
-            <form action="{{ url_for('add_custom_prompt') }}" method="post" class="space-y-4">
-                <label for="prompt" class="block">Prompt:</label>
-                <input type="text" id="prompt" name="prompt" required class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
-                <label for="response" class="block">Response:</label>
-                <textarea id="response" name="response" required class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200"></textarea>
-                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Add Custom Prompt</button>
-            </form>
-        </section>
-
-        <section id="change-password" class="tab-content">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Change Password</h2>
-            <form action="{{ url_for('change_password') }}" method="post" class="space-y-4">
-                <label for="current_password" class="block">Current Password:</label>
-                <input type="password" id="current_password" name="current_password" required class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
-                <label for="new_password" class="block">New Password:</label>
-                <input type="password" id="new_password" name="new_password" required class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
-                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Change Password</button>
-            </form>
-        </section>
-    </main>
+    <!-- Add the chat interface -->
+    <div class="chat-container" id="chat-container">
+        <!-- Chat messages will be displayed here -->
+    </div>
+    <input type="text" class="chat-input" id="chat-input" placeholder="Type your message here...">
+    <button onclick="sendMessage()">Send</button>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const tabButtons = document.querySelectorAll('.tab-button');
-            const tabContents = document.querySelectorAll('.tab-content');
+        function sendMessage() {
+            const userInput = document.getElementById('chat-input').value;
+            if (userInput.trim() === '') return;
 
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetTab = button.getAttribute('data-tab');
+            // Display user message in the chat container
+            const chatContainer = document.getElementById('chat-container');
+            const userMessage = document.createElement('div');
+            userMessage.textContent = `User: ${userInput}`;
+            chatContainer.appendChild(userMessage);
 
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
-                    tabContents.forEach(content => content.classList.remove('active'));
-
-                    button.classList.add('active');
-                    document.getElementById(targetTab).classList.add('active');
-                });
+            // Send the message to the server
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ input: userInput, api_key: 'your_api_key_here' })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Display the chatbot response in the chat container
+                const botMessage = document.createElement('div');
+                botMessage.textContent = `Chatbot: ${data.response}`;
+                chatContainer.appendChild(botMessage);
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
-        });
+
+            // Clear the input field
+            document.getElementById('chat-input').value = '';
+        }
     </script>
 </body>
 </html>

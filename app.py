@@ -17,6 +17,8 @@ import uuid
 import re
 from datetime import datetime
 import time
+from alembic import op
+import sqlalchemy as sa
 
 
 # Load environment variables from .env file
@@ -149,6 +151,10 @@ def projects():
 def contact():
     return render_template('contact.html')
 
+@app.route('/privacy')
+def privacy():
+    return render_template('privacy.html')
+
 @app.route('/register', methods=['POST'])
 def register():
     data = request.json
@@ -234,9 +240,6 @@ def chat():
         if not api_key_data:
             return jsonify({"error": "Invalid API key"}), 400
 
-        context = api_key_data.extracted_text
-        llm = api_key_data.llm
-
         messages = [{
             "role": "system",
             "content": f"""You are a highly specialized AI assistant trained on the following website content: {context}
@@ -274,38 +277,70 @@ If more information is needed, prompt the user with 'Get more info?'"""
 
         logger.info(f"Sending request to {llm.capitalize()} API with input: {user_input}")
 
-        if llm == 'together':
-            response = together_client.chat.completions.create(
-                model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
-                messages=messages,
-                max_tokens=100,
-                temperature=2,
-                top_p=1,
-                top_k=100,
-                repetition_penalty=1,
-                stop=["<|eot_id|>", "<|eom_id|>"])
-            ai_response = response.choices[0].message.content
-        elif llm == 'openai':
-            response = openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
-                messages=messages,
-                max_tokens=512,
-                temperature=0.7,
-                top_p=0.7,
-                frequency_penalty=0,
-                presence_penalty=0)
-            ai_response = response.choices[0].message.content
+        if user_input.lower() == "customer support":
+            ai_response = "Welcome to customer support! How can I assist you today?"
         else:
-            return jsonify({"error": "Invalid LLM specified"}), 400
+            if llm == 'together':
+                response = together_client.chat.completions.create(
+                    model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+                    messages=messages,
+                    max_tokens=100,
+                    temperature=2,
+                    top_p=1,
+                    top_k=100,
+                    repetition_penalty=1,
+                    stop=["<|eot_id|>", "<|eom_id|>"])
+                ai_response = response.choices[0].message.content
+            elif llm == 'openai':
+                response = openai_client.chat.completions.create(
+                    model="gpt-3.5-turbo",
+                    messages=messages,
+                    max_tokens=512,
+                    temperature=0.7,
+                    top_p=0.7,
+                    frequency_penalty=0,
+                    presence_penalty=0)
+                ai_response = response.choices[0].message.content
+            else:
+                return jsonify({"error": "Invalid LLM specified"}), 400
 
         logger.info(f"Received response from {llm.capitalize()} API: {ai_response}")
 
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
 
+        # Record analytics
+        end_time = time.time()
+        response_time = end_time - start_time
+        analytics = Analytics(
+            user_id=api_key_data.user_id,
+            api_key=api_key,
+            endpoint='/chat',
+            response_time=response_time,
+            status_code=200
+        )
+        db.session.add(analytics)
+        db.session.commit()
+        app.logger.info(f"Recorded analytics for user_id: {api_key_data.user_id}, api_key: {api_key}")
+
         return jsonify(processed_response)
     except Exception as e:
-        logger.error(f"Error in chat route: {str(e)}", exc_info=True)
+        app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
+        
+        # Record analytics for error case
+        end_time = time.time()
+        response_time = end_time - start_time
+        analytics = Analytics(
+            user_id=api_key_data.user_id if 'api_key_data' in locals() else None,
+            api_key=api_key if 'api_key' in locals() else None,
+            endpoint='/chat',
+            response_time=response_time,
+            status_code=500
+        )
+        db.session.add(analytics)
+        db.session.commit()
+        app.logger.info(f"Recorded error analytics for api_key: {api_key}")
+        
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 def process_ecommerce_response(response):
@@ -336,6 +371,51 @@ def get_user_api_keys():
     api_keys = [{"api_key": key.key, "llm": key.llm} for key in user.api_keys]
     return jsonify({"api_keys": api_keys})
 
+# Add this new route to retrieve analytics data
+@app.route('/api/analytics', methods=['GET'])
+def get_analytics():
+    app.logger.info("Accessing /api/analytics route")
+    
+    try:
+        if 'user_id' not in session:
+            app.logger.warning("User not logged in")
+            return jsonify({"error": "User not logged in"}), 401
+
+        user_id = session['user_id']
+        app.logger.info(f"Fetching analytics for user_id: {user_id}")
+        
+        analytics = Analytics.query.filter_by(user_id=user_id).all()
+        app.logger.info(f"Found {len(analytics)} analytics entries")
+        
+        analytics_data = [{
+            'api_key': a.api_key,
+            'endpoint': a.endpoint,
+            'timestamp': a.timestamp.isoformat(),
+            'response_time': a.response_time,
+            'status_code': a.status_code
+        } for a in analytics]
+
+        return jsonify(analytics_data)
+    except Exception as e:
+        app.logger.error(f"Error in get_analytics: {str(e)}", exc_info=True)
+        return jsonify({"error": "An unexpected error occurred"}), 500
+
+@app.route('/test/insert_analytics', methods=['GET'])
+def test_insert_analytics():
+    try:
+        test_analytics = Analytics(
+            user_id=1,  # Replace with a valid user_id
+            api_key='test_key',
+            endpoint='/test',
+            response_time=0.5,
+            status_code=200
+        )
+        db.session.add(test_analytics)
+        db.session.commit()
+        return jsonify({"message": "Test analytics data inserted successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error in test_insert_analytics: {str(e)}", exc_info=True)
+        return jsonify({"error": "An error occurred while inserting test data"}), 500
 
 @app.route('/test_apis')
 def test_apis():
@@ -373,7 +453,46 @@ def dashboard():
     user = User.query.get(session['user_id'])
     api_keys = user.api_keys
     custom_prompts = user.custom_prompts
-    return render_template('dashboard.html', user=user, api_keys=api_keys, custom_prompts=custom_prompts)
+
+    # Fetch analytics data
+    analytics = Analytics.query.filter_by(user_id=user.id).order_by(Analytics.timestamp.desc()).limit(100).all()
+    
+    analytics_data = [{
+        'api_key': a.api_key,
+        'endpoint': a.endpoint,
+        'timestamp': a.timestamp.isoformat(),
+        'response_time': a.response_time,
+        'status_code': a.status_code
+    } for a in analytics]
+
+    return render_template('dashboard.html', user=user, api_keys=api_keys, custom_prompts=custom_prompts, analytics_data=analytics_data)
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+
+    if request.method == 'POST':
+        new_email = request.form.get('email')
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        if new_email:
+            user.email = new_email
+
+        if new_password and new_password == confirm_password:
+            user.password = generate_password_hash(new_password)
+        elif new_password and new_password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return redirect(url_for('profile'))
+
+        db.session.commit()
+        flash('Profile updated successfully', 'success')
+        return redirect(url_for('profile'))
+
+    return render_template('profile.html', user=user)
 
 @app.route('/delete_api_key', methods=['POST'])
 def delete_api_key():
