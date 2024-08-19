@@ -9,3 +9,4 @@ Werkzeug
 Flask-Limiter
 psycopg2-binary  # Recommended over psycopg2
 openai
+flask-migrate
