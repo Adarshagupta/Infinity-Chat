@@ -276,7 +276,7 @@ If more information is needed, prompt the user with 'Get more info?'"""
 
         if llm == 'together':
             response = together_client.chat.completions.create(
-                model="mistralai/Mistral-7B-Instruct-v0.3",
+                model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
                 messages=messages,
                 max_tokens=300,
                 temperature=0.7,
@@ -328,29 +328,6 @@ def process_ecommerce_response(response):
         }
     else:
         return {"response": response}
-
-@app.route('/analytics')
-def view_analytics():
-    if 'user_id' not in session:
-        return redirect(url_for('login'))
-
-    user = User.query.get(session['user_id'])
-    analytics = Analytics.query.filter_by(user_id=user.id).order_by(Analytics.timestamp.desc()).limit(100).all()
-    
-    return render_template('analytics.html', user=user, analytics=analytics)
-
-def record_analytics(user_id, api_key, endpoint, start_time, status_code):
-    end_time = time.time()
-    response_time = end_time - start_time
-    analytics = Analytics(
-        user_id=user_id,
-        api_key=api_key,
-        endpoint=endpoint,
-        response_time=response_time,
-        status_code=status_code
-    )
-    db.session.add(analytics)
-    db.session.commit()
 
 @app.route('/user/api_keys', methods=['GET'])
 def get_user_api_keys():
