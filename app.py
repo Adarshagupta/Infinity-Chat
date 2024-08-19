@@ -1,5 +1,6 @@
-from flask import Flask, request, jsonify, render_template, session, Response
+from flask import Flask, request, jsonify, render_template, session, Response, redirect, url_for, flash
 from flask_sqlalchemy import SQLAlchemy
+from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from bs4 import BeautifulSoup
@@ -14,6 +15,8 @@ from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 import uuid
 import re
+from datetime import datetime
+import time
 
 
 # Load environment variables from .env file
@@ -49,6 +52,7 @@ limiter = Limiter(
 app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'fallback_secret_key_for_development')
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL', 'sqlite:///users.db')
 db = SQLAlchemy(app)
+migrate = Migrate(app, db)
 
 # User model
 class User(db.Model):
@@ -56,6 +60,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(255), nullable=False)
     api_keys = db.relationship('APIKey', backref='user', lazy=True)
+    custom_prompts = db.relationship('CustomPrompt', backref='user', lazy=True)
 
 # APIKey model
 class APIKey(db.Model):
@@ -64,6 +69,25 @@ class APIKey(db.Model):
     llm = db.Column(db.String(50), nullable=False)
     extracted_text = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+
+# CustomPrompt model
+class CustomPrompt(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    prompt = db.Column(db.String(255), nullable=False)
+    response = db.Column(db.Text, nullable=False)
+
+# Add this after the CustomPrompt model
+class Analytics(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    api_key = db.Column(db.String(255), nullable=False)
+    endpoint = db.Column(db.String(50), nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    response_time = db.Column(db.Float, nullable=False)
+    status_code = db.Column(db.Integer, nullable=False)
+
+
 
 def extract_text_from_url(url):
     response = requests.get(url)
@@ -95,7 +119,6 @@ def chatbot_script():
     except Exception as e:
         app.logger.error(f"Error in chatbot_script: {str(e)}")
         return jsonify({"error": "An error occurred while generating the chatbot script"}), 500
-
 
 @app.route('/test_db')
 def test_db():
@@ -199,6 +222,7 @@ def process_url():
 @app.route('/chat', methods=['POST'])
 @limiter.limit("5 per minute")
 def chat():
+    start_time = time.time()
     try:
         user_input = request.json.get('input')
         api_key = request.json.get('api_key')
@@ -252,7 +276,7 @@ If more information is needed, prompt the user with 'Get more info?'"""
 
         if llm == 'together':
             response = together_client.chat.completions.create(
-                model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+                model="mistralai/Mistral-7B-Instruct-v0.3",
                 messages=messages,
                 max_tokens=300,
                 temperature=0.7,
@@ -279,9 +303,11 @@ If more information is needed, prompt the user with 'Get more info?'"""
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
 
+        record_analytics(api_key_data.user_id, api_key, '/chat', start_time, 200)
         return jsonify(processed_response)
     except Exception as e:
         logger.error(f"Error in chat route: {str(e)}", exc_info=True)
+        record_analytics(api_key_data.user_id if api_key_data else None, api_key, '/chat', start_time, 500)
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 def process_ecommerce_response(response):
@@ -303,6 +329,29 @@ def process_ecommerce_response(response):
     else:
         return {"response": response}
 
+@app.route('/analytics')
+def view_analytics():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    analytics = Analytics.query.filter_by(user_id=user.id).order_by(Analytics.timestamp.desc()).limit(100).all()
+    
+    return render_template('analytics.html', user=user, analytics=analytics)
+
+def record_analytics(user_id, api_key, endpoint, start_time, status_code):
+    end_time = time.time()
+    response_time = end_time - start_time
+    analytics = Analytics(
+        user_id=user_id,
+        api_key=api_key,
+        endpoint=endpoint,
+        response_time=response_time,
+        status_code=status_code
+    )
+    db.session.add(analytics)
+    db.session.commit()
+
 @app.route('/user/api_keys', methods=['GET'])
 def get_user_api_keys():
     if 'user_id' not in session:
@@ -312,26 +361,6 @@ def get_user_api_keys():
     api_keys = [{"api_key": key.key, "llm": key.llm} for key in user.api_keys]
     return jsonify({"api_keys": api_keys})
 
-@app.route('/delete_api_key', methods=['POST'])
-def delete_api_key():
-    if 'user_id' not in session:
-        app.logger.error("User not logged in")
-        return jsonify({"error": "User not logged in"}), 401
-
-    api_key_to_delete = request.json.get('api_key')
-    if not api_key_to_delete:
-        app.logger.error("No API key provided")
-        return jsonify({"error": "No API key provided"}), 400
-
-    api_key = APIKey.query.filter_by(key=api_key_to_delete, user_id=session['user_id']).first()
-    if api_key:
-        db.session.delete(api_key)
-        db.session.commit()
-        app.logger.info(f"API key deleted: {api_key_to_delete}")
-        return jsonify({"message": "API key deleted successfully"}), 200
-    else:
-        app.logger.error(f"API key not found: {api_key_to_delete}")
-        return jsonify({"error": "API key not found"}), 404
 
 @app.route('/test_apis')
 def test_apis():
@@ -359,6 +388,67 @@ def test_apis():
         logger.error(f"OpenAI API connection error: {str(e)}")
 
     return f"Together API: {together_result}, OpenAI API: {openai_result}"
+
+
+@app.route('/api/dashboard')
+def dashboard():
+    if 'user_id' not in session:
+        return redirect(url_for('login'))
+
+    user = User.query.get(session['user_id'])
+    api_keys = user.api_keys
+    custom_prompts = user.custom_prompts
+    return render_template('dashboard.html', user=user, api_keys=api_keys, custom_prompts=custom_prompts)
+
+@app.route('/delete_api_key', methods=['POST'])
+def delete_api_key():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    api_key_id = request.form.get('api_key_id')
+    api_key = APIKey.query.get(api_key_id)
+    if api_key and api_key.user_id == session['user_id']:
+        db.session.delete(api_key)
+        db.session.commit()
+        flash('API key deleted successfully', 'success')
+    else:
+        flash('API key not found or you do not have permission to delete it', 'error')
+
+    return redirect(url_for('dashboard'))
+
+@app.route('/add_custom_prompt', methods=['POST'])
+def add_custom_prompt():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    prompt = request.form.get('prompt')
+    response = request.form.get('response')
+    if prompt and response:
+        new_prompt = CustomPrompt(user_id=session['user_id'], prompt=prompt, response=response)
+        db.session.add(new_prompt)
+        db.session.commit()
+        flash('Custom prompt added successfully', 'success')
+    else:
+        flash('Prompt and response are required', 'error')
+
+    return redirect(url_for('dashboard'))
+
+@app.route('/change_password', methods=['POST'])
+def change_password():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    current_password = request.form.get('current_password')
+    new_password = request.form.get('new_password')
+    user = User.query.get(session['user_id'])
+    if user and check_password_hash(user.password, current_password):
+        user.password = generate_password_hash(new_password)
+        db.session.commit()
+        flash('Password changed successfully', 'success')
+    else:
+        flash('Current password is incorrect', 'error')
+
+    return redirect(url_for('dashboard'))
 
 if __name__ == '__main__':
     with app.app_context():

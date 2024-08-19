@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multilingual Support</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <header>
+        <h1>Multilingual Support for {{ user.email }}</h1>
+        <nav>
+            <a href="{{ url_for('dashboard') }}">Back to Dashboard</a>
+            <a href="{{ url_for('logout') }}">Logout</a>
+        </nav>
+    </header>
+    <main>
+        <section>
+            <h2>Configure Languages</h2>
+            <p>Add and manage languages for your chatbot.</p>
+            <!-- Add forms and options for language configuration -->
+        </section>
+        <section>
+            <h2>Translation Management</h2>
+            <p>Manage translations and customize responses.</p>
+            <!-- Add more content and tools for translation management -->
+        </section>
+    </main>
+</body>
+</html>

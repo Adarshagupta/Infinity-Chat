@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h2>API Usage Analytics</h2>
+<table>
+    <thead>
+        <tr>
+            <th>API Key</th>
+            <th>Endpoint</th>
+            <th>Timestamp</th>
+            <th>Response Time (s)</th>
+            <th>Status Code</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for entry in analytics %}
+        <tr>
+            <td>{{ entry.api_key }}</td>
+            <td>{{ entry.endpoint }}</td>
+            <td>{{ entry.timestamp }}</td>
+            <td>{{ "%.3f"|format(entry.response_time) }}</td>
+            <td>{{ entry.status_code }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}
