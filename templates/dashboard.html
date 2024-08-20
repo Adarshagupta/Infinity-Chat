@@ -20,88 +20,38 @@
 </head>
 
 <body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 font-sans">
-    <nav id="header" class="fixed w-full z-10 bg-white shadow-sm">
+    <nav id="header" class="fixed w-full z-10 bg-white shadow-sm" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 75%; backdrop-filter: blur(10px); background-color: rgba(255, 255, 255, 0.7); box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); border-radius: 10px; padding: 2px;">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
-                <div class="flex items-center">
-                    <a href="javascript:history.back()" class="text-gray-500 hover:text-gray-700 mr-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                            stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                        </svg>
-                    </a>
-                    <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png"
-                        alt="NeuroWeb Logo" class="h-8 w-8">
-                    <h1 class="ml-2 text-xl font-semibold text-gray-900">NeuroWeb</h1>
-                </div>
-
-                <div class="hidden md:block">
-                    <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="/api/dashboard"
-                            class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Customize
-                            API</a>
-                        <a href="/api/dashboard"
-                            class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">API
-                            Usage</a>
-                        <a href="/api/analytics"
-                            class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Web
-                            Analytics</a>
-                        <a href=""
-                            class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Custom
-                            Prompt</a>
-                    </div>
-                </div>
-
-                <div class="dropdown">
-                    <button class="flex items-center text-black hover:text-gray-700 transition duration-300">
-                        <img src="https://via.placeholder.com/40" alt="Profile" class="w-10 h-10 rounded-full mr-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd"
-                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </button>
-                    <div class="dropdown-content">
-                        <a href="#" id="profileLink" class="text-black hover:text-gray-700 transition duration-300">Profile</a>
-                        <a href="#" id="logoutLink" class="text-black hover:text-gray-700 transition duration-300">Logout</a>
-                    </div>
-                </div>
-            </div>
-    </nav>
-
-    <nav id="header" class="glass fixed w-full z-10 py-4 shadow-md hidden">
-        <div class="container mx-auto px-6 flex justify-between items-center">
+          <div class="flex items-center justify-between h-16">
             <div class="flex items-center">
-                <a href="javascript:history.back()" class="text-black hover:text-gray-700 transition duration-300 mr-4">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                        stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                    </svg>
-                </a>
-                <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png"
-                    alt="NeuroWeb Logo" class="w-12 h-12 mr-4">
-                <h1 class="text-2xl font-bold">NeuroWeb</h1>
+              <a href="javascript:history.back()" class="text-gray-500 hover:text-gray-700 mr-3">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+              </a>
+              <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png" alt="NeuroWeb Logo" class="h-8 w-8">
+              <h1 class="ml-2 text-xl font-semibold text-gray-900">NeuroWeb</h1>
             </div>
-            <div class="dropdown">
-                <button class="flex items-center text-black hover:text-gray-700 transition duration-300">
-                    <img src="https://via.placeholder.com/40" alt="Profile" class="w-10 h-10 rounded-full mr-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd"
-                            d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-                            clip-rule="evenodd" />
-                    </svg>
+            <div class="ml-3 relative">
+              <div>
+                <button type="button" class="flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                  <img class="h-8 w-8 rounded-full" src="https://via.placeholder.com/40" alt="Profile">
+                  <svg class="ml-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
                 </button>
-                <div class="dropdown-content">
-                    <a href="#" id="profileLink"
-                        class="text-black hover:text-gray-700 transition duration-300">Profile</a>
-                    <a href="#" id="logoutLink"
-                        class="text-black hover:text-gray-700 transition duration-300">Logout</a>
-                </div>
+              </div>
+              <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
+                <a href="#" id="profileLink" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Profile</a>
+                <a href="#" id="logoutLink" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Logout</a>
+              </div>
             </div>
+          </div>
         </div>
-    </nav>
+        
+      </nav>
 
-    <main class="pt-20 max-w-4xl mx-auto p-6">
+    <main class="pt-32 pb-32 max-w-4xl mx-auto p-6">
         <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4 mb-6 p-4 rounded-full bg-white bg-opacity-70 backdrop-filter backdrop-blur-lg shadow-lg">
             <button class="tab-button active" data-tab="api-keys">API Keys</button>
             <button class="tab-button" data-tab="custom-prompts">Custom Prompts</button>
