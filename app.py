@@ -563,7 +563,9 @@ def test_api_key():
         response = requests.post('http://localhost:5410/chat', json={
             'input': test_input,
             'api_key': api_key
-        })
+        }, timeout=10)  # Add a timeout
+        
+        response.raise_for_status()  # Raises an HTTPError for bad responses
         
         return jsonify({
             "status_code": response.status_code,
@@ -571,8 +573,15 @@ def test_api_key():
             "response": response.json()
         }), 200
     
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
+        app.logger.error(f"API test failed: {str(e)}")
         return jsonify({"error": f"API test failed: {str(e)}"}), 500
+    except ValueError as e:  # This will catch json decode errors
+        app.logger.error(f"Error decoding JSON response: {str(e)}")
+        return jsonify({"error": f"Error decoding response: {str(e)}"}), 500
+    except Exception as e:
+        app.logger.error(f"Unexpected error in API test: {str(e)}")
+        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 if __name__ == '__main__':
     with app.app_context():
