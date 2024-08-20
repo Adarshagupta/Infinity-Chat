@@ -560,7 +560,7 @@ def test_api_key():
         return jsonify({"error": "Invalid API key"}), 400
 
     try:
-        response = requests.post('http://localhost:5410/chat', json={
+        response = requests.post('https://chatcat-moo7.onrender.com/chat', json={
             'input': test_input,
             'api_key': api_key
         }, timeout=10)  # Add a timeout
