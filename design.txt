@@ -40,21 +40,23 @@
                 bottom: 20px;
                 right: 20px;
                 z-index: 1000;
+                font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             }
             .chatbot-popup-button {
                 width: 60px;
                 height: 60px;
                 border-radius: 50%;
-                background-color: #4A5568;
+                background-color: #3B82F6;
                 display: flex;
                 justify-content: center;
                 align-items: center;
                 cursor: pointer;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                box-shadow: 0 4px 6px rgba(59, 130, 246, 0.5);
                 transition: all 0.3s ease;
             }
             .chatbot-popup-button:hover {
                 transform: scale(1.1);
+                box-shadow: 0 6px 8px rgba(59, 130, 246, 0.6);
             }
             .chatbot-popup-button svg {
                 width: 30px;
@@ -62,34 +64,37 @@
                 color: white;
             }
             .chatbot-container {
-                width: 350px;
+                width: 380px;
                 background: #ffffff;
-                border-radius: 20px;
+                border-radius: 16px;
                 box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
                 display: flex;
                 flex-direction: column;
                 overflow: hidden;
                 transition: all 0.3s ease;
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 position: absolute;
                 bottom: 80px;
                 right: 0;
             }
             .chatbot-header {
-                background-color: #4A5568;
+                background-color: #3B82F6;
                 color: white;
-                padding: 15px;
+                padding: 20px;
                 font-weight: 600;
-                font-size: 16px;
+                font-size: 18px;
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
             }
             #chatbot-close {
                 cursor: pointer;
+                transition: transform 0.2s ease;
+            }
+            #chatbot-close:hover {
+                transform: scale(1.1);
             }
             .chatbot-content {
-                height: 450px;
+                height: 500px;
                 display: flex;
                 flex-direction: column;
             }
@@ -105,59 +110,63 @@
                 background: #f1f1f1;
             }
             .chat-messages::-webkit-scrollbar-thumb {
-                background-color: #888;
+                background-color: #CBD5E0;
                 border-radius: 20px;
             }
             .chat-input {
-                padding: 15px;
+                padding: 20px;
                 border-top: 1px solid #E2E8F0;
                 display: flex;
+                background-color: #F7FAFC;
             }
             #user-input {
                 flex-grow: 1;
-                padding: 10px 15px;
-                border: none;
+                padding: 12px 18px;
+                border: 1px solid #E2E8F0;
                 border-radius: 30px;
                 margin-right: 10px;
                 font-size: 14px;
-                background-color: #F7FAFC;
+                background-color: #ffffff;
                 transition: all 0.3s ease;
             }
             #user-input:focus {
                 outline: none;
-                box-shadow: 0 0 0 2px rgba(66, 153, 225, 0.5);
-                background-color: #ffffff;
+                box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.5);
+                border-color: #3B82F6;
             }
             #send-button {
-                background-color: #4299E1;
+                background-color: #3B82F6;
                 color: white;
                 border: none;
-                padding: 10px;
+                padding: 12px;
                 border-radius: 50%;
                 cursor: pointer;
-                transition: background-color 0.3s ease;
+                transition: all 0.3s ease;
                 display: flex;
                 align-items: center;
                 justify-content: center;
             }
             #send-button:hover {
-                background-color: #3182CE;
+                background-color: #2563EB;
+                transform: scale(1.05);
             }
             .message {
-                margin-bottom: 15px;
+                margin-bottom: 20px;
                 display: flex;
                 flex-direction: column;
             }
             .message p {
                 display: inline-block;
-                padding: 10px 15px;
+                padding: 12px 18px;
                 border-radius: 18px;
                 max-width: 80%;
                 line-height: 1.4;
                 font-size: 14px;
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
             }
             .ai-message p {
                 background-color: #F3F4F6;
+                color: #1F2937;
                 align-self: flex-start;
                 border-bottom-left-radius: 4px;
             }
@@ -165,7 +174,7 @@
                 align-items: flex-end;
             }
             .user-message p {
-                background-color: #4299E1;
+                background-color: #3B82F6;
                 color: white;
                 border-bottom-right-radius: 4px;
             }
@@ -173,7 +182,7 @@
                 border: 1px solid #E2E8F0;
                 border-radius: 12px;
                 padding: 15px;
-                margin-top: 10px;
+                margin-top: 15px;
                 background-color: #FFFFFF;
                 box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
                 transition: all 0.3s ease;
@@ -184,60 +193,65 @@
             }
             .product-image {
                 width: 100%;
-                max-height: 150px;
+                max-height: 200px;
                 object-fit: cover;
                 border-radius: 8px;
-                margin-bottom: 10px;
+                margin-bottom: 15px;
             }
             .product-card h3 {
-                font-size: 16px;
-                margin: 0 0 8px 0;
+                font-size: 18px;
+                margin: 0 0 10px 0;
                 color: #2D3748;
             }
             .product-card .price {
                 font-weight: bold;
-                color: #4A5568;
-                margin: 0 0 8px 0;
-                font-size: 14px;
+                color: #3B82F6;
+                margin: 0 0 10px 0;
+                font-size: 16px;
             }
             .product-card .description {
-                font-size: 12px;
-                color: #718096;
-                margin: 0 0 10px 0;
+                font-size: 14px;
+                color: #4A5568;
+                margin: 0 0 15px 0;
+                line-height: 1.5;
             }
             .shop-button {
                 display: inline-block;
-                background-color: #48BB78;
+                background-color: #10B981;
                 color: white;
-                padding: 8px 12px;
-                border-radius: 6px;
+                padding: 10px 20px;
+                border-radius: 8px;
                 text-decoration: none;
-                font-size: 12px;
-                transition: background-color 0.3s ease;
+                font-size: 14px;
+                font-weight: 600;
+                transition: all 0.3s ease;
                 text-align: center;
             }
             .shop-button:hover {
-                background-color: #38A169;
+                background-color: #059669;
+                transform: translateY(-2px);
             }
             .powered-by {
                 text-align: center;
-                font-size: 0.7rem;
+                font-size: 12px;
                 color: #A0AEC0;
                 margin: 0;
-                padding: 8px;
+                padding: 10px;
+                background-color: #F7FAFC;
             }
             .powered-by a {
-                color: #4299E1;
+                color: #3B82F6;
                 text-decoration: none;
+                font-weight: 600;
             }
             .replying-status {
                 display: flex;
                 align-items: center;
-                padding: 8px;
+                padding: 10px 15px;
                 background-color: #F3F4F6;
                 border-radius: 18px;
                 margin-bottom: 15px;
-                font-size: 12px;
+                font-size: 14px;
                 color: #4A5568;
             }
             .replying-status .dots {
@@ -245,10 +259,10 @@
                 margin-left: 8px;
             }
             .replying-status .dot {
-                width: 6px;
-                height: 6px;
+                width: 8px;
+                height: 8px;
                 border-radius: 50%;
-                background-color: #4A5568;
+                background-color: #3B82F6;
                 margin: 0 2px;
                 animation: pulse 1.5s infinite ease-in-out;
             }
@@ -259,12 +273,13 @@
                 animation-delay: 0.4s;
             }
             @keyframes pulse {
-                0%, 100% { opacity: 0.4; }
-                50% { opacity: 1; }
+                0%, 100% { opacity: 0.4; transform: scale(0.8); }
+                50% { opacity: 1; transform: scale(1); }
             }
         `;
         document.head.appendChild(style);
         
+        // The rest of the JavaScript functions remain the same
         window.chatWithAI = async function(input) {
             try {
                 const response = await fetch('https://chatcat-moo7.onrender.com/chat', {
@@ -365,27 +380,90 @@
         });
 
         // Add toggle functionality
+        // Add toggle functionality
         document.getElementById('chatbot-popup-button').addEventListener('click', function() {
             var container = document.getElementById('chatbot-container');
+            var button = document.getElementById('chatbot-popup-button');
             if (container.style.display === 'none') {
                 container.style.display = 'flex';
+                button.style.display = 'none';
+                // Focus on input when chat is opened
+                document.getElementById('user-input').focus();
             } else {
                 container.style.display = 'none';
+                button.style.display = 'flex';
             }
         });
 
         // Add close functionality
         document.getElementById('chatbot-close').addEventListener('click', function() {
             document.getElementById('chatbot-container').style.display = 'none';
+            document.getElementById('chatbot-popup-button').style.display = 'flex';
         });
 
         // Initialize chat
         addMessage('AI', 'Hello! How can I assist you today?');
+
+        // Add a subtle entrance animation
+        setTimeout(() => {
+            document.getElementById('chatbot-popup-button').style.opacity = '1';
+            document.getElementById('chatbot-popup-button').style.transform = 'translateY(0)';
+        }, 500);
     }
 
+    // Load chatbot when the page is fully loaded
     if (document.readyState === 'complete') {
         loadChatbot();
     } else {
         window.addEventListener('load', loadChatbot);
     }
+
+    // Add some additional styles for better responsiveness and animations
+    var additionalStyles = document.createElement('style');
+    additionalStyles.textContent = `
+        @media (max-width: 480px) {
+            #ai-chatbot .chatbot-container {
+                width: 100%;
+                height: 100%;
+                bottom: 0;
+                right: 0;
+                border-radius: 0;
+            }
+            #ai-chatbot .chatbot-content {
+                height: calc(100% - 60px);
+            }
+        }
+
+        #ai-chatbot .chatbot-popup-button {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+
+        #ai-chatbot .chatbot-container {
+            transform: translateY(20px);
+            opacity: 0;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+
+        #ai-chatbot .chatbot-container.show {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        #ai-chatbot .message {
+            opacity: 0;
+            transform: translateY(10px);
+            animation: messageAppear 0.3s forwards;
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(additionalStyles);
+
 })();
