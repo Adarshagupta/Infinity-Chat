@@ -106,6 +106,9 @@
             <button class="tab-button active" data-tab="api-keys">API Keys</button>
             <button class="tab-button" data-tab="custom-prompts">Custom Prompts</button>
             <button class="tab-button" data-tab="change-password">Change Password</button>
+            <button class="tab-button" data-tab="customer-support">Customer Support</button>
+
+
         </div>
 
         <section id="api-keys" class="tab-content active">
@@ -165,6 +168,17 @@
                     Password</button>
             </form>
         </section>
+        <section id="customer-support" class="tab-content">
+            <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Customer Support Chat</h2>
+            <div id="chat-container" class="bg-white rounded-lg shadow-md p-4 max-h-96 overflow-y-auto mb-4">
+                <!-- Chat messages will be appended here -->
+            </div>
+            <div class="flex">
+                <input type="text" id="user-input" class="flex-grow px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Type your message...">
+                <button onclick="sendMessage()" class="bg-purple-500 text-white px-4 py-2 rounded-r-md hover:bg-purple-600 transition duration-300">Send</button>
+            </div>
+        </section>
+        <button class="tab-button" data-tab="customer-support">Customer Support</button>
     </main>
 
     <div id="apiTestModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" style="display: none;">
@@ -184,6 +198,7 @@
                 <div id="apiResponse" class="mt-4 text-left overflow-auto max-h-60"></div>
             </div>
         </div>
+        
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -279,6 +294,56 @@ function sendApiTest() {
         document.getElementById('apiResponse').innerHTML = `<p>Error: ${error}</p>`;
     });
 }
+let chatInitialized = false;
+
+function initializeChat() {
+    if (!chatInitialized) {
+        const chatContainer = document.getElementById('chat-container');
+        chatContainer.innerHTML = '<div class="mb-2"><strong>Chatbot:</strong> Hello! How can I assist you today?</div>';
+        chatInitialized = true;
+    }
+}
+
+function sendMessage() {
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value.trim();
+    if (message) {
+        appendMessage('You', message);
+        userInput.value = '';
+        
+        // Simulate chatbot response (replace this with actual API call in production)
+        setTimeout(() => {
+            const response = "Thank you for your message. Our support team will get back to you shortly.";
+            appendMessage('Chatbot', response);
+        }, 1000);
+    }
+}
+
+function appendMessage(sender, message) {
+    const chatContainer = document.getElementById('chat-container');
+    const messageElement = document.createElement('div');
+    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+    messageElement.classList.add('mb-2');
+    chatContainer.appendChild(messageElement);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Modify the existing tab button event listener
+tabButtons.forEach(button => {
+    button.addEventListener('click', () => {
+        const targetTab = button.getAttribute('data-tab');
+
+        tabButtons.forEach(btn => btn.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+
+        button.classList.add('active');
+        document.getElementById(targetTab).classList.add('active');
+
+        if (targetTab === 'customer-support') {
+            initializeChat();
+        }
+    });
+});
     </script>
 </body>
 

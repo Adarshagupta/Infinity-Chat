@@ -20,7 +20,6 @@ import time
 from alembic import op
 import sqlalchemy as sa
 
-
 # Load environment variables from .env file
 load_dotenv()
 
@@ -89,7 +88,23 @@ class Analytics(db.Model):
     response_time = db.Column(db.Float, nullable=False)
     status_code = db.Column(db.Integer, nullable=False)
 
+# New database models
+class AIModel(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    provider = db.Column(db.String(100), nullable=False)
+    api_endpoint = db.Column(db.String(200), nullable=False)
+    documentation_url = db.Column(db.String(200), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
+class ModelReview(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    model_id = db.Column(db.Integer, db.ForeignKey('ai_model.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    review_text = db.Column(db.Text, nullable=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 def extract_text_from_url(url):
     response = requests.get(url)
@@ -582,6 +597,65 @@ def test_api_key():
     except Exception as e:
         app.logger.error(f"Unexpected error in API test: {str(e)}")
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+# New routes
+@app.route('/ai_models', methods=['GET'])
+def get_ai_models():
+    models = AIModel.query.all()
+    return jsonify([{
+        'id': model.id,
+        'name': model.name,
+        'description': model.description,
+        'provider': model.provider,
+        'documentation_url': model.documentation_url,
+        'average_rating': get_average_rating(model.id)
+    } for model in models])
+
+@app.route('/ai_models/<int:model_id>', methods=['GET'])
+def get_ai_model(model_id):
+    model = AIModel.query.get_or_404(model_id)
+    reviews = ModelReview.query.filter_by(model_id=model_id).all()
+    return jsonify({
+        'id': model.id,
+        'name': model.name,
+        'description': model.description,
+        'provider': model.provider,
+        'documentation_url': model.documentation_url,
+        'average_rating': get_average_rating(model_id),
+        'reviews': [{
+            'user_id': review.user_id,
+            'rating': review.rating,
+            'review_text': review.review_text,
+            'created_at': review.created_at
+        } for review in reviews]
+    })
+
+@app.route('/ai_models/<int:model_id>/review', methods=['POST'])
+def add_model_review(model_id):
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+    
+    data = request.json
+    new_review = ModelReview(
+        user_id=session['user_id'],
+        model_id=model_id,
+        rating=data['rating'],
+        review_text=data.get('review_text', '')
+    )
+    db.session.add(new_review)
+    db.session.commit()
+    return jsonify({"message": "Review added successfully"}), 201
+
+def get_average_rating(model_id):
+    reviews = ModelReview.query.filter_by(model_id=model_id).all()
+    if not reviews:
+        return 0
+    return sum(review.rating for review in reviews) / len(reviews)
+
+@app.route('/ai_marketplace')
+def ai_marketplace():
+    models = AIModel.query.all()
+    return render_template('ai_marketplace.html', models=models)
 
 if __name__ == '__main__':
     with app.app_context():
