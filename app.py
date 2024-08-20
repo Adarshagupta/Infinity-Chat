@@ -542,6 +542,33 @@ def change_password():
 
     return redirect(url_for('dashboard'))
 
+@app.route('/test_api_key', methods=['POST'])
+def test_api_key():
+    if 'user_id' not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
+    api_key = request.json.get('api_key')
+    test_input = request.json.get('input', "Hello, this is a test message.")
+
+    api_key_data = APIKey.query.filter_by(key=api_key).first()
+    if not api_key_data:
+        return jsonify({"error": "Invalid API key"}), 400
+
+    try:
+        response = requests.post('http://localhost:5410/chat', json={
+            'input': test_input,
+            'api_key': api_key
+        })
+        
+        return jsonify({
+            "status_code": response.status_code,
+            "headers": dict(response.headers),
+            "response": response.json()
+        }), 200
+    
+    except Exception as e:
+        return jsonify({"error": f"API test failed: {str(e)}"}), 500
+
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <title>Dashboard</title>
@@ -11,52 +12,63 @@
         .tab-content {
             display: none;
         }
+
         .tab-content.active {
             display: block;
         }
     </style>
 </head>
+
 <body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 font-sans">
     <nav id="header" class="fixed w-full z-10 bg-white shadow-sm">
         <div class="container mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between h-16">
                 <div class="flex items-center">
                     <a href="javascript:history.back()" class="text-gray-500 hover:text-gray-700 mr-3">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                            stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
                         </svg>
                     </a>
-                    <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png" alt="NeuroWeb Logo" class="h-8 w-8">
+                    <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png"
+                        alt="NeuroWeb Logo" class="h-8 w-8">
                     <h1 class="ml-2 text-xl font-semibold text-gray-900">NeuroWeb</h1>
                 </div>
-                
+
                 <div class="hidden md:block">
                     <div class="ml-10 flex items-baseline space-x-4">
-                        <a href="/api/dashboard" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Customize API</a>
-                        <a href="/api/dashboard" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">API Usage</a>
-                        <a href="/api/analytics" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Web Analytics</a>
-                        <a href="" class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Custom Prompt</a>
+                        <a href="/api/dashboard"
+                            class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Customize
+                            API</a>
+                        <a href="/api/dashboard"
+                            class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">API
+                            Usage</a>
+                        <a href="/api/analytics"
+                            class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Web
+                            Analytics</a>
+                        <a href=""
+                            class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium">Custom
+                            Prompt</a>
                     </div>
                 </div>
-    
-                <div class="ml-3 relative">
-                    <div>
-                        <button type="button" class="flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                            <img class="h-8 w-8 rounded-full" src="https://via.placeholder.com/40" alt="Profile">
-                            <svg class="ml-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                        <a href="#" id="profileLink" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Profile</a>
-                        <a href="#" id="logoutLink" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Logout</a>
+
+                <div class="dropdown">
+                    <button class="flex items-center text-black hover:text-gray-700 transition duration-300">
+                        <img src="https://via.placeholder.com/40" alt="Profile" class="w-10 h-10 rounded-full mr-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd"
+                                d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                    <div class="dropdown-content">
+                        <a href="#" id="profileLink" class="text-black hover:text-gray-700 transition duration-300">Profile</a>
+                        <a href="#" id="logoutLink" class="text-black hover:text-gray-700 transition duration-300">Logout</a>
                     </div>
                 </div>
             </div>
-        </div>
     </nav>
-    
+
     <nav id="header" class="glass fixed w-full z-10 py-4 shadow-md hidden">
         <div class="container mx-auto px-6 flex justify-between items-center">
             <div class="flex items-center">
@@ -100,13 +112,15 @@
             <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Your API Keys</h2>
             <ul>
                 {% for key in api_keys %}
-                    <li class="bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105">
-                        <span>{{ key.key }}</span>
-                        <form action="{{ url_for('delete_api_key') }}" method="post">
+                <li class="bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105">
+                    <span>{{ key.key }}</span>
+                    <div>
+                        <button onclick="openApiTestModal('{{ key.key }}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>                        <form action="{{ url_for('delete_api_key') }}" method="post" class="inline">
                             <input type="hidden" name="api_key_id" value="{{ key.id }}">
                             <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
                         </form>
-                    </li>
+                    </div>
+                </li>
                 {% endfor %}
             </ul>
         </section>
@@ -115,20 +129,25 @@
             <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Custom Prompts</h2>
             <ul>
                 {% for prompt in custom_prompts %}
-                    <li class="bg-gray-100 rounded-md p-4 mb-4 transition-transform duration-200 hover:bg-white hover:scale-105">
-                        <div>
-                            <strong>{{ prompt.prompt }}</strong>
-                            <p>{{ prompt.response }}</p>
-                        </div>
-                    </li>
+                <li
+                    class="bg-gray-100 rounded-md p-4 mb-4 transition-transform duration-200 hover:bg-white hover:scale-105">
+                    <div>
+                        <strong>{{ prompt.prompt }}</strong>
+                        <p>{{ prompt.response }}</p>
+                    </div>
+                </li>
                 {% endfor %}
             </ul>
             <form action="{{ url_for('add_custom_prompt') }}" method="post" class="space-y-4">
                 <label for="prompt" class="block">Prompt:</label>
-                <input type="text" id="prompt" name="prompt" required class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
+                <input type="text" id="prompt" name="prompt" required
+                    class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
                 <label for="response" class="block">Response:</label>
-                <textarea id="response" name="response" required class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200"></textarea>
-                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Add Custom Prompt</button>
+                <textarea id="response" name="response" required
+                    class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200"></textarea>
+                <button type="submit"
+                    class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Add
+                    Custom Prompt</button>
             </form>
         </section>
 
@@ -136,16 +155,38 @@
             <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Change Password</h2>
             <form action="{{ url_for('change_password') }}" method="post" class="space-y-4">
                 <label for="current_password" class="block">Current Password:</label>
-                <input type="password" id="current_password" name="current_password" required class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
+                <input type="password" id="current_password" name="current_password" required
+                    class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
                 <label for="new_password" class="block">New Password:</label>
-                <input type="password" id="new_password" name="new_password" required class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
-                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Change Password</button>
+                <input type="password" id="new_password" name="new_password" required
+                    class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
+                <button type="submit"
+                    class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Change
+                    Password</button>
             </form>
         </section>
     </main>
 
+    <div id="apiTestModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" style="display: none;">
+        <div class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+            <div class="mt-3 text-center">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Test API</h3>
+                <div class="mt-2 px-7 py-3">
+                    <input id="apiKeyInput" type="text" placeholder="API Key" class="w-full px-3 py-2 border rounded-md mb-3">
+                    <textarea id="apiInputText" rows="4" placeholder="Enter your test message here" class="w-full px-3 py-2 border rounded-md mb-3"></textarea>
+                    <button onclick="sendApiTest()" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                        Send
+                    </button>
+                    <button onclick="closeApiTestModal()" class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded ml-2">
+                        Close
+                    </button>
+                </div>
+                <div id="apiResponse" class="mt-4 text-left overflow-auto max-h-60"></div>
+            </div>
+        </div>
+    </div>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             const tabButtons = document.querySelectorAll('.tab-button');
             const tabContents = document.querySelectorAll('.tab-content');
 
@@ -161,6 +202,84 @@
                 });
             });
         });
+                // Add logout functionality
+                const logoutLink = document.getElementById('logoutLink');
+        logoutLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            // Send a POST request to the logout endpoint
+            fetch('/logout', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Logged out successfully") {
+                    // Redirect to the home page or login page after successful logout
+                    window.location.href = '/';
+                } else {
+                    console.error('Logout failed:', data.error);
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+        });
+        function testApiKey(apiKey) {
+    fetch('/test_api_key', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: `api_key=${apiKey}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            alert(`API test successful! Response: ${JSON.stringify(data.response)}`);
+        } else {
+            alert(`API test failed: ${data.error}`);
+        }
+    })
+    .catch((error) => {
+        alert(`Error: ${error}`);
+    });
+}
+
+function openApiTestModal(apiKey) {
+    document.getElementById('apiTestModal').style.display = 'block';
+    document.getElementById('apiKeyInput').value = apiKey;
+}
+
+function closeApiTestModal() {
+    document.getElementById('apiTestModal').style.display = 'none';
+    document.getElementById('apiResponse').innerHTML = '';
+}
+
+function sendApiTest() {
+    const apiKey = document.getElementById('apiKeyInput').value;
+    const input = document.getElementById('apiInputText').value;
+    
+    fetch('/test_api_key', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ api_key: apiKey, input: input })
+    })
+    .then(response => response.json())
+    .then(data => {
+        let responseHtml = `<p><strong>Status Code:</strong> ${data.status_code}</p>`;
+        responseHtml += '<p><strong>Headers:</strong></p><pre>' + JSON.stringify(data.headers, null, 2) + '</pre>';
+        responseHtml += '<p><strong>Response:</strong></p><pre>' + JSON.stringify(data.response, null, 2) + '</pre>';
+        document.getElementById('apiResponse').innerHTML = responseHtml;
+    })
+    .catch((error) => {
+        document.getElementById('apiResponse').innerHTML = `<p>Error: ${error}</p>`;
+    });
+}
     </script>
 </body>
+
 </html>

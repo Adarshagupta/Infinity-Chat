@@ -62,6 +62,28 @@
         .dropdown:hover .dropdown-content {
             display: block;
         }
+        #sidebar {
+            position: fixed;
+            right: -300px;
+            top: 0;
+            width: 300px;
+            height: 100%;
+            background-color: #f8f9fa;
+            transition: right 0.3s ease-in-out;
+            z-index: 1000;
+            overflow-y: auto;
+        }
+        
+        #sidebar.open {
+            right: 0;
+        }
+        
+        #sidebar-toggle {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            z-index: 1001;
+        }
     </style>
 </head>
 
@@ -239,183 +261,209 @@
             </div>
         </div>
     </div>
+    
 
     <script>
-        let currentUser = null;
-        let currentApiKey = null;
-        let currentLLM = null;
+let currentUser = null;
+let currentApiKey = null;
+let currentLLM = null;
 
-        function switchTab(tab) {
-            const loginTab = document.getElementById('loginTab');
-            const registerTab = document.getElementById('registerTab');
-            const loginForm = document.getElementById('loginForm');
-            const registerForm = document.getElementById('registerForm');
+function switchTab(tab) {
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
 
-            if (tab === 'login') {
-                loginTab.classList.add('bg-gray-100');
-                registerTab.classList.remove('bg-gray-100');
-                loginForm.classList.remove('hidden');
-                registerForm.classList.add('hidden');
-            } else {
-                registerTab.classList.add('bg-gray-100');
-                loginTab.classList.remove('bg-gray-100');
-                registerForm.classList.remove('hidden');
-                loginForm.classList.add('hidden');
-            }
+    if (tab === 'login') {
+        loginTab.classList.add('bg-gray-100');
+        registerTab.classList.remove('bg-gray-100');
+        loginForm.classList.remove('hidden');
+        registerForm.classList.add('hidden');
+    } else {
+        registerTab.classList.add('bg-gray-100');
+        loginTab.classList.remove('bg-gray-100');
+        registerForm.classList.remove('hidden');
+        loginForm.classList.add('hidden');
+    }
+}
+
+async function register() {
+    const email = document.getElementById('registerEmail').value;
+    const password = document.getElementById('registerPassword').value;
+    const loader = document.getElementById('loader');
+
+    loader.classList.remove('hidden');
+
+    try {
+        const response = await axios.post('/register', { email, password });
+        showNotification(response.data.message, 'success');
+        switchTab('login');
+    } catch (error) {
+        showNotification(error.response.data.error, 'error');
+    } finally {
+        loader.classList.add('hidden');
+    }
+}
+
+async function login() {
+    const email = document.getElementById('loginEmail').value;
+    const password = document.getElementById('loginPassword').value;
+    const loader = document.getElementById('loader');
+
+    loader.classList.remove('hidden');
+
+    try {
+        const response = await axios.post('/login', { email, password });
+        currentUser = email;
+        localStorage.setItem('currentUser', email);
+        updateUI();
+        fetchApiKeys();
+        showNotification('Logged in successfully', 'success');
+    } catch (error) {
+        showNotification(error.response.data.error, 'error');
+    } finally {
+        loader.classList.add('hidden');
+    }
+}
+
+async function logout() {
+    console.log("Logout function called");
+    const loader = document.getElementById('loader');
+
+    loader.classList.remove('hidden');
+
+    try {
+        await axios.post('/logout');
+        console.log("Logout API call successful");
+        currentUser = null;
+        currentApiKey = null;
+        currentLLM = null;
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('currentApiKey');
+        localStorage.removeItem('currentLLM');
+        console.log("Local storage cleared");
+        updateUI();
+        forceRerender();
+        showNotification('Logged out successfully', 'success');
+    } catch (error) {
+        console.error('Logout error:', error);
+        showNotification('Error logging out', 'error');
+    } finally {
+        loader.classList.add('hidden');
+    }
+    
+    // Add a delayed check
+    setTimeout(() => {
+        console.log("Delayed check - Current user:", currentUser);
+        updateUI();
+    }, 1000);
+}
+
+function updateUI() {
+    console.log("UpdateUI called. Current user:", currentUser);
+    const authForms = document.getElementById('authForms');
+    const userInfo = document.getElementById('userInfo');
+    const userEmailSpan = document.getElementById('userEmail');
+    const logoutLink = document.getElementById('logoutLink');
+    const profileLink = document.getElementById('profileLink');
+    const result = document.getElementById('result');
+    const header = document.getElementById('header');
+    const chatbot = document.getElementById('ai-chatbot');
+
+    if (currentUser) {
+        console.log("User is logged in, showing user info");
+        authForms.classList.add('hidden');
+        userInfo.classList.remove('hidden');
+        userEmailSpan.textContent = currentUser;
+        logoutLink.classList.remove('hidden');
+        profileLink.classList.remove('hidden');
+        header.classList.remove('hidden');
+        chatbot.classList.remove('hidden');
+    } else {
+        console.log("User is logged out, showing auth forms");
+        authForms.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+        result.classList.add('hidden');
+        logoutLink.classList.add('hidden');
+        profileLink.classList.add('hidden');
+        header.classList.add('hidden');
+        chatbot.classList.add('hidden');
+        switchTab('login');
+    }
+}
+
+function forceRerender() {
+    const authForms = document.getElementById('authForms');
+    const userInfo = document.getElementById('userInfo');
+    authForms.style.display = 'none';
+    userInfo.style.display = 'none';
+    setTimeout(() => {
+        authForms.style.display = '';
+        userInfo.style.display = '';
+        updateUI();
+    }, 0);
+}
+
+async function fetchApiKeys() {
+    try {
+        const response = await axios.get('/user/api_keys');
+        const apiKeyDropdown = document.getElementById('apiKeyDropdown');
+        const recentApiKeyDiv = document.getElementById('recentApiKey');
+        const recentApiKeyText = document.getElementById('recentApiKeyText');
+        apiKeyDropdown.innerHTML = '';
+        recentApiKeyDiv.classList.add('hidden');
+
+        if (response.data.api_keys.length > 0) {
+            const mostRecentKey = response.data.api_keys[0];
+            recentApiKeyDiv.classList.remove('hidden');
+            recentApiKeyText.textContent = mostRecentKey.api_key;
+            document.getElementById('copyRecentApiKey').onclick = () => copyToClipboard(mostRecentKey.api_key);
+
+            response.data.api_keys.forEach((key, index) => {
+                const option = document.createElement('option');
+                option.value = key.api_key;
+                option.textContent = `${key.api_key} (${key.llm})`;
+                apiKeyDropdown.appendChild(option);
+            });
+        } else {
+            recentApiKeyDiv.classList.add('hidden');
+            apiKeyDropdown.innerHTML = '<option value="">No API keys available</option>';
         }
 
-        async function register() {
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const loader = document.getElementById('loader');
+        addApiKeyButtons();
 
-            loader.classList.remove('hidden');
+    } catch (error) {
+        console.error('Error fetching API keys:', error);
+        showNotification('Error fetching API keys', 'error');
+    }
+}
 
-            try {
-                const response = await axios.post('/register', { email, password });
-                showNotification(response.data.message, 'success');
-                switchTab('login');
-            } catch (error) {
-                showNotification(error.response.data.error, 'error');
-            } finally {
-                loader.classList.add('hidden');
-            }
-        }
+function copySelectedApiKey() {
+    const dropdown = document.getElementById('apiKeyDropdown');
+    const selectedApiKey = dropdown.value;
+    copyToClipboard(selectedApiKey);
+}
 
-        async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
-            const loader = document.getElementById('loader');
+function selectApiKeyFromDropdown() {
+    const dropdown = document.getElementById('apiKeyDropdown');
+    const selectedOption = dropdown.options[dropdown.selectedIndex];
+    const apiKey = selectedOption.value;
+    const llm = selectedOption.textContent.split('(')[1].split(')')[0];
+    selectApiKey(apiKey, llm);
+}
 
-            loader.classList.remove('hidden');
+async function deleteSelectedApiKey() {
+    const dropdown = document.getElementById('apiKeyDropdown');
+    const selectedApiKey = dropdown.value;
+    if (!selectedApiKey) {
+        showNotification('Please select an API key to delete', 'error');
+        return;
+    }
+    await deleteApiKey(selectedApiKey);
+    await fetchApiKeys();
+}
 
-            try {
-                const response = await axios.post('/login', { email, password });
-                currentUser = email;
-                localStorage.setItem('currentUser', email);
-                updateUI();
-                fetchApiKeys();
-                showNotification('Logged in successfully', 'success');
-            } catch (error) {
-                showNotification(error.response.data.error, 'error');
-            } finally {
-                loader.classList.add('hidden');
-            }
-        }
-
-        async function logout() {
-            const loader = document.getElementById('loader');
-
-            loader.classList.remove('hidden');
-
-            try {
-                await axios.post('/logout');
-                currentUser = null;
-                currentApiKey = null;
-                currentLLM = null;
-                localStorage.removeItem('currentUser');
-                localStorage.removeItem('currentApiKey');
-                localStorage.removeItem('currentLLM');
-                updateUI();
-                showNotification('Logged out successfully', 'success');
-            } catch (error) {
-                console.error('Logout error:', error);
-                showNotification('Error logging out', 'error');
-            } finally {
-                loader.classList.add('hidden');
-            }
-        }
-
-        function updateUI() {
-            const authForms = document.getElementById('authForms');
-            const userInfo = document.getElementById('userInfo');
-            const userEmailSpan = document.getElementById('userEmail');
-            const logoutLink = document.getElementById('logoutLink');
-            const profileLink = document.getElementById('profileLink');
-            const result = document.getElementById('result');
-            const header = document.getElementById('header');
-            const chatbot = document.getElementById('ai-chatbot');
-
-            if (currentUser) {
-                authForms.classList.add('hidden');
-                userInfo.classList.remove('hidden');
-                userEmailSpan.textContent = currentUser;
-                logoutLink.classList.remove('hidden');
-                profileLink.classList.remove('hidden');
-                header.classList.remove('hidden');
-                chatbot.classList.remove('hidden');
-            } else {
-                authForms.classList.remove('hidden');
-                userInfo.classList.add('hidden');
-                result.classList.add('hidden');
-                logoutLink.classList.add('hidden');
-                profileLink.classList.add('hidden');
-                header.classList.add('hidden');
-                chatbot.classList.add('hidden');
-                switchTab('login');
-            }
-        }
-        async function fetchApiKeys() {
-            try {
-                const response = await axios.get('/user/api_keys');
-                const apiKeyDropdown = document.getElementById('apiKeyDropdown');
-                const recentApiKeyDiv = document.getElementById('recentApiKey');
-                const recentApiKeyText = document.getElementById('recentApiKeyText');
-                apiKeyDropdown.innerHTML = '';
-                recentApiKeyDiv.classList.add('hidden');
-
-                if (response.data.api_keys.length > 0) {
-                    const mostRecentKey = response.data.api_keys[0];
-                    recentApiKeyDiv.classList.remove('hidden');
-                    recentApiKeyText.textContent = mostRecentKey.api_key;
-                    document.getElementById('copyRecentApiKey').onclick = () => copyToClipboard(mostRecentKey.api_key);
-
-                    response.data.api_keys.forEach((key, index) => {
-                        const option = document.createElement('option');
-                        option.value = key.api_key;
-                        option.textContent = `${key.api_key} (${key.llm})`;
-                        apiKeyDropdown.appendChild(option);
-                    });
-                } else {
-                    recentApiKeyDiv.classList.add('hidden');
-                    apiKeyDropdown.innerHTML = '<option value="">No API keys available</option>';
-                }
-
-                // Add buttons after the dropdown
-                addApiKeyButtons();
-
-            } catch (error) {
-                console.error('Error fetching API keys:', error);
-                showNotification('Error fetching API keys', 'error');
-            }
-        }
-
-        function copySelectedApiKey() {
-            const dropdown = document.getElementById('apiKeyDropdown');
-            const selectedApiKey = dropdown.value;
-            copyToClipboard(selectedApiKey);
-        }
-
-        function selectApiKeyFromDropdown() {
-            const dropdown = document.getElementById('apiKeyDropdown');
-            const selectedOption = dropdown.options[dropdown.selectedIndex];
-            const apiKey = selectedOption.value;
-            const llm = selectedOption.textContent.split('(')[1].split(')')[0];
-            selectApiKey(apiKey, llm);
-        }
-
-        async function deleteSelectedApiKey() {
-            const dropdown = document.getElementById('apiKeyDropdown');
-            const selectedApiKey = dropdown.value;
-            if (!selectedApiKey) {
-                showNotification('Please select an API key to delete', 'error');
-                return;
-            }
-            await deleteApiKey(selectedApiKey);
-            await fetchApiKeys(); // Refresh the list after deletion
-        }
-
-        async function processUrl() {
+async function processUrl() {
     const url = document.getElementById('urlInput').value;
     const llm = document.getElementById('llmSelect').value;
     const resultDiv = document.getElementById('result');
@@ -426,7 +474,6 @@
 
     loader.classList.remove('hidden');
 
-    // Simulated steps
     const steps = [
         'Fetching data...',
         'Training LLM...',
@@ -436,7 +483,7 @@
     try {
         for (const step of steps) {
             loaderText.textContent = step;
-            await new Promise(resolve => setTimeout(resolve, 5000)); // 5 seconds delay
+            await new Promise(resolve => setTimeout(resolve, 5000));
         }
 
         const response = await axios.post('/process_url', { url: url, llm: llm });
@@ -454,7 +501,7 @@
             integrationCodeTextarea.value = 'Integration code not found in response';
         }
 
-        await fetchApiKeys(); // Refresh the API keys list
+        await fetchApiKeys();
         showNotification('URL processed successfully', 'success');
     } catch (error) {
         console.error('Error:', error);
@@ -470,71 +517,66 @@
         showNotification(errorMessage, 'error');
     } finally {
         loader.classList.add('hidden');
-        loaderText.textContent = 'Processing...'; // Reset loader text
+        loaderText.textContent = 'Processing...';
     }
 }
-        function showNotification(message, type) {
-            const notification = document.createElement('div');
-            notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
-            notification.textContent = message;
-            document.body.appendChild(notification);
-            setTimeout(() => {
-                notification.remove();
-            }, 3000);
-        }
-        function addApiKeyButtons() {
-            const apiKeyDropdown = document.getElementById('apiKeyDropdown');
-            const buttonContainer = document.getElementById('apiKeyButtonContainer');
 
-            // Clear existing buttons
-            buttonContainer.innerHTML = '';
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
+}
 
-            // Always add the buttons
-            buttonContainer.className = 'mt-2 flex justify-between';
-            buttonContainer.innerHTML = `
-                <button onclick="copySelectedApiKey()" class="bg-gray-500 text-white px-2 py-1 rounded-md hover:bg-gray-600 transition duration-300">Copy</button>
-                <button onclick="selectApiKeyFromDropdown()" class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition duration-300">Select</button>
-                <button onclick="deleteSelectedApiKey()" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 transition duration-300">Delete</button>
-            `;
-        }
+function addApiKeyButtons() {
+    const buttonContainer = document.getElementById('apiKeyButtonContainer');
+    buttonContainer.innerHTML = '';
+    buttonContainer.className = 'mt-2 flex justify-between';
+    buttonContainer.innerHTML = `
+        <button onclick="copySelectedApiKey()" class="bg-gray-500 text-white px-2 py-1 rounded-md hover:bg-gray-600 transition duration-300">Copy</button>
+        <button onclick="selectApiKeyFromDropdown()" class="bg-blue-500 text-white px-2 py-1 rounded-md hover:bg-blue-600 transition duration-300">Select</button>
+        <button onclick="deleteSelectedApiKey()" class="bg-red-500 text-white px-2 py-1 rounded-md hover:bg-red-600 transition duration-300">Delete</button>
+    `;
+}
 
-        async function deleteApiKey(apiKey) {
-            const loader = document.getElementById('loader');
+async function deleteApiKey(apiKey) {
+    const loader = document.getElementById('loader');
+    loader.classList.remove('hidden');
+    try {
+        const response = await axios.post('/delete_api_key', { api_key: apiKey });
+        showNotification('API key deleted successfully', 'success');
+        fetchApiKeys();
+    } catch (error) {
+        console.error('Error deleting API key:', error);
+        showNotification('Error deleting API key', 'error');
+    } finally {
+        loader.classList.add('hidden');
+    }
+}
 
-            loader.classList.remove('hidden');
+function selectApiKey(apiKey, llm) {
+    currentApiKey = apiKey;
+    currentLLM = llm;
+    console.log('Selected API key:', currentApiKey, 'with LLM:', currentLLM);
+    showNotification(`API key ${apiKey} (${llm}) selected for chatbot`, 'success');
 
-            try {
-                const response = await axios.post('/delete_api_key', { api_key: apiKey });
-                showNotification('API key deleted successfully', 'success');
-                fetchApiKeys();
-            } catch (error) {
-                console.error('Error deleting API key:', error);
-                showNotification('Error deleting API key', 'error');
-            } finally {
-                loader.classList.add('hidden');
-            }
-        }
+    const apiKeyElements = document.querySelectorAll('#apiKeyList li');
+    apiKeyElements.forEach(el => {
+        el.classList.remove('bg-blue-100');
+    });
+    const selectedElement = document.querySelector(`#apiKeyList li:contains('${apiKey}')`);
+    if (selectedElement) {
+        selectedElement.classList.add('bg-blue-100');
+    }
 
-        function selectApiKey(apiKey, llm) {
-            currentApiKey = apiKey;
-            currentLLM = llm;
-            console.log('Selected API key:', currentApiKey, 'with LLM:', currentLLM);
-            showNotification(`API key ${apiKey} (${llm}) selected for chatbot`, 'success');
+    localStorage.setItem('currentApiKey', apiKey);
+    localStorage.setItem('currentLLM', llm);
+}
 
-            const apiKeyElements = document.querySelectorAll('#apiKeyList li');
-            apiKeyElements.forEach(el => {
-                el.classList.remove('bg-blue-100');
-            });
-            const selectedElement = document.querySelector(`#apiKeyList li:contains('${apiKey}')`);
-            if (selectedElement) {
-                selectedElement.classList.add('bg-blue-100');
-            }
-
-            localStorage.setItem('currentApiKey', apiKey);
-            localStorage.setItem('currentLLM', llm);
-        }
-
-        const chatWithAI = async (input) => {
+const chatWithAI = async (input) => {
     console.log('Attempting to chat with API key:', currentApiKey, 'and LLM:', currentLLM);
     if (!currentApiKey || !currentLLM) {
         showNotification('Please select an API key first', 'error');
@@ -555,78 +597,41 @@
     }
 };
 
-        function toggleChatbot() {
-            const chatbotContent = document.getElementById('chatbot-content');
-            const chatbotToggle = document.getElementById('chatbot-toggle');
-            chatbotContent.classList.toggle('hidden');
-            chatbotToggle.classList.toggle('rotate-180');
-        }
+function toggleChatbot() {
+    const chatbotContent = document.getElementById('chatbot-content');
+    const chatbotToggle = document.getElementById('chatbot-toggle');
+    chatbotContent.classList.toggle('hidden');
+    chatbotToggle.classList.toggle('rotate-180');
+}
 
-        async function sendMessage() {
-            const userInput = document.getElementById('user-input');
-            const chatMessages = document.getElementById('chat-messages');
+async function sendMessage() {
+    const userInput = document.getElementById('user-input');
+    const chatMessages = document.getElementById('chat-messages');
 
-            const userMessage = userInput.value.trim();
-            if (userMessage === '') return;
+    const userMessage = userInput.value.trim();
+    if (userMessage === '') return;
 
-            // Add user message to chat
-            chatMessages.innerHTML += `<div class="mb-2"><strong>You:</strong> ${userMessage}</div>`;
-            userInput.value = '';
+    chatMessages.innerHTML += `<div class="mb-2"><strong>You:</strong> ${userMessage}</div>`;
+    userInput.value = '';
 
-            // Get AI response
-            const aiResponse = await chatWithAI(userMessage);
+    const aiResponse = await chatWithAI(userMessage);
 
-            // Add AI response to chat
-            chatMessages.innerHTML += `<div class="mb-2"><strong>${currentLLM === 'together' ? 'Together AI' : 'OpenAI'}:</strong> ${aiResponse}</div>`;
+    chatMessages.innerHTML += `<div class="mb-2"><strong>${currentLLM === 'together' ? 'Together AI' : 'OpenAI'}:</strong> ${aiResponse}</div>`;
 
-            // Scroll to bottom of chat
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
 
-        function copyToClipboard(text) {
-            const tempInput = document.createElement('input');
-            tempInput.value = text;
-            document.body.appendChild(tempInput);
-            tempInput.select();
-            document.execCommand('copy');
-            document.body.removeChild(tempInput);
-            showNotification('API key copied to clipboard', 'success');
-        }
+function copyToClipboard(text) {
+    const tempInput = document.createElement('input');
+    tempInput.value = text;
+    document.body.appendChild(tempInput);
+    tempInput.select();
+    document.execCommand('copy');
+    document.body.removeChild(tempInput);
+    showNotification('API key copied to clipboard', 'success');
+}
 
-        // Add event listeners when the DOM is fully loaded
-        document.addEventListener('DOMContentLoaded', function () {
-            // Add event listener for logout link
-            document.getElementById('logoutLink').addEventListener('click', function (e) {
-                e.preventDefault(); // Prevent the default link behavior
-                logout();
-            });
-
-            // Check if user is already logged in (e.g., from a previous session)
-            const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = savedUser;
-                updateUI();
-                fetchApiKeys();
-            }
-
-            // Check if an API key and LLM were previously selected
-            const savedApiKey = localStorage.getItem('currentApiKey');
-            const savedLLM = localStorage.getItem('currentLLM');
-            if (savedApiKey && savedLLM) {
-                currentApiKey = savedApiKey;
-                currentLLM = savedLLM;
-                console.log('Loaded saved API key:', currentApiKey, 'with LLM:', currentLLM);
-            }
-
-            // Add event listener for chat input
-            document.getElementById('user-input').addEventListener('keypress', function (e) {
-                if (e.key === 'Enter') {
-                    e.preventDefault();
-                    sendMessage();
-                }
-            });
-        });
-        async function uploadCSV() {
+async function uploadCSV() {
     const fileInput = document.getElementById('csvFileInput');
     const file = fileInput.files[0];
     const loader = document.getElementById('loader');
@@ -648,15 +653,177 @@
             }
         });
         showNotification('CSV file uploaded and processed successfully', 'success');
-        // Optionally, you can update the UI or fetch updated data here
     } catch (error) {
         console.error('Error uploading CSV:', error);
         showNotification(error.response?.data?.error || 'Error uploading CSV', 'error');
     } finally {
         loader.classList.add('hidden');
-        fileInput.value = ''; // Clear the file input
+        fileInput.value = '';
     }
 }
+
+document.addEventListener('DOMContentLoaded', function() {
+    console.log("DOM loaded. Checking localStorage...");
+    const savedUser = localStorage.getItem('currentUser');
+    if (savedUser) {
+        console.log("User found in localStorage:", savedUser);
+        currentUser = savedUser;
+        updateUI();
+        fetchApiKeys();
+    } else {
+        console.log("No user found in localStorage");
+        currentUser = null;
+        updateUI();
+    }
+
+    // Check if an API key and LLM were previously selected
+    const savedApiKey = localStorage.getItem('currentApiKey');
+    const savedLLM = localStorage.getItem('currentLLM');
+    if (savedApiKey && savedLLM) {
+        currentApiKey = savedApiKey;
+        currentLLM = savedLLM;
+        console.log('Loaded saved API key:', currentApiKey, 'with LLM:', currentLLM);
+    }
+
+    // Add event listener for logout link
+    document.getElementById('logoutLink').addEventListener('click', function (e) {
+        e.preventDefault(); // Prevent the default link behavior
+        logout();
+    });
+
+    // Add event listener for chat input
+    document.getElementById('user-input').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+
+    // Add event listener for file upload
+    const fileInput = document.getElementById('csvFileInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', uploadCSV);
+    }
+
+    // Initialize UI components
+    initializeUIComponents();
+});
+
+function initializeUIComponents() {
+    // Initialize dropdown menu
+    const userMenuButton = document.getElementById('user-menu-button');
+    const userMenu = document.querySelector('[role="menu"]');
+    if (userMenuButton && userMenu) {
+        userMenuButton.addEventListener('click', function() {
+            userMenu.classList.toggle('hidden');
+        });
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(event) {
+        if (!userMenuButton.contains(event.target) && !userMenu.contains(event.target)) {
+            userMenu.classList.add('hidden');
+        }
+    });
+
+    // Initialize mobile menu toggle
+    const mobileMenuToggle = document.querySelector('[data-drawer-toggle="default-sidebar"]');
+    const sidebar = document.getElementById('default-sidebar');
+    if (mobileMenuToggle && sidebar) {
+        mobileMenuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('translate-x-0');
+        });
+    }
+
+    // Initialize tabs
+    const loginTab = document.getElementById('loginTab');
+    const registerTab = document.getElementById('registerTab');
+    if (loginTab && registerTab) {
+        loginTab.addEventListener('click', () => switchTab('login'));
+        registerTab.addEventListener('click', () => switchTab('register'));
+    }
+
+    // Initialize form submissions
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    if (loginForm) {
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            login();
+        });
+    }
+    if (registerForm) {
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            register();
+        });
+    }
+
+    // Initialize chatbot toggle
+    const chatbotToggle = document.querySelector('.bg-blue-600.text-white.p-4');
+    if (chatbotToggle) {
+        chatbotToggle.addEventListener('click', toggleChatbot);
+    }
+
+    // Initialize send message button
+    const sendMessageButton = document.querySelector('button[onclick="sendMessage()"]');
+    if (sendMessageButton) {
+        sendMessageButton.addEventListener('click', sendMessage);
+    }
+}
+
+// Additional utility functions
+
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const debouncedUpdateUI = debounce(updateUI, 300);
+
+function validateEmail(email) {
+    const re = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return re.test(String(email).toLowerCase());
+}
+
+function validatePassword(password) {
+    // At least 8 characters, 1 uppercase, 1 lowercase, 1 number
+    const re = /^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}$/;
+    return re.test(password);
+}
+
+// Error handling wrapper
+function asyncErrorHandler(fn) {
+    return function(...args) {
+        fn(...args).catch(error => {
+            console.error('An error occurred:', error);
+            showNotification('An unexpected error occurred. Please try again.', 'error');
+        });
+    };
+}
+
+// Wrap async functions with error handler
+const safeLogin = asyncErrorHandler(login);
+const safeRegister = asyncErrorHandler(register);
+const safeLogout = asyncErrorHandler(logout);
+const safeProcessUrl = asyncErrorHandler(processUrl);
+const safeFetchApiKeys = asyncErrorHandler(fetchApiKeys);
+const safeDeleteApiKey = asyncErrorHandler(deleteApiKey);
+const safeChatWithAI = asyncErrorHandler(chatWithAI);
+const safeUploadCSV = asyncErrorHandler(uploadCSV);
+
+// Replace original function calls with safe versions
+document.querySelector('button[onclick="login()"]').setAttribute('onclick', 'safeLogin()');
+document.querySelector('button[onclick="register()"]').setAttribute('onclick', 'safeRegister()');
+document.querySelector('button[onclick="processUrl()"]').setAttribute('onclick', 'safeProcessUrl()');
+// ... repeat for other function calls
     </script>
 </body>
 
