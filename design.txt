@@ -332,6 +332,15 @@
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         };
+        chatbotDiv.innerHTML += `
+            <audio id="message-received-sound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
+            <audio id="toggle-sound" src="https://assets.mixkit.co/active_storage/sfx/2356/2356-preview.mp3"></audio>
+        `;
+                // Add function to play sound
+        function playSound(soundId) {
+            const sound = document.getElementById(soundId);
+            sound.play();
+        }
 
         window.showReplyingStatus = function() {
             const chatMessages = document.getElementById('chat-messages');
@@ -386,18 +395,21 @@
             if (container.style.display === 'none') {
                 container.style.display = 'flex';
                 container.classList.add('show');
-                // Focus on input when chat is opened
                 document.getElementById('user-input').focus();
+                playSound('toggle-sound');
             } else {
                 container.style.display = 'none';
                 container.classList.remove('show');
+                playSound('toggle-sound');
             }
         });
 
-        // Add close functionality
+
+       // Modify the close functionality to include sound
         document.getElementById('chatbot-close').addEventListener('click', function() {
             document.getElementById('chatbot-container').style.display = 'none';
             document.getElementById('chatbot-container').classList.remove('show');
+            playSound('toggle-sound');
         });
 
         // Modify the styles for the popup button and container

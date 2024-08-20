@@ -150,6 +150,9 @@
             messageElement.innerHTML = `<p>${message}</p>`;
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
+            if (sender === 'AI') {
+                playSound('message-received-sound');
+            }
         };
 
         window.sendMessage = async function() {
