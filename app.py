@@ -225,6 +225,28 @@ def process_url():
         app.logger.error(f"Error in process_url: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
+def process_ecommerce_response(response):
+    # Try to extract product information using regex
+    product_info = re.search(r'Product: (.*?)\nPrice: (.*?)\nDescription: (.*?)\nImage: (.*?)\nURL: (.*?)(\n|$)', response)
+    
+    if product_info:
+        # If product information is found, structure it
+        product_data = {
+            "name": product_info.group(1),
+            "price": product_info.group(2),
+            "description": product_info.group(3),
+            "image_url": product_info.group(4),
+            "product_url": product_info.group(5)
+        }
+        
+        return {
+            "response": response,
+            "product_data": product_data
+        }
+    else:
+        # If no product information is found, return the response as is
+        return {"response": response}
+
 @app.route('/chat', methods=['POST'])
 @limiter.limit("5 per minute")
 def chat():
