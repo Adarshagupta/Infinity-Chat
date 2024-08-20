@@ -196,7 +196,7 @@ The frontend is developed using HTML, CSS, and JavaScript, providing a user-frie
 ### Example Chatbot Integration Script
 To embed the chatbot on your website, include the following script in your HTML:
 ```html
-<script src="https://chatcat-s1ny.onrender.com/chatbot.js?api_key=your_api_key"></script>
+<script src="https://chatcat-moo7.onrender.com/chatbot.js?api_key=your_api_key"></script>
 ```
 
 ### Chatbot Design
@@ -224,7 +224,7 @@ The chatbot interface is designed to be intuitive and visually appealing. The de
     ```javascript
     async function chatWithAI(input) {
         try {
-            const response = await axios.post('https://chatcat-s1ny.onrender.com/chat', {
+            const response = await axios.post('https://chatcat-moo7.onrender.com/chat', {
                 input: input,
                 api_key: 'your_api_key'
             });

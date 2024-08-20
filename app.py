@@ -99,7 +99,7 @@ def extract_text_from_url(url):
 def generate_integration_code(api_key):
     return f'''
 <!-- AI Chatbot Integration -->
-<script src="https://chatcat-s1ny.onrender.com/chatbot.js?api_key={api_key}"></script>
+<script src="https://chatcat-moo7.onrender.com/chatbot.js?api_key={api_key}"></script>
 '''
 @app.route('/chatbot.js', methods=['GET', 'POST'])
 def chatbot_script():
