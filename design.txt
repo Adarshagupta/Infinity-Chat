@@ -79,7 +79,7 @@
             .chatbot-header {
                 background-color: #3B82F6;
                 color: white;
-                padding: 20px;
+                padding: 10px;
                 font-weight: 600;
                 font-size: 18px;
                 display: flex;
