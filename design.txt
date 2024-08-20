@@ -380,27 +380,59 @@
         });
 
         // Add toggle functionality
-        // Add toggle functionality
+// Add toggle functionality
         document.getElementById('chatbot-popup-button').addEventListener('click', function() {
             var container = document.getElementById('chatbot-container');
-            var button = document.getElementById('chatbot-popup-button');
             if (container.style.display === 'none') {
                 container.style.display = 'flex';
-                button.style.display = 'none';
+                container.classList.add('show');
                 // Focus on input when chat is opened
                 document.getElementById('user-input').focus();
             } else {
                 container.style.display = 'none';
-                button.style.display = 'flex';
+                container.classList.remove('show');
             }
         });
 
         // Add close functionality
         document.getElementById('chatbot-close').addEventListener('click', function() {
             document.getElementById('chatbot-container').style.display = 'none';
-            document.getElementById('chatbot-popup-button').style.display = 'flex';
+            document.getElementById('chatbot-container').classList.remove('show');
         });
 
+        // Modify the styles for the popup button and container
+        var additionalStyles = document.createElement('style');
+        additionalStyles.textContent = `
+            #ai-chatbot .chatbot-popup-button {
+                opacity: 1;
+                transform: translateY(0);
+                transition: transform 0.3s ease;
+            }
+
+            #ai-chatbot .chatbot-container {
+                transform: translateY(20px);
+                opacity: 0;
+                transition: transform 0.3s ease, opacity 0.3s ease;
+                pointer-events: none;
+            }
+
+            #ai-chatbot .chatbot-container.show {
+                transform: translateY(0);
+                opacity: 1;
+                pointer-events: all;
+            }
+
+            #ai-chatbot .chatbot-popup-button:hover {
+                transform: scale(1.1);
+            }
+
+            @media (max-width: 480px) {
+                #ai-chatbot .chatbot-container.show {
+                    transform: translateY(0);
+                }
+            }
+        `;
+        document.head.appendChild(additionalStyles);
         // Initialize chat
         addMessage('AI', 'Hello! How can I assist you today?');
 
