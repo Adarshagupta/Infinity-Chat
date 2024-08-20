@@ -240,6 +240,9 @@ def chat():
         if not api_key_data:
             return jsonify({"error": "Invalid API key"}), 400
 
+        # Fetch the extracted text associated with this API key
+        context = api_key_data.extracted_text
+
         messages = [{
             "role": "system",
             "content": f"""You are a highly specialized AI assistant trained on the following website content: {context}
@@ -275,9 +278,9 @@ If more information is needed, prompt the user with 'Get more info?'"""
             "content": user_input
         }]
 
-        logger.info(f"Sending request to {llm.capitalize()} API with input: {user_input}")
+        logger.info(f"Sending request to {api_key_data.llm.capitalize()} API with input: {user_input}")
 
-        if llm == 'together':
+        if api_key_data.llm == 'together':
             response = together_client.chat.completions.create(
                 model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
                 messages=messages,
@@ -288,7 +291,7 @@ If more information is needed, prompt the user with 'Get more info?'"""
                 repetition_penalty=1,
                 stop=["<|eot_id|>", "<|eom_id|>"])
             ai_response = response.choices[0].message.content
-        elif llm == 'openai':
+        elif api_key_data.llm == 'openai':
             response = openai_client.chat.completions.create(
                 model="gpt-3.5-turbo",
                 messages=messages,
@@ -301,12 +304,11 @@ If more information is needed, prompt the user with 'Get more info?'"""
         else:
             return jsonify({"error": "Invalid LLM specified"}), 400
 
-        logger.info(f"Received response from {llm.capitalize()} API: {ai_response}")
+        logger.info(f"Received response from {api_key_data.llm.capitalize()} API: {ai_response}")
 
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
 
-        # Record analytics
         # Record analytics
         end_time = time.time()
         response_time = end_time - start_time
@@ -340,25 +342,6 @@ If more information is needed, prompt the user with 'Get more info?'"""
         app.logger.info(f"Recorded error analytics for api_key: {api_key}")
         
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
-
-def process_ecommerce_response(response):
-    product_info = re.search(r'Product: (.*?)\nPrice: (.*?)\nDescription: (.*?)\nImage: (.*?)\nURL: (.*?)(\n|$)', response)
-    
-    if product_info:
-        product_data = {
-            "name": product_info.group(1),
-            "price": product_info.group(2),
-            "description": product_info.group(3),
-            "image_url": product_info.group(4),
-            "product_url": product_info.group(5)
-        }
-        
-        return {
-            "response": response,
-            "product_data": product_data
-        }
-    else:
-        return {"response": response}
 
 @app.route('/user/api_keys', methods=['GET'])
 def get_user_api_keys():
