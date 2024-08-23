@@ -33,7 +33,10 @@ if not openai_api_key:
     raise ValueError("No OpenAI API key set for OPENAI_API_KEY")
 
 together_client = Together(api_key=together_api_key)
-openai_client = OpenAI(api_key=openai_api_key)
+openai_client = OpenAI(
+    api_key=openai_api_key,
+    base_url="https://api.aimlapi.com"
+)
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
@@ -330,13 +333,10 @@ If more information is needed, prompt the user with 'Get more info?'"""
             ai_response = response.choices[0].message.content
         elif api_key_data.llm == 'openai':
             response = openai_client.chat.completions.create(
-                model="gpt-3.5-turbo",
+                model="mistralai/Mistral-7B-Instruct-v0.2",
                 messages=messages,
-                max_tokens=512,
-                temperature=0.7,
-                top_p=0.7,
-                frequency_penalty=0,
-                presence_penalty=0)
+                max_tokens=128,
+                temperature=0.7)
             ai_response = response.choices[0].message.content
         else:
             return jsonify({"error": "Invalid LLM specified"}), 400
