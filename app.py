@@ -19,6 +19,7 @@ from datetime import datetime
 import time
 from alembic import op
 import sqlalchemy as sa
+import backoff
 
 # Load environment variables from .env file
 load_dotenv()
