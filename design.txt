@@ -440,11 +440,11 @@ window.addMessage = function(sender, message) {
             }
         };
 
-window.scrollCarousel = function(direction) {
-    const container = document.querySelector('.product-container');
-    const scrollAmount = 220; // Adjust this value based on your card width + margin
-    container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
-};
+        window.scrollCarousel = function(direction) {
+            const container = document.querySelector('.product-container');
+            const scrollAmount = 220; // Adjust this value based on your card width + margin
+            container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
+        };
 
         // Add event listener for the send button
         document.getElementById('send-button').addEventListener('click', sendMessage);
