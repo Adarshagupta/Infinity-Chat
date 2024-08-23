@@ -266,6 +266,33 @@ def process_ecommerce_response(response):
         return {"response": response}
 
 # Modify the chat route to improve memory handling
+# Define a backoff decorator for handling rate limits
+@backoff.on_exception(backoff.expo,
+                      (openai.RateLimitError, requests.exceptions.RequestException),
+                      max_tries=5)
+def get_ai_response_with_backoff(llm_type, messages):
+    if llm_type == 'together':
+        response = together_client.chat.completions.create(
+            model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+            messages=messages,
+            max_tokens=100,
+            temperature=2,
+            top_p=1,
+            top_k=100,
+            repetition_penalty=1,
+            stop=["<|eot_id|>", "<|eom_id|>"])
+        return response.choices[0].message.content
+    elif llm_type == 'openai':
+        response = openai_client.chat.completions.create(
+            model="gpt-4",
+            messages=messages,
+            max_tokens=128,
+            temperature=0.7)
+        return response.choices[0].message.content
+    else:
+        raise ValueError("Invalid LLM specified")
+
+# Modify the chat route to use the backoff-enabled function and improve error handling
 @app.route('/chat', methods=['POST'])
 @limiter.limit("5 per minute")
 def chat():
@@ -317,7 +344,8 @@ If you need more information to answer accurately, ask the user a clarifying que
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
-        ai_response = get_ai_response(api_key_data.llm, messages)
+        # Use the backoff-enabled function
+        ai_response = get_ai_response_with_backoff(api_key_data.llm, messages)
 
         logger.info(f"Received response from AI service: {ai_response}")
 
@@ -346,6 +374,9 @@ If you need more information to answer accurately, ask the user a clarifying que
         app.logger.info(f"Recorded analytics for user_id: {api_key_data.user_id}, api_key: {api_key}")
 
         return jsonify(processed_response)
+    except openai.RateLimitError as e:
+        app.logger.error(f"Rate limit exceeded: {str(e)}")
+        return jsonify({"error": "Rate limit exceeded. Please try again later."}), 429
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
         
@@ -363,7 +394,7 @@ If you need more information to answer accurately, ask the user a clarifying que
         db.session.commit()
         app.logger.info(f"Recorded error analytics for api_key: {api_key}")
         
-        return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+        return jsonify({"error": "An unexpected error occurred. Please try again later."}), 500
 
 # Update the clear_chat_history route
 @app.route('/clear_chat_history', methods=['POST'])
