@@ -333,7 +333,7 @@ If more information is needed, prompt the user with 'Get more info?'"""
             ai_response = response.choices[0].message.content
         elif api_key_data.llm == 'openai':
             response = openai_client.chat.completions.create(
-                model="claude-3-5-sonnet-20240620",
+                model="gpt-4",
                 messages=messages,
                 max_tokens=128,
                 temperature=0.7)
