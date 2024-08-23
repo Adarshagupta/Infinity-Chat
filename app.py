@@ -208,7 +208,7 @@ def logout():
     return jsonify({"message": "Logged out successfully"}), 200
 
 @app.route('/process_url', methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("50 per minute")
 def process_url():
     if 'user_id' not in session:
         return jsonify({"error": "User not logged in"}), 401
@@ -267,7 +267,7 @@ def process_ecommerce_response(response):
 
 # Modify the chat route to improve memory handling
 @app.route('/chat', methods=['POST'])
-@limiter.limit("5 per minute")
+@limiter.limit("50 per minute")
 def chat():
     start_time = time.time()
     try:
@@ -302,7 +302,7 @@ Key guidelines:
 4. Offer relevant recommendations and cross-sell when appropriate.
 5. Address common customer queries and concerns proactively.
 6. Use industry-specific terminology when suitable.
-7. Limit responses to 100 words unless more detail is requested.
+7. Limit responses to 50 words unless more detail is requested.
 8. End with a relevant follow-up question or call-to-action.
 9. Remember and refer to previous parts of the conversation when relevant.
 
