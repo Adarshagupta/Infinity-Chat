@@ -359,49 +359,44 @@
             }
         };
 
-window.addMessage = function(sender, message) {
-    const chatMessages = document.getElementById('chat-messages');
-    const messageElement = document.createElement('div');
-    messageElement.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
-    
-    if (typeof message === 'object' && message.response) {
-        messageElement.innerHTML = `<p>${message.response}</p>`;
-        
-        // Check if the message contains product information
-        if (message.response.includes("t-shirt options:")) {
-            const products = message.response.split('\n').filter(line => line.includes('-'));
-            const productCarousel = document.createElement('div');
-            productCarousel.className = 'product-carousel';
-            productCarousel.innerHTML = `
-                <button class="carousel-button" onclick="scrollCarousel(-1)">&#10094;</button>
-                <div class="product-container">
-                    ${products.map(product => {
-                        const [name, price, ...descParts] = product.split('-').map(part => part.trim());
-                        const description = descParts.join('-').trim();
-                        return `
-                            <div class="product-card">
-                                <img src="https://via.placeholder.com/150" alt="${name}" class="product-image">
-                                <h3>${name}</h3>
-                                <p class="price">${price}</p>
-                                <p class="description">${description}</p>
-                                <a href="#" class="shop-button">Shop Now</a>
+        window.addMessage = function(sender, message) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
+            
+            if (typeof message === 'object') {
+                if (message.product_data) {
+                    const productData = message.product_data;
+                    messageElement.innerHTML = `
+                        <p>${message.response}</p>
+                        <div class="product-carousel">
+                            <button class="carousel-button" onclick="scrollCarousel(-1)">&#10094;</button>
+                            <div class="product-container">
+                                <div class="product-card">
+                                    <img src="${productData.image_url}" alt="${productData.name}" class="product-image">
+                                    <h3>${productData.name}</h3>
+                                    <p class="price">${productData.price}</p>
+                                    <p class="description">${productData.description}</p>
+                                    <a href="${productData.product_url}" class="shop-button" target="_blank">Shop Now</a>
+                                </div>
                             </div>
-                        `;
-                    }).join('')}
-                </div>
-                <button class="carousel-button" onclick="scrollCarousel(1)">&#10095;</button>
-            `;
-            messageElement.appendChild(productCarousel);
-        }
-    } else if (typeof message === 'string') {
-        messageElement.innerHTML = `<p>${message}</p>`;
-    } else {
-        messageElement.innerHTML = `<p>Unexpected message format</p>`;
-    }
-    
-    chatMessages.appendChild(messageElement);
-    chatMessages.scrollTop = chatMessages.scrollHeight;
-};
+                            <button class="carousel-button" onclick="scrollCarousel(1)">&#10095;</button>
+                        </div>
+                    `;
+                } else if (message.response) {
+                    messageElement.innerHTML = `<p>${message.response}</p>`;
+                } else if (message.error) {
+                    messageElement.innerHTML = `<p class="error">${message.error}</p>`;
+                } else {
+                    messageElement.innerHTML = `<p>Unexpected response format</p>`;
+                }
+            } else {
+                messageElement.innerHTML = `<p>${message}</p>`;
+            }
+            
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        };
 
         window.showReplyingStatus = function() {
             const chatMessages = document.getElementById('chat-messages');
