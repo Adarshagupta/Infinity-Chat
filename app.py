@@ -265,7 +265,7 @@ def process_ecommerce_response(response):
         # If no product information is found, return the response as is
         return {"response": response}
 
-# Modify the chat route to include memory
+# Modify the chat route to improve memory handling
 @app.route('/chat', methods=['POST'])
 @limiter.limit("5 per minute")
 def chat():
@@ -285,11 +285,10 @@ def chat():
         context = api_key_data.extracted_text
 
         # Initialize or retrieve conversation history
-        if 'conversation_history' not in session:
-            session['conversation_history'] = []
+        conversation_history = session.get(f'conversation_history_{api_key}', [])
 
         # Append user input to conversation history
-        session['conversation_history'].append({"role": "user", "content": user_input})
+        conversation_history.append({"role": "user", "content": user_input})
 
         # Prepare messages for AI, including conversation history
         messages = [{
@@ -314,7 +313,7 @@ For e-commerce queries:
 - Guide users towards making a purchase decision
 
 If you need more information to answer accurately, ask the user a clarifying question."""
-        }] + session['conversation_history'][-5:]  # Include last 5 messages for context
+        }] + conversation_history[-5:]  # Include last 5 messages for context
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
@@ -323,7 +322,10 @@ If you need more information to answer accurately, ask the user a clarifying que
         logger.info(f"Received response from AI service: {ai_response}")
 
         # Append AI response to conversation history
-        session['conversation_history'].append({"role": "assistant", "content": ai_response})
+        conversation_history.append({"role": "assistant", "content": ai_response})
+        
+        # Save updated conversation history to session
+        session[f'conversation_history_{api_key}'] = conversation_history
         session.modified = True  # Ensure session is saved
 
         # Process the AI response for e-commerce functionality
@@ -363,7 +365,7 @@ If you need more information to answer accurately, ask the user a clarifying que
         
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
-# Add a new route to clear conversation history
+# Update the clear_chat_history route
 @app.route('/clear_chat_history', methods=['POST'])
 def clear_chat_history():
     api_key = request.json.get('api_key')
@@ -374,10 +376,12 @@ def clear_chat_history():
     if not api_key_data:
         return jsonify({"error": "Invalid API key"}), 400
 
-    if 'conversation_history' in session:
-        session.pop('conversation_history')
+    session.pop(f'conversation_history_{api_key}', None)
+    session.modified = True
     
     return jsonify({"message": "Chat history cleared successfully"}), 200
+
+# The rest of your code remains the same
 
 def get_ai_response(llm_type, messages):
     if llm_type == 'together':
