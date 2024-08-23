@@ -20,6 +20,7 @@ import time
 from alembic import op
 import sqlalchemy as sa
 
+
 # Load environment variables from .env file
 load_dotenv()
 
@@ -81,7 +82,7 @@ class CustomPrompt(db.Model):
     prompt = db.Column(db.String(255), nullable=False)
     response = db.Column(db.Text, nullable=False)
 
-# Add this after the CustomPrompt model
+# Update the Analytics model to include emotion data
 class Analytics(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
@@ -90,6 +91,7 @@ class Analytics(db.Model):
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     response_time = db.Column(db.Float, nullable=False)
     status_code = db.Column(db.Integer, nullable=False)
+    emotion_data = db.Column(db.Text, nullable=True)  # New field for emotion data
 
 # New database models
 class AIModel(db.Model):
@@ -265,7 +267,7 @@ def process_ecommerce_response(response):
         # If no product information is found, return the response as is
         return {"response": response}
 
-# Modify the chat route to improve memory handling
+# Modify the existing chat route to handle emotion data
 @app.route('/chat', methods=['POST'])
 @limiter.limit("50 per minute")
 def chat():
@@ -273,6 +275,7 @@ def chat():
     try:
         user_input = request.json.get('input')
         api_key = request.json.get('api_key')
+        emotion_data = request.json.get('emotion_data')  # New field for emotion data
 
         if not user_input or not api_key:
             return jsonify({"error": "Input and API key are required"}), 400
@@ -281,21 +284,20 @@ def chat():
         if not api_key_data:
             return jsonify({"error": "Invalid API key"}), 400
 
-        # Fetch the extracted text associated with this API key
         context = api_key_data.extracted_text
-
-        # Initialize or retrieve conversation history
         conversation_history = session.get(f'conversation_history_{api_key}', [])
-
-        # Append user input to conversation history
         conversation_history.append({"role": "user", "content": user_input})
 
-        # Prepare messages for AI, including conversation history
+        # Include emotion data in system message if available
+        emotion_context = ""
+        if emotion_data:
+            emotion_context = f"The user's emotional state: {json.dumps(emotion_data)}\n"
+
         messages = [{
             "role": "system",
             "content": f"""You are an AI assistant specialized for this website. Use the following content as your knowledge base: {context}
 
-Key guidelines:
+{emotion_context}Key guidelines:
 1. Provide concise, accurate answers based on the website's content.
 2. Use a professional yet friendly tone aligned with the brand voice.
 3. Highlight key products, services, and unique selling points.
@@ -305,6 +307,7 @@ Key guidelines:
 7. Limit responses to 50 words unless more detail is requested.
 8. End with a relevant follow-up question or call-to-action.
 9. Remember and refer to previous parts of the conversation when relevant.
+10. If emotion data is available, tailor your response to be empathetic and appropriate to the user's emotional state.
 
 For e-commerce queries:
 - Present product details clearly (name, price, brief description)
@@ -313,7 +316,7 @@ For e-commerce queries:
 - Guide users towards making a purchase decision
 
 If you need more information to answer accurately, ask the user a clarifying question."""
-        }] + conversation_history[-5:]  # Include last 5 messages for context
+        }] + conversation_history[-5:]
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
@@ -321,17 +324,12 @@ If you need more information to answer accurately, ask the user a clarifying que
 
         logger.info(f"Received response from AI service: {ai_response}")
 
-        # Append AI response to conversation history
         conversation_history.append({"role": "assistant", "content": ai_response})
-        
-        # Save updated conversation history to session
         session[f'conversation_history_{api_key}'] = conversation_history
-        session.modified = True  # Ensure session is saved
+        session.modified = True
 
-        # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
 
-        # Record analytics
         end_time = time.time()
         response_time = end_time - start_time
         analytics = Analytics(
@@ -339,7 +337,8 @@ If you need more information to answer accurately, ask the user a clarifying que
             api_key=api_key,
             endpoint='/chat',
             response_time=response_time,
-            status_code=200
+            status_code=200,
+            emotion_data=json.dumps(emotion_data) if emotion_data else None  # Store emotion data
         )
         db.session.add(analytics)
         db.session.commit()
@@ -349,7 +348,6 @@ If you need more information to answer accurately, ask the user a clarifying que
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
         
-        # Record analytics for error case
         end_time = time.time()
         response_time = end_time - start_time
         analytics = Analytics(
@@ -357,7 +355,8 @@ If you need more information to answer accurately, ask the user a clarifying que
             api_key=api_key if 'api_key' in locals() else None,
             endpoint='/chat',
             response_time=response_time,
-            status_code=500
+            status_code=500,
+            emotion_data=json.dumps(emotion_data) if emotion_data else None  # Store emotion data
         )
         db.session.add(analytics)
         db.session.commit()
@@ -608,6 +607,27 @@ def change_password():
         flash('Current password is incorrect', 'error')
 
     return redirect(url_for('dashboard'))
+
+# Add this new route to proxy requests to the Hume API
+@app.route('/proxy/hume', methods=['POST'])
+def proxy_hume():
+    hume_api_key = os.getenv('HUME_API_KEY')
+    if not hume_api_key:
+        return jsonify({"error": "Hume API key not configured"}), 500
+
+    hume_url = "https://api.hume.ai/v1/text"
+    headers = {
+        'Authorization': f'Bearer {hume_api_key}',
+        'Content-Type': 'application/json'
+    }
+
+    try:
+        response = requests.post(hume_url, json=request.json, headers=headers)
+        return jsonify(response.json()), response.status_code
+    except Exception as e:
+        app.logger.error(f"Error proxying to Hume API: {str(e)}")
+        return jsonify({"error": "Failed to connect to Hume API"}), 500
+
 
 @app.route('/test_api_key', methods=['POST'])
 def test_api_key():

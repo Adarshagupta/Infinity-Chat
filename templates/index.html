@@ -819,6 +819,39 @@ document.querySelector('button[onclick="login()"]').setAttribute('onclick', 'saf
 document.querySelector('button[onclick="register()"]').setAttribute('onclick', 'safeRegister()');
 document.querySelector('button[onclick="processUrl()"]').setAttribute('onclick', 'safeProcessUrl()');
 // ... repeat for other function calls
+window.sendMessage = async function() {
+    const userInput = document.getElementById('user-input');
+    const message = userInput.value.trim();
+    if (message) {
+        addMessage('You', message);
+        userInput.value = '';
+        const statusElement = showReplyingStatus();
+        
+        // Analyze emotion using the proxy endpoint
+        const emotionResponse = await fetch('/proxy/hume', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ text: message })
+        }).then(res => res.json());
+
+        const response = await fetch('/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                input: message,
+                api_key: '{api_key}',
+                emotion_data: emotionResponse
+            })
+        }).then(res => res.json());
+
+        removeReplyingStatus(statusElement);
+        addMessage('AI', response);
+        playSound('message-received-sound');
+        
+        // Text-to-speech for AI response
+        speak(response.response || response);
+    }
+};
     </script>
 </body>
 
