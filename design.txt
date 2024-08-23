@@ -34,7 +34,7 @@
         document.body.appendChild(chatbotDiv);
         
         var style = document.createElement('style');
-                style.textContent = `
+        style.textContent = `
             #ai-chatbot {
                 position: fixed;
                 bottom: 20px;
@@ -329,7 +329,16 @@
         `;
         document.head.appendChild(style);
         
-        // The rest of the JavaScript functions remain the same
+        chatbotDiv.innerHTML += `
+            <audio id="message-received-sound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
+            <audio id="toggle-sound" src="https://assets.mixkit.co/active_storage/sfx/2356/2356-preview.mp3"></audio>
+        `;
+
+        function playSound(soundId) {
+            const sound = document.getElementById(soundId);
+            sound.play();
+        }
+
         window.chatWithAI = async function(input) {
             try {
                 const response = await fetch('https://chatcat-moo7.onrender.com/chat', {
@@ -360,12 +369,18 @@
                     const productData = message.product_data;
                     messageElement.innerHTML = `
                         <p>${message.response}</p>
-                        <div class="product-card">
-                            <img src="${productData.image_url}" alt="${productData.name}" class="product-image">
-                            <h3>${productData.name}</h3>
-                            <p class="price">${productData.price}</p>
-                            <p class="description">${productData.description}</p>
-                            <a href="${productData.product_url}" class="shop-button" target="_blank">Shop Now</a>
+                        <div class="product-carousel">
+                            <button class="carousel-button" onclick="scrollCarousel(-1)">&#10094;</button>
+                            <div class="product-container">
+                                <div class="product-card">
+                                    <img src="${productData.image_url}" alt="${productData.name}" class="product-image">
+                                    <h3>${productData.name}</h3>
+                                    <p class="price">${productData.price}</p>
+                                    <p class="description">${productData.description}</p>
+                                    <a href="${productData.product_url}" class="shop-button" target="_blank">Shop Now</a>
+                                </div>
+                            </div>
+                            <button class="carousel-button" onclick="scrollCarousel(1)">&#10095;</button>
                         </div>
                     `;
                 } else if (message.response) {
@@ -382,15 +397,6 @@
             chatMessages.appendChild(messageElement);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         };
-        chatbotDiv.innerHTML += `
-            <audio id="message-received-sound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
-            <audio id="toggle-sound" src="https://assets.mixkit.co/active_storage/sfx/2356/2356-preview.mp3"></audio>
-        `;
-                // Add function to play sound
-        function playSound(soundId) {
-            const sound = document.getElementById(soundId);
-            sound.play();
-        }
 
         window.showReplyingStatus = function() {
             const chatMessages = document.getElementById('chat-messages');
@@ -425,7 +431,14 @@
                 const response = await chatWithAI(message);
                 removeReplyingStatus(statusElement);
                 addMessage('AI', response);
+                playSound('message-received-sound');
             }
+        };
+
+        window.scrollCarousel = function(direction) {
+            const container = document.querySelector('.product-container');
+            const scrollAmount = 220; // Adjust this value based on your card width + margin
+            container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
         };
 
         // Add event listener for the send button
@@ -439,7 +452,6 @@
         });
 
         // Add toggle functionality
-// Add toggle functionality
         document.getElementById('chatbot-popup-button').addEventListener('click', function() {
             var container = document.getElementById('chatbot-container');
             if (container.style.display === 'none') {
@@ -454,8 +466,7 @@
             }
         });
 
-
-       // Modify the close functionality to include sound
+        // Modify the close functionality to include sound
         document.getElementById('chatbot-close').addEventListener('click', function() {
             document.getElementById('chatbot-container').style.display = 'none';
             document.getElementById('chatbot-container').classList.remove('show');
@@ -495,6 +506,7 @@
             }
         `;
         document.head.appendChild(additionalStyles);
+
         // Initialize chat
         addMessage('AI', 'Hello! How can I assist you today?');
 
