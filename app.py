@@ -285,63 +285,35 @@ def chat():
 
         messages = [{
             "role": "system",
-            "content": f"""You are a highly specialized AI assistant trained on the following website content: {context}
+            "content": f"""You are an AI assistant specialized for this website. Use the following content as your knowledge base: {context}
 
-Instruction set for responses:
-1. Provide an immediate, concise answer to the user's query in 1-2 sentences.
-2. If relevant, offer 2-3 key points or examples, using bullet points for clarity.
-3. For complex queries, break down information into numbered steps or categories.
-4. Actively seek clarification on ambiguous questions.
-5. Strictly limit responses to 100 words unless explicitly asked for more detail.
-6. End with a pointed follow-up question or actionable suggestion.
+Key guidelines:
+1. Provide concise, accurate answers based on the website's content.
+2. Use a professional yet friendly tone aligned with the brand voice.
+3. Highlight key products, services, and unique selling points.
+4. Offer relevant recommendations and cross-sell when appropriate.
+5. Address common customer queries and concerns proactively.
+6. Use industry-specific terminology when suitable.
+7. Limit responses to 100 words unless more detail is requested.
+8. End with a relevant follow-up question or call-to-action.
 
-E-commerce specific instructions:
-7. For product searches, extract and display:
-   - Product name
-   - Price
-   - Brief description (max 15 words)
-   - Thumbnail image URL
-   - 'Shop Now' button with product URL
-8. Compare similar products in a concise table format when applicable.
-9. Highlight special offers, discounts, or limited-time deals.
-10. Suggest complementary products or accessories.
+For e-commerce queries:
+- Present product details clearly (name, price, brief description)
+- Mention any current promotions or deals
+- Suggest complementary items
+- Guide users towards making a purchase decision
 
-Tone and style:
-11. Maintain a professional yet conversational tone.
-12. Use industry-specific terminology when appropriate.
-13. Emphasize unique selling points and value propositions.
-14. Anticipate and address common customer concerns or objections.
-
-If more information is needed, prompt the user with 'Get more info?'"""
+If you need more information to answer accurately, ask the user a clarifying question."""
         }, {
             "role": "user",
             "content": user_input
         }]
 
-        logger.info(f"Sending request to {api_key_data.llm.capitalize()} API with input: {user_input}")
+        logger.info(f"Sending request to AI service with input: {user_input}")
 
-        if api_key_data.llm == 'together':
-            response = together_client.chat.completions.create(
-                model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
-                messages=messages,
-                max_tokens=100,
-                temperature=2,
-                top_p=1,
-                top_k=100,
-                repetition_penalty=1,
-                stop=["<|eot_id|>", "<|eom_id|>"])
-            ai_response = response.choices[0].message.content
-        elif api_key_data.llm == 'openai':
-            response = openai_client.chat.completions.create(
-                model="gpt-4",
-                messages=messages,
-                max_tokens=128,
-                temperature=0.7)
-            ai_response = response.choices[0].message.content
-        else:
-            return jsonify({"error": "Invalid LLM specified"}), 400
+        ai_response = get_ai_response(api_key_data.llm, messages)
 
-        logger.info(f"Received response from {api_key_data.llm.capitalize()} API: {ai_response}")
+        logger.info(f"Received response from AI service: {ai_response}")
 
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
@@ -379,6 +351,50 @@ If more information is needed, prompt the user with 'Get more info?'"""
         app.logger.info(f"Recorded error analytics for api_key: {api_key}")
         
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+def get_ai_response(llm_type, messages):
+    if llm_type == 'together':
+        response = together_client.chat.completions.create(
+            model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+            messages=messages,
+            max_tokens=100,
+            temperature=2,
+            top_p=1,
+            top_k=100,
+            repetition_penalty=1,
+            stop=["<|eot_id|>", "<|eom_id|>"])
+        return response.choices[0].message.content
+    elif llm_type == 'openai':
+        response = openai_client.chat.completions.create(
+            model="gpt-4",
+            messages=messages,
+            max_tokens=128,
+            temperature=0.7)
+        return response.choices[0].message.content
+    else:
+        raise ValueError("Invalid LLM specified")
+
+def process_ecommerce_response(response):
+    # Try to extract product information using regex
+    product_info = re.search(r'Product: (.*?)\nPrice: (.*?)\nDescription: (.*?)\nImage: (.*?)\nURL: (.*?)(\n|$)', response)
+    
+    if product_info:
+        # If product information is found, structure it
+        product_data = {
+            "name": product_info.group(1),
+            "price": product_info.group(2),
+            "description": product_info.group(3),
+            "image_url": product_info.group(4),
+            "product_url": product_info.group(5)
+        }
+        
+        return {
+            "response": response,
+            "product_data": product_data
+        }
+    else:
+        # If no product information is found, return the response as is
+        return {"response": response}
 
 @app.route('/user/api_keys', methods=['GET'])
 def get_user_api_keys():
