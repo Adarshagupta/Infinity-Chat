@@ -16,12 +16,7 @@
                         <line x1="6" y1="6" x2="18" y2="18"></line>
                     </svg>
                 </div>
-                <div id="welcome-screen" class="welcome-screen">
-                    <h2>Welcome to AI Assistant</h2>
-                    <p>I'm here to help you with any questions or tasks. How can I assist you today?</p>
-                    <button id="start-chat-button" class="start-chat-button">Start Chatting</button>
-                </div>
-                <div id="chatbot-content" class="chatbot-content" style="display: none;">
+                <div id="chatbot-content" class="chatbot-content">
                     <div id="chat-messages" class="chat-messages"></div>
                     <div id="chat-input" class="chat-input">
                         <input type="text" id="user-input" placeholder="Type your message...">
@@ -31,11 +26,6 @@
                                 <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
                             </svg>
                         </button>
-                    </div>
-                    <div id="quick-actions" class="quick-actions">
-                        <button class="quick-action-button">Help</button>
-                        <button class="quick-action-button">FAQ</button>
-                        <button class="quick-action-button">Contact</button>
                     </div>
                     <p class="powered-by">powered by <a href="#">NeuroWeb</a></p>               
                 </div>
@@ -335,73 +325,6 @@
             @keyframes pulse {
                 0%, 100% { opacity: 0.4; transform: scale(0.8); }
                 50% { opacity: 1; transform: scale(1); }
-            }
-                    var style = document.createElement('style');
-        style.textContent = `
-            /* ... (keep the existing styles) ... */
-
-            .welcome-screen {
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                height: 100%;
-                padding: 20px;
-                text-align: center;
-                background-color: #F0F9FF;
-            }
-
-            .welcome-screen h2 {
-                color: #3B82F6;
-                margin-bottom: 15px;
-            }
-
-            .welcome-screen p {
-                color: #4B5563;
-                margin-bottom: 25px;
-            }
-
-            .start-chat-button {
-                background-color: #3B82F6;
-                color: white;
-                border: none;
-                padding: 12px 24px;
-                border-radius: 25px;
-                font-size: 16px;
-                font-weight: 600;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .start-chat-button:hover {
-                background-color: #2563EB;
-                transform: translateY(-2px);
-                box-shadow: 0 4px 6px rgba(37, 99, 235, 0.2);
-            }
-
-            .quick-actions {
-                display: flex;
-                justify-content: space-around;
-                padding: 10px;
-                background-color: #F3F4F6;
-                border-top: 1px solid #E5E7EB;
-            }
-
-            .quick-action-button {
-                background-color: #EFF6FF;
-                color: #3B82F6;
-                border: 1px solid #BFDBFE;
-                padding: 8px 16px;
-                border-radius: 20px;
-                font-size: 14px;
-                font-weight: 500;
-                cursor: pointer;
-                transition: all 0.3s ease;
-            }
-
-            .quick-action-button:hover {
-                background-color: #DBEAFE;
-                transform: translateY(-1px);
             }
         `;
         document.head.appendChild(style);
