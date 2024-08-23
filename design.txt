@@ -528,17 +528,13 @@
             }
         });
 
-        // Modify the toggle functionality to show welcome screen
+        // Add toggle functionality
         document.getElementById('chatbot-popup-button').addEventListener('click', function() {
             var container = document.getElementById('chatbot-container');
-            var welcomeScreen = document.getElementById('welcome-screen');
-            var chatbotContent = document.getElementById('chatbot-content');
-            
             if (container.style.display === 'none') {
                 container.style.display = 'flex';
                 container.classList.add('show');
-                welcomeScreen.style.display = 'flex';
-                chatbotContent.style.display = 'none';
+                document.getElementById('user-input').focus();
                 playSound('toggle-sound');
             } else {
                 container.style.display = 'none';
@@ -547,33 +543,6 @@
             }
         });
 
-        // Add event listener for the start chat button
-        document.getElementById('start-chat-button').addEventListener('click', function() {
-            document.getElementById('welcome-screen').style.display = 'none';
-            document.getElementById('chatbot-content').style.display = 'flex';
-            document.getElementById('user-input').focus();
-            addMessage('AI', 'Hello! How can I assist you today?');
-        });
-
-        // Add event listeners for quick action buttons
-        document.querySelectorAll('.quick-action-button').forEach(button => {
-            button.addEventListener('click', function() {
-                const action = this.textContent.toLowerCase();
-                let message = '';
-                switch(action) {
-                    case 'help':
-                        message = "Here are some ways I can help you:\n- Answer questions\n- Provide information\n- Assist with tasks\nWhat would you like help with?";
-                        break;
-                    case 'faq':
-                        message = "Here are some frequently asked questions:\n1. How do I reset my password?\n2. What are your business hours?\n3. How can I track my order?\nWhich question would you like answered?";
-                        break;
-                    case 'contact':
-                        message = "You can contact us through the following methods:\n- Email: support@example.com\n- Phone: +1 (555) 123-4567\n- Live Chat: Available on our website\nHow would you like to get in touch?";
-                        break;
-                }
-                addMessage('AI', message);
-            });
-        });
         // Modify the close functionality to include sound
         document.getElementById('chatbot-close').addEventListener('click', function() {
             document.getElementById('chatbot-container').style.display = 'none';
