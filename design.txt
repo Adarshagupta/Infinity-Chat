@@ -365,7 +365,7 @@
             }
         };
 
-        window.addMessage = function(sender, message) {
+window.addMessage = function(sender, message) {
             const chatMessages = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
@@ -455,16 +455,19 @@
 
         // Add toggle functionality for the chatbot
         document.getElementById('chatbot-popup-button').addEventListener('click', function() {
+            console.log("Popup button clicked");
             var container = document.getElementById('chatbot-container');
             if (container.style.display === 'none') {
                 container.style.display = 'flex';
                 container.classList.add('show');
                 document.getElementById('user-input').focus();
                 playSound('toggle-sound');
+                console.log("Chatbot opened");
             } else {
                 container.style.display = 'none';
                 container.classList.remove('show');
                 playSound('toggle-sound');
+                console.log("Chatbot closed");
             }
         });
 
@@ -514,16 +517,23 @@
 
         // Add a subtle entrance animation
         setTimeout(() => {
-            document.getElementById('chatbot-popup-button').style.opacity = '1';
-            document.getElementById('chatbot-popup-button').style.transform = 'translateY(0)';
+            var popupButton = document.getElementById('chatbot-popup-button');
+            popupButton.style.opacity = '1';
+            popupButton.style.transform = 'translateY(0)';
+            console.log("Popup button animation applied");
         }, 500);
     }
 
     // Load chatbot when the page is fully loaded
     if (document.readyState === 'complete') {
+        console.log("Document already complete, loading chatbot immediately");
         loadChatbot();
     } else {
-        window.addEventListener('load', loadChatbot);
+        console.log("Document not yet complete, adding load event listener");
+        window.addEventListener('load', function() {
+            console.log("Window load event fired, loading chatbot");
+            loadChatbot();
+        });
     }
 
 })();
