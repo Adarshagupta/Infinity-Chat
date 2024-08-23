@@ -265,6 +265,28 @@ def process_ecommerce_response(response):
         # If no product information is found, return the response as is
         return {"response": response}
 
+from flask import session
+
+# Add this function to manage conversation history
+def manage_conversation_history(user_input, ai_response, max_history=5):
+    if 'conversation_history' not in session:
+        session['conversation_history'] = []
+    
+    session['conversation_history'].append({
+        "role": "user",
+        "content": user_input
+    })
+    session['conversation_history'].append({
+        "role": "assistant",
+        "content": ai_response
+    })
+    
+    # Limit the conversation history to the last 'max_history' exchanges
+    if len(session['conversation_history']) > max_history * 2:
+        session['conversation_history'] = session['conversation_history'][-max_history*2:]
+    
+    session.modified = True
+
 @app.route('/chat', methods=['POST'])
 @limiter.limit("5 per minute")
 def chat():
@@ -283,6 +305,7 @@ def chat():
         # Fetch the extracted text associated with this API key
         context = api_key_data.extracted_text
 
+        # Prepare messages including conversation history
         messages = [{
             "role": "system",
             "content": f"""You are an AI assistant specialized for this website. Use the following content as your knowledge base: {context}
@@ -304,10 +327,16 @@ For e-commerce queries:
 - Guide users towards making a purchase decision
 
 If you need more information to answer accurately, ask the user a clarifying question."""
-        }, {
+        }]
+
+        # Add conversation history to messages
+        if 'conversation_history' in session:
+            messages.extend(session['conversation_history'])
+
+        messages.append({
             "role": "user",
             "content": user_input
-        }]
+        })
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
@@ -317,6 +346,9 @@ If you need more information to answer accurately, ask the user a clarifying que
 
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
+
+        # Update conversation history
+        manage_conversation_history(user_input, ai_response)
 
         # Record analytics
         end_time = time.time()
