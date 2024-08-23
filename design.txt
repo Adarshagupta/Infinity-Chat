@@ -19,92 +19,19 @@
                 <div id="chatbot-content" class="chatbot-content">
                     <div id="chat-messages" class="chat-messages"></div>
                     <div id="chat-input" class="chat-input">
-                <input type="text" id="user-input" placeholder="Type your message...">
-                <button id="voice-input-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
-                    </svg>
-                </button>
+                        <input type="text" id="user-input" placeholder="Type your message...">
+                        <button id="send-button">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                        </button>
                     </div>
                     <p class="powered-by">powered by <a href="#">NeuroWeb</a></p>               
                 </div>
             </div>
         `;
         document.body.appendChild(chatbotDiv);
-
-        var additionalStyles = document.createElement('style');
-        additionalStyles.textContent += `
-            #voice-input-button {
-                background-color: #10B981;
-                color: white;
-                border: none;
-                padding: 12px;
-                border-radius: 50%;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-right: 10px;
-            }
-            #voice-input-button:hover {
-                background-color: #059669;
-                transform: scale(1.05);
-            }
-            #voice-input-button.listening {
-                animation: pulse 1.5s infinite;
-            }
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-                100% { transform: scale(1); }
-            }
-        `;
-        document.head.appendChild(additionalStyles);
-
-        // Add voice input functionality
-        const voiceInputButton = document.getElementById('voice-input-button');
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        voiceInputButton.addEventListener('click', () => {
-            voiceInputButton.classList.add('listening');
-            recognition.start();
-        });
-
-        recognition.onresult = async (event) => {
-            const speechResult = event.results[0][0].transcript;
-            document.getElementById('user-input').value = speechResult;
-
-            // Emotion analysis with Hume API
-            const emotionResponse = await analyzeEmotion(speechResult);
-            console.log('Emotion analysis:', emotionResponse);
-
-            sendMessage();
-        };
-
-        recognition.onend = () => {
-            voiceInputButton.classList.remove('listening');
-        };
-
-        // Function to analyze emotion using Hume API
-        async function analyzeEmotion(text) {
-            // Note: You'll need to replace 'YOUR_HUME_API_KEY' with your actual Hume API key
-            const response = await fetch('https://api.hume.ai/v1/text', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer YOUR_HUME_API_KEY'
-                },
-                body: JSON.stringify({ text })
-            });
-            return await response.json();
-        }
         
         var style = document.createElement('style');
         style.textContent = `
@@ -494,113 +421,6 @@
             }
         };
 
-To add a voice chat system using the Hume API to the existing chatbot, we'll need to modify the JavaScript code and add some new functionality. Here's how we can integrate voice chat:
-
-First, we'll add a new button for voice input in the chat interface.
-We'll use the Web Speech API for speech recognition.
-We'll integrate the Hume API for emotion analysis of the user's voice.
-We'll add a text-to-speech feature for the chatbot's responses.
-
-Here's the modified code with these additions:
-javascriptCopy(function() {
-    function loadChatbot() {
-        // ... (existing code)
-
-        chatbotDiv.innerHTML = `
-            <!-- ... (existing HTML) -->
-            <div id="chat-input" class="chat-input">
-                <input type="text" id="user-input" placeholder="Type your message...">
-                <button id="voice-input-button">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
-                        <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
-                        <line x1="12" y1="19" x2="12" y2="23"></line>
-                        <line x1="8" y1="23" x2="16" y2="23"></line>
-                    </svg>
-                </button>
-                <button id="send-button">
-                    <!-- ... (existing send button SVG) -->
-                </button>
-            </div>
-            <!-- ... (rest of the existing HTML) -->
-        `;
-
-        // ... (existing styles)
-
-        var additionalStyles = document.createElement('style');
-        additionalStyles.textContent += `
-            #voice-input-button {
-                background-color: #10B981;
-                color: white;
-                border: none;
-                padding: 12px;
-                border-radius: 50%;
-                cursor: pointer;
-                transition: all 0.3s ease;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                margin-right: 10px;
-            }
-            #voice-input-button:hover {
-                background-color: #059669;
-                transform: scale(1.05);
-            }
-            #voice-input-button.listening {
-                animation: pulse 1.5s infinite;
-            }
-            @keyframes pulse {
-                0% { transform: scale(1); }
-                50% { transform: scale(1.1); }
-                100% { transform: scale(1); }
-            }
-        `;
-        document.head.appendChild(additionalStyles);
-
-        // ... (existing code)
-
-        // Add voice input functionality
-        const voiceInputButton = document.getElementById('voice-input-button');
-        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
-        recognition.lang = 'en-US';
-        recognition.interimResults = false;
-        recognition.maxAlternatives = 1;
-
-        voiceInputButton.addEventListener('click', () => {
-            voiceInputButton.classList.add('listening');
-            recognition.start();
-        });
-
-        recognition.onresult = async (event) => {
-            const speechResult = event.results[0][0].transcript;
-            document.getElementById('user-input').value = speechResult;
-
-            // Emotion analysis with Hume API
-            const emotionResponse = await analyzeEmotion(speechResult);
-            console.log('Emotion analysis:', emotionResponse);
-
-            sendMessage();
-        };
-
-        recognition.onend = () => {
-            voiceInputButton.classList.remove('listening');
-        };
-
-        // Function to analyze emotion using Hume API
-        async function analyzeEmotion(text) {
-            // Note: You'll need to replace 'YOUR_HUME_API_KEY' with your actual Hume API key
-            const response = await fetch('https://api.hume.ai/v1/text', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer YOUR_HUME_API_KEY'
-                },
-                body: JSON.stringify({ text })
-            });
-            return await response.json();
-        }
-
-        // Modify sendMessage function to include text-to-speech
         window.sendMessage = async function() {
             const userInput = document.getElementById('user-input');
             const message = userInput.value.trim();
@@ -612,17 +432,8 @@ javascriptCopy(function() {
                 removeReplyingStatus(statusElement);
                 addMessage('AI', response);
                 playSound('message-received-sound');
-                
-                // Text-to-speech for AI response
-                speak(response.response || response);
             }
         };
-
-        // Function for text-to-speech
-        function speak(text) {
-            const utterance = new SpeechSynthesisUtterance(text);
-            window.speechSynthesis.speak(utterance);
-        }
 
         window.scrollCarousel = function(direction) {
             const container = document.querySelector('.product-container');
@@ -760,39 +571,5 @@ javascriptCopy(function() {
         }
     `;
     document.head.appendChild(additionalStyles);
-
-    window.sendMessage = async function() {
-    const userInput = document.getElementById('user-input');
-    const message = userInput.value.trim();
-    if (message) {
-        addMessage('You', message);
-        userInput.value = '';
-        const statusElement = showReplyingStatus();
-        
-        // Analyze emotion using the proxy endpoint
-        const emotionResponse = await fetch('/proxy/hume', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ text: message })
-        }).then(res => res.json());
-
-        const response = await fetch('/chat', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                input: message,
-                api_key: '{api_key}',
-                emotion_data: emotionResponse
-            })
-        }).then(res => res.json());
-
-        removeReplyingStatus(statusElement);
-        addMessage('AI', response);
-        playSound('message-received-sound');
-        
-        // Text-to-speech for AI response
-        speak(response.response || response);
-    }
-};
 
 })();
