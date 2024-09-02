@@ -29,7 +29,7 @@ from datetime import datetime
 import time
 from alembic import op
 import sqlalchemy as sa
-from functools import wraps
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -230,7 +230,7 @@ def login():
     user = User.query.filter_by(email=email).first()
     if user and check_password_hash(user.password, password):
         session["user_id"] = user.id
-        return redirect("/api"), 200
+        return jsonify({"message": "Logged in successfully"}), 200
 
     return jsonify({"error": "Invalid credentials"}), 401
 
@@ -302,33 +302,8 @@ def process_ecommerce_response(response):
         # If no product information is found, return the response as is
         return {"response": response}
 
-def fetch_product_data_from_url(url):
-    try:
-        response = requests.get(url)
-        response.raise_for_status()  # Raises an HTTPError for bad responses
-        soup = BeautifulSoup(response.text, "html.parser")
-        
-        products = []
-        for product in soup.select(".product"):  # Adjust the selector based on the website's structure
-            name = product.select_one(".product-name").text.strip()
-            price = product.select_one(".product-price").text.strip()
-            description = product.select_one(".product-description").text.strip()
-            image_url = product.select_one(".product-image")["src"]
-            product_url = product.select_one(".product-link")["href"]
-            
-            products.append({
-                "name": name,
-                "price": price,
-                "description": description,
-                "image_url": image_url,
-                "product_url": product_url
-            })
-        
-        return products
-    except Exception as e:
-        app.logger.error(f"Error fetching product data: {str(e)}")
-        return []
 
+# Modify the chat route to improve memory handling
 @app.route("/chat", methods=["POST"])
 @limiter.limit("50 per minute")
 def chat():
@@ -336,7 +311,6 @@ def chat():
     try:
         user_input = request.json.get("input")
         api_key = request.json.get("api_key")
-        history = request.json.get("history", [])
 
         if not user_input or not api_key:
             return jsonify({"error": "Input and API key are required"}), 400
@@ -347,6 +321,12 @@ def chat():
 
         # Fetch the extracted text associated with this API key
         context = api_key_data.extracted_text
+
+        # Initialize or retrieve conversation history
+        conversation_history = session.get(f"conversation_history_{api_key}", [])
+
+        # Append user input to conversation history
+        conversation_history.append({"role": "user", "content": user_input})
 
         # Prepare messages for AI, including conversation history
         messages = (
@@ -375,23 +355,24 @@ For e-commerce queries:
 If you need more information to answer accurately, ask the user a clarifying question.""",
                 }
             ]
-            + history
-        )  # Include entire conversation history for context
+            + conversation_history[-5:]
+        )  # Include last 5 messages for context
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
         ai_response = get_ai_response(api_key_data.llm, messages)
+
         logger.info(f"Received response from AI service: {ai_response}")
 
         # Append AI response to conversation history
-        history.append({"role": "assistant", "content": ai_response})
+        conversation_history.append({"role": "assistant", "content": ai_response})
+
+        # Save updated conversation history to session
+        session[f"conversation_history_{api_key}"] = conversation_history
+        session.modified = True  # Ensure session is saved
 
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
-
-        # Fetch product data from the provided URL
-        product_data = fetch_product_data_from_url(user_input)
-        logger.info(f"Fetched product data: {product_data}")
 
         # Record analytics
         end_time = time.time()
@@ -409,7 +390,7 @@ If you need more information to answer accurately, ask the user a clarifying que
             f"Recorded analytics for user_id: {api_key_data.user_id}, api_key: {api_key}"
         )
 
-        return jsonify({"response": processed_response, "history": history, "product_data": product_data})
+        return jsonify(processed_response)
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
 
@@ -445,6 +426,10 @@ def clear_chat_history():
     session.modified = True
 
     return jsonify({"message": "Chat history cleared successfully"}), 200
+
+
+# The rest of your code remains the same
+
 
 def get_ai_response(llm_type, messages):
     if llm_type == "together":
@@ -580,19 +565,11 @@ def test_apis():
     return f"Together API: {together_result}, OpenAI API: {openai_result}"
 
 
-# Create a decorator to check if the user is logged in
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "user_id" not in session:
-            return redirect(url_for("login"))
-        return f(*args, **kwargs)
-    return decorated_function
-
-
 @app.route("/api/dashboard")
-@login_required
 def dashboard():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
     user = User.query.get(session["user_id"])
     api_keys = user.api_keys
     custom_prompts = user.custom_prompts
@@ -626,8 +603,10 @@ def dashboard():
 
 
 @app.route("/profile", methods=["GET", "POST"])
-@login_required
 def profile():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+
     user = User.query.get(session["user_id"])
 
     if request.method == "POST":
@@ -652,8 +631,10 @@ def profile():
 
 
 @app.route("/delete_api_key", methods=["POST"])
-@login_required
 def delete_api_key():
+    if "user_id" not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
     api_key_id = request.form.get("api_key_id")
     api_key = APIKey.query.get(api_key_id)
     if api_key and api_key.user_id == session["user_id"]:
@@ -667,8 +648,10 @@ def delete_api_key():
 
 
 @app.route("/add_custom_prompt", methods=["POST"])
-@login_required
 def add_custom_prompt():
+    if "user_id" not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
     prompt = request.form.get("prompt")
     response = request.form.get("response")
     if prompt and response:
@@ -685,8 +668,10 @@ def add_custom_prompt():
 
 
 @app.route("/change_password", methods=["POST"])
-@login_required
 def change_password():
+    if "user_id" not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
     current_password = request.form.get("current_password")
     new_password = request.form.get("new_password")
     user = User.query.get(session["user_id"])
@@ -701,8 +686,10 @@ def change_password():
 
 
 @app.route("/test_api_key", methods=["POST"])
-@login_required
 def test_api_key():
+    if "user_id" not in session:
+        return jsonify({"error": "User not logged in"}), 401
+
     api_key = request.json.get("api_key")
     test_input = request.json.get("input", "Hello, this is a test message.")
 
@@ -814,9 +801,6 @@ def ai_marketplace():
     models = AIModel.query.all()
     return render_template("ai_marketplace.html", models=models)
 
-@app.route("/auth")
-def auth():
-    return render_template("auth.html")
 
 if __name__ == "__main__":
     with app.app_context():
