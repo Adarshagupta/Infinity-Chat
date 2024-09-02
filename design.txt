@@ -306,6 +306,13 @@
             localStorage.setItem('conversationHistory', JSON.stringify(history));
         }
 
+        function displayConversationHistory() {
+            const conversationHistory = getConversationHistory();
+            conversationHistory.forEach(message => {
+                addMessage(message.role === 'user' ? 'You' : 'AI', message.content);
+            });
+        }
+
         window.chatWithAI = async function(input) {
             const conversationHistory = getConversationHistory();
             conversationHistory.push({ role: 'user', content: input });
@@ -434,6 +441,7 @@
                 }, 10); // Small delay to ensure the display change has taken effect
                 document.getElementById('user-input').focus();
                 playSound('toggle-sound');
+                displayConversationHistory(); // Display conversation history when the chatbot is opened
             } else {
                 container.classList.remove('show');
                 setTimeout(() => {

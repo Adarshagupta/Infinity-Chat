@@ -304,6 +304,7 @@ def process_ecommerce_response(response):
 
 
 # Modify the chat route to improve memory handling
+```python
 @app.route("/chat", methods=["POST"])
 @limiter.limit("50 per minute")
 def chat():
@@ -355,13 +356,12 @@ For e-commerce queries:
 If you need more information to answer accurately, ask the user a clarifying question.""",
                 }
             ]
-            + conversation_history[-5:]
-        )  # Include last 5 messages for context
+            + conversation_history
+        )  # Include entire conversation history for context
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
         ai_response = get_ai_response(api_key_data.llm, messages)
-
         logger.info(f"Received response from AI service: {ai_response}")
 
         # Append AI response to conversation history
