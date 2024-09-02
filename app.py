@@ -304,7 +304,6 @@ def process_ecommerce_response(response):
 
 
 # Modify the chat route to improve memory handling
-```python
 @app.route("/chat", methods=["POST"])
 @limiter.limit("50 per minute")
 def chat():
