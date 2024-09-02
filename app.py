@@ -29,7 +29,7 @@ from datetime import datetime
 import time
 from alembic import op
 import sqlalchemy as sa
-
+from functools import wraps
 
 # Load environment variables from .env file
 load_dotenv()
@@ -565,11 +565,19 @@ def test_apis():
     return f"Together API: {together_result}, OpenAI API: {openai_result}"
 
 
-@app.route("/api/dashboard")
-def dashboard():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
+# Create a decorator to check if the user is logged in
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
 
+
+@app.route("/api/dashboard")
+@login_required
+def dashboard():
     user = User.query.get(session["user_id"])
     api_keys = user.api_keys
     custom_prompts = user.custom_prompts
@@ -603,10 +611,8 @@ def dashboard():
 
 
 @app.route("/profile", methods=["GET", "POST"])
+@login_required
 def profile():
-    if "user_id" not in session:
-        return redirect(url_for("login"))
-
     user = User.query.get(session["user_id"])
 
     if request.method == "POST":
@@ -631,10 +637,8 @@ def profile():
 
 
 @app.route("/delete_api_key", methods=["POST"])
+@login_required
 def delete_api_key():
-    if "user_id" not in session:
-        return jsonify({"error": "User not logged in"}), 401
-
     api_key_id = request.form.get("api_key_id")
     api_key = APIKey.query.get(api_key_id)
     if api_key and api_key.user_id == session["user_id"]:
@@ -648,10 +652,8 @@ def delete_api_key():
 
 
 @app.route("/add_custom_prompt", methods=["POST"])
+@login_required
 def add_custom_prompt():
-    if "user_id" not in session:
-        return jsonify({"error": "User not logged in"}), 401
-
     prompt = request.form.get("prompt")
     response = request.form.get("response")
     if prompt and response:
@@ -668,10 +670,8 @@ def add_custom_prompt():
 
 
 @app.route("/change_password", methods=["POST"])
+@login_required
 def change_password():
-    if "user_id" not in session:
-        return jsonify({"error": "User not logged in"}), 401
-
     current_password = request.form.get("current_password")
     new_password = request.form.get("new_password")
     user = User.query.get(session["user_id"])
@@ -686,10 +686,8 @@ def change_password():
 
 
 @app.route("/test_api_key", methods=["POST"])
+@login_required
 def test_api_key():
-    if "user_id" not in session:
-        return jsonify({"error": "User not logged in"}), 401
-
     api_key = request.json.get("api_key")
     test_input = request.json.get("input", "Hello, this is a test message.")
 
@@ -800,7 +798,10 @@ def get_average_rating(model_id):
 def ai_marketplace():
     models = AIModel.query.all()
     return render_template("ai_marketplace.html", models=models)
-
+    
+@app.route("/auth")
+def auth():
+    return render_template("auth.html")
 
 if __name__ == "__main__":
     with app.app_context():
