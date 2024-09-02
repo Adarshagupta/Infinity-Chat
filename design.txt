@@ -410,7 +410,8 @@
                 const statusElement = showReplyingStatus();
                 const response = await chatWithAI(message);
                 removeReplyingStatus(statusElement);
-                addMessage('AI', response);
+                addMessage('AI', response.response);
+                saveConversationHistory(response.history);
                 playSound('message-received-sound');
             }
         };

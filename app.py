@@ -311,6 +311,7 @@ def chat():
     try:
         user_input = request.json.get("input")
         api_key = request.json.get("api_key")
+        history = request.json.get("history", [])
 
         if not user_input or not api_key:
             return jsonify({"error": "Input and API key are required"}), 400
@@ -321,12 +322,6 @@ def chat():
 
         # Fetch the extracted text associated with this API key
         context = api_key_data.extracted_text
-
-        # Initialize or retrieve conversation history
-        conversation_history = session.get(f"conversation_history_{api_key}", [])
-
-        # Append user input to conversation history
-        conversation_history.append({"role": "user", "content": user_input})
 
         # Prepare messages for AI, including conversation history
         messages = (
@@ -355,7 +350,7 @@ For e-commerce queries:
 If you need more information to answer accurately, ask the user a clarifying question.""",
                 }
             ]
-            + conversation_history
+            + history
         )  # Include entire conversation history for context
 
         logger.info(f"Sending request to AI service with input: {user_input}")
@@ -364,11 +359,7 @@ If you need more information to answer accurately, ask the user a clarifying que
         logger.info(f"Received response from AI service: {ai_response}")
 
         # Append AI response to conversation history
-        conversation_history.append({"role": "assistant", "content": ai_response})
-
-        # Save updated conversation history to session
-        session[f"conversation_history_{api_key}"] = conversation_history
-        session.modified = True  # Ensure session is saved
+        history.append({"role": "assistant", "content": ai_response})
 
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
@@ -389,7 +380,7 @@ If you need more information to answer accurately, ask the user a clarifying que
             f"Recorded analytics for user_id: {api_key_data.user_id}, api_key: {api_key}"
         )
 
-        return jsonify(processed_response)
+        return jsonify({"response": processed_response, "history": history})
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
 
