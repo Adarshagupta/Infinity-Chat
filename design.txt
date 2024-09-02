@@ -339,37 +339,26 @@
             }
         };
 
-        window.addMessage = function(sender, message) {
+        window.addMessage = function(sender, message, productData = null) {
             const chatMessages = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
             
-            if (typeof message === 'object') {
-                if (message.product_data) {
-                    const productData = message.product_data;
-                    messageElement.innerHTML = `
-                        <p>${message.response}</p>
-                        <div class="product-carousel">
-                            <button class="carousel-button" onclick="scrollCarousel(-1)">&#10094;</button>
-                            <div class="product-container">
-                                <div class="product-card">
-                                    <img src="${productData.image_url}" alt="${productData.name}" class="product-image">
-                                    <h3>${productData.name}</h3>
-                                    <p class="price">${productData.price}</p>
-                                    <p class="description">${productData.description}</p>
-                                    <a href="${productData.product_url}" class="shop-button" target="_blank">Shop Now</a>
-                                </div>
+            if (productData) {
+                messageElement.innerHTML = `
+                    <p>${message}</p>
+                    <div class="product-carousel">
+                        ${productData.map(product => `
+                            <div class="product-card">
+                                <img src="${product.image_url}" alt="${product.name}" class="product-image">
+                                <h3>${product.name}</h3>
+                                <p class="price">${product.price}</p>
+                                <p class="description">${product.description}</p>
+                                <a href="${product.product_url}" class="shop-button" target="_blank">Shop Now</a>
                             </div>
-                            <button class="carousel-button" onclick="scrollCarousel(1)">&#10095;</button>
-                        </div>
-                    `;
-                } else if (message.response) {
-                    messageElement.innerHTML = `<p>${message.response}</p>`;
-                } else if (message.error) {
-                    messageElement.innerHTML = `<p class="error">${message.error}</p>`;
-                } else {
-                    messageElement.innerHTML = `<p>Unexpected response format</p>`;
-                }
+                        `).join('')}
+                    </div>
+                `;
             } else {
                 messageElement.innerHTML = `<p>${message}</p>`;
             }
@@ -410,7 +399,7 @@
                 const statusElement = showReplyingStatus();
                 const response = await chatWithAI(message);
                 removeReplyingStatus(statusElement);
-                addMessage('AI', response.response);
+                addMessage('AI', response.response, response.product_data);
                 saveConversationHistory(response.history);
                 playSound('message-received-sound');
             }

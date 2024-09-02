@@ -364,6 +364,9 @@ If you need more information to answer accurately, ask the user a clarifying que
         # Process the AI response for e-commerce functionality
         processed_response = process_ecommerce_response(ai_response)
 
+        # Fetch product data from the provided URL
+        product_data = fetch_product_data_from_url(user_input)
+
         # Record analytics
         end_time = time.time()
         response_time = end_time - start_time
@@ -380,7 +383,7 @@ If you need more information to answer accurately, ask the user a clarifying que
             f"Recorded analytics for user_id: {api_key_data.user_id}, api_key: {api_key}"
         )
 
-        return jsonify({"response": processed_response, "history": history})
+        return jsonify({"response": processed_response, "history": history, "product_data": product_data})
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
 
