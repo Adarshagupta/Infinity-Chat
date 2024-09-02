@@ -352,9 +352,9 @@
                             <div class="product-card">
                                 <img src="${product.image_url}" alt="${product.name}" class="product-image">
                                 <h3>${product.name}</h3>
-                                <p class="price">${product.price}</p>
-                                <p class="description">${product.description}</p>
-                                <a href="${product.product_url}" class="shop-button" target="_blank">Shop Now</a>
+                                <p>${product.price}</p>
+                                <p>${product.description}</p>
+                                <a href="${product.product_url}" target="_blank">View Product</a>
                             </div>
                         `).join('')}
                     </div>
@@ -370,10 +370,10 @@
         window.showReplyingStatus = function() {
             const chatMessages = document.getElementById('chat-messages');
             const statusElement = document.createElement('div');
-            statusElement.className = 'replying-status';
+            statusElement.className = 'message ai-message';
             statusElement.innerHTML = `
-                AI is replying
-                <div class="dots">
+                <p>AI is replying...</p>
+                <div class="dot-container">
                     <div class="dot"></div>
                     <div class="dot"></div>
                     <div class="dot"></div>
@@ -399,14 +399,18 @@
                 const statusElement = showReplyingStatus();
                 const response = await chatWithAI(message);
                 removeReplyingStatus(statusElement);
-                addMessage('AI', response.response, response.product_data);
+                if (response.error) {
+                    addMessage('AI', response.error);
+                } else {
+                    addMessage('AI', response.response, response.product_data);
+                }
                 saveConversationHistory(response.history);
                 playSound('message-received-sound');
             }
         };
 
         window.scrollCarousel = function(direction) {
-            const container = document.querySelector('.product-container');
+            const container = document.querySelector('.product-carousel');
             const scrollAmount = 220; // Adjust this value based on your card width + margin
             container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
         };

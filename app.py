@@ -422,27 +422,35 @@ def clear_chat_history():
 
 
 # The rest of your code remains the same
+import requests
+from bs4 import BeautifulSoup
+
 def fetch_product_data_from_url(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, "html.parser")
-    
-    products = []
-    for product in soup.select(".product"):  # Adjust the selector based on the website's structure
-        name = product.select_one(".product-name").text.strip()
-        price = product.select_one(".product-price").text.strip()
-        description = product.select_one(".product-description").text.strip()
-        image_url = product.select_one(".product-image")["src"]
-        product_url = product.select_one(".product-link")["href"]
+    try:
+        response = requests.get(url)
+        response.raise_for_status()  # Raises an HTTPError for bad responses
+        soup = BeautifulSoup(response.text, "html.parser")
         
-        products.append({
-            "name": name,
-            "price": price,
-            "description": description,
-            "image_url": image_url,
-            "product_url": product_url
-        })
-    
-    return products
+        products = []
+        for product in soup.select(".product"):  # Adjust the selector based on the website's structure
+            name = product.select_one(".product-name").text.strip()
+            price = product.select_one(".product-price").text.strip()
+            description = product.select_one(".product-description").text.strip()
+            image_url = product.select_one(".product-image")["src"]
+            product_url = product.select_one(".product-link")["href"]
+            
+            products.append({
+                "name": name,
+                "price": price,
+                "description": description,
+                "image_url": image_url,
+                "product_url": product_url
+            })
+        
+        return products
+    except Exception as e:
+        app.logger.error(f"Error fetching product data: {str(e)}")
+        return []
 
 def get_ai_response(llm_type, messages):
     if llm_type == "together":
