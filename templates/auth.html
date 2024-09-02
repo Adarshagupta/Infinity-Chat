@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI Chatbot Creator - Auth</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f0f2f5;
+        }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+        }
+
+        nav a {
+            color: black;
+        }
+
+        nav a:hover {
+            color: #333;
+        }
+
+        nav h1 {
+            color: black;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+    <main class="container mx-auto pt-24 p-6 flex flex-col items-center min-h-screen">
+        <div id="authForms" class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+            <div class="flex justify-between items-center mb-6">
+                <a href="/" class="text-gray-600 hover:text-gray-800 transition duration-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                            d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                </a>
+                <div class="flex justify-center">
+                    <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png"
+                        alt="Logo" class="w-24 h-24">
+                </div>
+                <div class="w-5"></div> <!-- Spacer to maintain alignment -->
+            </div>
+            <div class="flex mb-6">
+                <button id="loginTab" onclick="switchTab('login')"
+                    class="flex-1 py-2 px-4 text-center font-medium focus:outline-none transition duration-300 rounded-l-lg bg-gray-100">Login</button>
+                <button id="registerTab" onclick="switchTab('register')"
+                    class="flex-1 py-2 px-4 text-center font-medium focus:outline-none transition duration-300 rounded-r-lg">Register</button>
+            </div>
+            <div id="loginForm">
+                <input type="email" id="loginEmail" placeholder="Email"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="password" id="loginPassword" placeholder="Password"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <button onclick="login()"
+                    class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition duration-300">Login</button>
+            </div>
+            <div id="registerForm" class="hidden">
+                <input type="email" id="registerEmail" placeholder="Email"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="password" id="registerPassword" placeholder="Password"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <button onclick="register()"
+                    class="w-full bg-green-500 text-white py-3 rounded-lg hover:bg-green-600 transition duration-300">Register</button>
+            </div>
+            <div class="mt-6 text-center text-gray-600 text-sm">
+                <a href="#" class="hover:underline">Terms of Use</a> | <a href="#" class="hover:underline">Privacy
+                    Policy</a>
+            </div>
+        </div>
+        <div id="loader" class="hidden fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center">
+            <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+                <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto mb-4"></div>
+                <p class="text-gray-700 text-lg font-semibold">Processing...</p>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        let currentUser = null;
+
+        function switchTab(tab) {
+            const loginTab = document.getElementById('loginTab');
+            const registerTab = document.getElementById('registerTab');
+            const loginForm = document.getElementById('loginForm');
+            const registerForm = document.getElementById('registerForm');
+
+            if (tab === 'login') {
+                loginTab.classList.add('bg-gray-100');
+                registerTab.classList.remove('bg-gray-100');
+                loginForm.classList.remove('hidden');
+                registerForm.classList.add('hidden');
+            } else {
+                registerTab.classList.add('bg-gray-100');
+                loginTab.classList.remove('bg-gray-100');
+                registerForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+            }
+        }
+
+        async function register() {
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const loader = document.getElementById('loader');
+
+            loader.classList.remove('hidden');
+
+            try {
+                const response = await axios.post('/register', { email, password });
+                showNotification(response.data.message, 'success');
+                switchTab('login');
+            } catch (error) {
+                showNotification(error.response.data.error, 'error');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const loader = document.getElementById('loader');
+
+            loader.classList.remove('hidden');
+
+            try {
+                const response = await axios.post('/login', { email, password });
+                currentUser = email;
+                localStorage.setItem('currentUser', email);
+                window.location.href = '/api'; // Redirect to /api after login
+            } catch (error) {
+                showNotification(error.response.data.error, 'error');
+            } finally {
+                loader.classList.add('hidden');
+            }
+        }
+
+        function showNotification(message, type) {
+            // Implement your notification logic here
+            alert(`${type.toUpperCase()}: ${message}`);
+        }
+
+        document.addEventListener('DOMContentLoaded', function () {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = savedUser;
+                window.location.href = '/api'; // Redirect to /api if already logged in
+            } else {
+                currentUser = null;
+            }
+        });
+    </script>
+</body>
+
+</html>

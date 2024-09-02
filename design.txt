@@ -47,13 +47,13 @@
     width: 60px;
     height: 60px;
     border-radius: 50%;
-    background-color: #3B82F6;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
     display: flex;
     justify-content: center;
     align-items: center;
     cursor: pointer;
     box-shadow: 0 4px 6px rgba(59, 130, 246, 0.5);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
     opacity: 0;
     transform: translateY(20px);
 }
@@ -61,6 +61,7 @@
 .chatbot-popup-button:hover {
     transform: scale(1.1);
     box-shadow: 0 6px 8px rgba(59, 130, 246, 0.6);
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
 }
 
 .chatbot-popup-button:active {
@@ -78,7 +79,7 @@
     height: 600px;
     background: #ffffff;
     border-radius: 16px;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -96,11 +97,11 @@
     transform: scale(1) translateY(0);
     opacity: 1;
     pointer-events: all;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
 }
 
 .chatbot-header {
-    background-color: #3B82F6;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
     color: white;
     padding: 15px;
     font-weight: 600;
@@ -108,50 +109,23 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-}
-
-.chatbot-controls {
-    display: flex;
-    gap: 10px;
-}
-
-.chatbot-controls button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: white;
-    padding: 5px;
-    border-radius: 50%;
-    transition: background-color 0.2s;
-}
-
-.chatbot-controls button:hover {
-    background-color: rgba(255, 255, 255, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .chatbot-content {
     height: calc(100% - 60px);
     display: flex;
     flex-direction: column;
+    background: #F7FAFC;
 }
 
 .chat-messages {
     flex-grow: 1;
     overflow-y: auto;
     padding: 20px;
-}
-
-.chat-messages::-webkit-scrollbar {
-    width: 6px;
-}
-
-.chat-messages::-webkit-scrollbar-track {
-    background: #f1f1f1;
-}
-
-.chat-messages::-webkit-scrollbar-thumb {
-    background-color: #CBD5E0;
-    border-radius: 20px;
+    background: #ffffff;
+    border-top: 1px solid #E2E8F0;
+    border-bottom: 1px solid #E2E8F0;
 }
 
 .chat-input {
@@ -179,7 +153,7 @@
 }
 
 #send-button {
-    background-color: #3B82F6;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
     color: white;
     border: none;
     padding: 12px;
@@ -192,7 +166,7 @@
 }
 
 #send-button:hover {
-    background-color: #2563EB;
+    background: linear-gradient(135deg, #2563EB, #3B82F6);
     transform: scale(1.05);
 }
 
@@ -240,110 +214,9 @@
 }
 
 .user-message p {
-    background-color: #3B82F6;
+    background: linear-gradient(135deg, #3B82F6, #2563EB);
     color: white;
     border-bottom-right-radius: 4px;
-}
-
-.product-carousel {
-    display: flex;
-    align-items: center;
-    padding: 10px;
-    background-color: #F3F4F6;
-}
-
-.product-container {
-    display: flex;
-    overflow-x: auto;
-    scroll-behavior: smooth;
-    -webkit-overflow-scrolling: touch;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-}
-
-.product-container::-webkit-scrollbar {
-    display: none;
-}
-
-.product-card {
-    flex: 0 0 auto;
-    width: 200px;
-    margin-right: 10px;
-    border: 1px solid #E2E8F0;
-    border-radius: 12px;
-    padding: 10px;
-    background-color: #FFFFFF;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    transition: all 0.3s ease;
-}
-
-.product-card:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-.product-image {
-    width: 100%;
-    height: 120px;
-    object-fit: cover;
-    border-radius: 8px;
-    margin-bottom: 10px;
-}
-
-.product-card h3 {
-    font-size: 14px;
-    margin: 0 0 5px 0;
-    color: #2D3748;
-}
-
-.product-card .price {
-    font-weight: bold;
-    color: #3B82F6;
-    margin: 0 0 5px 0;
-    font-size: 14px;
-}
-
-.product-card .description {
-    font-size: 12px;
-    color: #4A5568;
-    margin: 0 0 10px 0;
-    line-height: 1.3;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-
-.shop-button {
-    display: block;
-    background-color: #10B981;
-    color: white;
-    padding: 8px 12px;
-    border-radius: 6px;
-    text-decoration: none;
-    font-size: 12px;
-    font-weight: 600;
-    transition: all 0.3s ease;
-    text-align: center;
-}
-
-.shop-button:hover {
-    background-color: #059669;
-}
-
-.carousel-button {
-    background: rgba(59, 130, 246, 0.1);
-    border: none;
-    color: #3B82F6;
-    font-size: 18px;
-    padding: 5px 10px;
-    cursor: pointer;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-}
-
-.carousel-button:hover {
-    background: rgba(59, 130, 246, 0.2);
 }
 
 .powered-by {
@@ -424,7 +297,19 @@
             sound.play();
         }
 
+        function getConversationHistory() {
+            const history = localStorage.getItem('conversationHistory');
+            return history ? JSON.parse(history) : [];
+        }
+
+        function saveConversationHistory(history) {
+            localStorage.setItem('conversationHistory', JSON.stringify(history));
+        }
+
         window.chatWithAI = async function(input) {
+            const conversationHistory = getConversationHistory();
+            conversationHistory.push({ role: 'user', content: input });
+
             try {
                 const response = await fetch('https://chatcat-moo7.onrender.com/chat', {
                     method: 'POST',
@@ -433,10 +318,13 @@
                     },
                     body: JSON.stringify({
                         input: input,
-                        api_key: '{api_key}'
+                        api_key: '{api_key}',
+                        history: conversationHistory
                     })
                 });
                 const data = await response.json();
+                conversationHistory.push({ role: 'assistant', content: data.response });
+                saveConversationHistory(conversationHistory);
                 return data;
             } catch (error) {
                 console.error('Error:', error);
@@ -537,32 +425,32 @@
         });
 
         // Add toggle functionality
-document.getElementById('chatbot-popup-button').addEventListener('click', function() {
-    var container = document.getElementById('chatbot-container');
-    if (container.style.display === 'none') {
-        container.style.display = 'flex';
-        setTimeout(() => {
-            container.classList.add('show');
-        }, 10); // Small delay to ensure the display change has taken effect
-        document.getElementById('user-input').focus();
-        playSound('toggle-sound');
-    } else {
-        container.classList.remove('show');
-        setTimeout(() => {
-            container.style.display = 'none';
-        }, 300); // Wait for the animation to complete before hiding
-        playSound('toggle-sound');
-    }
-});
+        document.getElementById('chatbot-popup-button').addEventListener('click', function() {
+            var container = document.getElementById('chatbot-container');
+            if (container.style.display === 'none') {
+                container.style.display = 'flex';
+                setTimeout(() => {
+                    container.classList.add('show');
+                }, 10); // Small delay to ensure the display change has taken effect
+                document.getElementById('user-input').focus();
+                playSound('toggle-sound');
+            } else {
+                container.classList.remove('show');
+                setTimeout(() => {
+                    container.style.display = 'none';
+                }, 300); // Wait for the animation to complete before hiding
+                playSound('toggle-sound');
+            }
+        });
 
-document.getElementById('chatbot-close').addEventListener('click', function() {
-    var container = document.getElementById('chatbot-container');
-    container.classList.remove('show');
-    setTimeout(() => {
-        container.style.display = 'none';
-    }, 300);
-    playSound('toggle-sound');
-});
+        document.getElementById('chatbot-close').addEventListener('click', function() {
+            var container = document.getElementById('chatbot-container');
+            container.classList.remove('show');
+            setTimeout(() => {
+                container.style.display = 'none';
+            }, 300);
+            playSound('toggle-sound');
+        });
 
         // Modify the styles for the popup button and container
         var additionalStyles = document.createElement('style');
