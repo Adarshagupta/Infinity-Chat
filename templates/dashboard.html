@@ -104,61 +104,101 @@
         .sidebar:hover + .main-content {
             margin-left: 16rem;
         }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: calc(100% - 5rem); /* Adjust based on the logo container height */
+        }
+
+        .sidebar-menu > div {
+            display: flex;
+            flex-direction: column;
+        }
     </style>
 </head>
 
 <body class="bg-gray-50 font-sans">
     <!-- Sidebar -->
     <div class="sidebar">
-        <nav class="sidebar-menu">
-            <a href="#" class="sidebar-item active" data-tab="api-keys">
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
-                <span class="sidebar-text">API Keys</span>
-                <span class="sidebar-tooltip">API Keys</span>
-            </a>
-            <a href="#" class="sidebar-item" data-tab="custom-prompts">
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                <span class="sidebar-text">Custom Prompts</span>
-                <span class="sidebar-tooltip">Custom Prompts</span>
-            </a>
-            <a href="#" class="sidebar-item" data-tab="change-password">
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                <span class="sidebar-text">Change Password</span>
-                <span class="sidebar-tooltip">Change Password</span>
-            </a>
-            <a href="#" class="sidebar-item" data-tab="customer-support">
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                <span class="sidebar-text">Customer Support</span>
-                <span class="sidebar-tooltip">Customer support</span>
-
-            </a>
-            <a href="#" class="sidebar-item" data-tab="profile">
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
-                <span class="sidebar-text">Profile</span>
-                <span class="sidebar-tooltip">Profile</span>
-            </a>
-            <a href="#" class="sidebar-item" data-tab="api-analytics">
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
-                <span class="sidebar-text">API Analytics</span>
-                <span class="sidebar-tooltip">API Analytics</span>
-            </a>
+        <div class="p-4 flex justify-center">
+            <img src="https://ph-files.imgix.net/0b9e56aa-e09b-4e62-9dd6-4c3b149463b5.png?auto=compress&codec=mozjpeg&cs=strip&auto=format&w=72&h=72&fit=crop&dpr=1" alt="Logo" class="w-12 h-12">
+        </div>
+        <nav class="sidebar-menu flex flex-col justify-between h-[calc(100%-5rem)]">
+            <div>
+                <a href="#" class="sidebar-item" data-tab="chatbot-creator">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                    <span class="sidebar-text">Chatbot Creator</span>
+                    <span class="sidebar-tooltip">Chatbot Creator</span>
+                </a>
+                <a href="#" class="sidebar-item active" data-tab="api-keys">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                    <span class="sidebar-text">API Keys</span>
+                    <span class="sidebar-tooltip">API Keys</span>
+                </a>
+                <a href="#" class="sidebar-item" data-tab="fine-tuning">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
+                    <span class="sidebar-text">Fine-tuning</span>
+                    <span class="sidebar-tooltip">Fine-tuning</span>
+                </a>
+                <a href="#" class="sidebar-item" data-tab="api-analytics">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span class="sidebar-text">API Analytics</span>
+                    <span class="sidebar-tooltip">API Analytics</span>
+                </a>
+                <a href="#" class="sidebar-item" data-tab="integrations">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span class="sidebar-text">Integrations</span>
+                    <span class="sidebar-tooltip">Integrations</span>
+                </a>
+                <a href="#" class="sidebar-item" data-tab="custom-prompts">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                    <span class="sidebar-text">Custom Prompts</span>
+                    <span class="sidebar-tooltip">Custom Prompts</span>
+                </a>
+                <a href="#" class="sidebar-item" data-tab="customer-support">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                    <span class="sidebar-text">Customer Support</span>
+                    <span class="sidebar-tooltip">Customer support</span>
+                </a>
+            </div>
+            <div>
+                <a href="#" class="sidebar-item" data-tab="profile">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                    <span class="sidebar-text">Profile</span>
+                    <span class="sidebar-tooltip">Profile</span>
+                </a>
+            </div>
         </nav>
     </div>
 
     <!-- Main content -->
     <div class="main-content">
-        <h1 class="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
+        <div class="flex justify-between items-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
+            <a href="#" onclick="showTab('chatbot-creator')" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Create New</a>
+        </div>
 
         <!-- Tab content -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <section id="api-keys" class="tab-content active">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Your API Keys</h2>
-                <ul>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-700">Your API Keys</h2>
+                    <button onclick="refreshApiKeys()" class="bg-gray-500 text-white px-4 py-2 rounded-md font-medium hover:bg-gray-600 transition duration-300 flex items-center">
+                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                        </svg>
+                        Refresh
+                    </button>
+                </div>
+                <ul id="apiKeysList">
                     {% for key in api_keys %}
                     <li class="bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105">
                         <span>{{ key.key }}</span>
                         <div>
-                            <button onclick="openApiTestModal('{{ key.key }}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>                        <form action="{{ url_for('delete_api_key') }}" method="post" class="inline">
+                            <button onclick="openApiTestModal('{{ key.key }}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
+                            <form action="{{ url_for('delete_api_key') }}" method="post" class="inline">
                                 <input type="hidden" name="api_key_id" value="{{ key.id }}">
                                 <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
                             </form>
@@ -259,6 +299,97 @@
                     </table>
                 </div>
             </section>
+            <section id="integrations" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Integrations</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <!-- WhatsApp Integration -->
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-2">WhatsApp</h3>
+                        <p class="mb-2">Integrate your chatbot with WhatsApp</p>
+                        <button onclick="integrateWhatsApp()" class="bg-green-500 text-white px-4 py-2 rounded-md font-medium hover:bg-green-600 transition duration-300">Connect WhatsApp</button>
+                    </div>
+                    
+                    <!-- Telegram Integration -->
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-2">Telegram</h3>
+                        <p class="mb-2">Integrate your chatbot with Telegram</p>
+                        <button onclick="integrateTelegram()" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300">Connect Telegram</button>
+                    </div>
+                    
+                    <!-- Slack Integration -->
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-2">Slack</h3>
+                        <p class="mb-2">Integrate your chatbot with Slack</p>
+                        <button onclick="integrateSlack()" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Connect Slack</button>
+                    </div>
+                    
+                    <!-- Discord Integration -->
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="text-lg font-semibold mb-2">Discord</h3>
+                        <p class="mb-2">Integrate your chatbot with Discord</p>
+                        <button onclick="integrateDiscord()" class="bg-indigo-500 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-600 transition duration-300">Connect Discord</button>
+                    </div>
+                </div>
+            </section>
+            <section id="fine-tuning" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Fine-tune Your API</h2>
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Start New Fine-tuning Job</h3>
+                    <form id="fine-tune-form" class="space-y-4">
+                        <div>
+                            <label for="api-key-select" class="block text-sm font-medium text-gray-700">Select API Key</label>
+                            <select id="api-key-select" name="api_key_id" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        <div>
+                            <label for="training-file" class="block text-sm font-medium text-gray-700">Training File (JSON)</label>
+                            <input type="file" id="training-file" name="training_file" accept=".json" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                        </div>
+                        <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Start Fine-tuning</button>
+                    </form>
+                </div>
+                <div>
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Fine-tuning Jobs</h3>
+                    <table class="min-w-full bg-white">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-2 px-4 text-left">Job ID</th>
+                                <th class="py-2 px-4 text-left">API Key</th>
+                                <th class="py-2 px-4 text-left">Status</th>
+                                <th class="py-2 px-4 text-left">Created At</th>
+                                <th class="py-2 px-4 text-left">Updated At</th>
+                                <th class="py-2 px-4 text-left">Model Name</th>
+                            </tr>
+                        </thead>
+                        <tbody id="fine-tune-jobs-body">
+                            <!-- Fine-tuning jobs will be populated here -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+            <section id="chatbot-creator" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Chatbot Creator</h2>
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Create New Chatbot</h3>
+                    <div class="flex flex-col space-y-2">
+                        <input type="text" id="urlInput" placeholder="Enter website URL" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <select id="llmSelect" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <option value="together">Together AI</option>
+                            <option value="openai">OpenAI</option>
+                        </select>
+                        <button onclick="processUrl()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300">Process</button>
+                    </div>
+                </div>
+                <div id="result" class="hidden bg-white rounded-2xl shadow-xl p-8 mt-8 w-full">
+                    <h2 class="text-xl font-semibold mb-4">Processing Complete</h2>
+                    <div id="apiKeyResult" class="mb-4"></div>
+                    <div id="integrationCodeSection" class="mb-4">
+                        <h3 class="text-lg font-semibold mb-2">Integration Code:</h3>
+                        <textarea id="integration-code" readonly class="w-full h-40 p-2 border border-gray-300 rounded-md font-mono text-sm"></textarea>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 
@@ -280,7 +411,16 @@
             </div>
         </div>
     </div>
+
+    <div id="loader" class="hidden fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-gray-700 text-lg font-semibold">Processing...</p>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const sidebarItems = document.querySelectorAll('.sidebar-item');
@@ -301,9 +441,96 @@
                         initializeChat();
                     } else if (targetTab === 'api-analytics') {
                         loadAnalytics();
+                    } else if (targetTab === 'fine-tuning') {
+                        loadFineTuneJobs();
                     }
                 });
             });
+
+            // Populate API keys for fine-tuning
+            fetch('/user/api_keys')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API keys data:', data); // Log the received data
+                    const apiKeySelect = document.getElementById('api-key-select');
+                    apiKeySelect.innerHTML = ''; // Clear existing options
+                    if (data.api_keys && data.api_keys.length > 0) {
+                        data.api_keys.forEach(key => {
+                            const option = document.createElement('option');
+                            option.value = key.id;
+                            option.textContent = key.key.substring(0, 8) + '...';
+                            apiKeySelect.appendChild(option);
+                        });
+                    } else {
+                        apiKeySelect.innerHTML = '<option value="">No API keys available</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching API keys:', error);
+                    const apiKeySelect = document.getElementById('api-key-select');
+                    apiKeySelect.innerHTML = '<option value="">Error loading API keys</option>';
+                });
+
+            // Handle fine-tuning form submission
+            document.getElementById('fine-tune-form').addEventListener('submit', function(e) {
+                e.preventDefault();
+                const formData = new FormData(this);
+                const file = formData.get('training_file');
+                const reader = new FileReader();
+
+                reader.onload = function(e) {
+                    const fileContent = e.target.result;
+                    fetch('/api/fine-tune', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            api_key_id: formData.get('api_key_id'),
+                            training_file: fileContent
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.message) {
+                            alert(data.message);
+                            loadFineTuneJobs();
+                        } else {
+                            alert('Error: ' + data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while starting the fine-tuning job.');
+                    });
+                };
+
+                reader.readAsText(file);
+            });
+
+            function loadFineTuneJobs() {
+                fetch('/api/fine-tune/status')
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('fine-tune-jobs-body');
+                        tableBody.innerHTML = '';
+                        data.forEach(job => {
+                            const row = tableBody.insertRow();
+                            row.insertCell(0).textContent = job.id;
+                            row.insertCell(1).textContent = job.api_key;
+                            row.insertCell(2).textContent = job.status;
+                            row.insertCell(3).textContent = new Date(job.created_at).toLocaleString();
+                            row.insertCell(4).textContent = new Date(job.updated_at).toLocaleString();
+                            row.insertCell(5).textContent = job.model_name || 'N/A';
+                        });
+                    })
+                    .catch(error => console.error('Error loading fine-tune jobs:', error));
+            }
         });
 
         // Add logout functionality
@@ -434,36 +661,111 @@
             
             // Process data for the chart
             const apiCalls = {};
+            const responseTimes = {};
+            const statusCodes = {};
+            
             data.forEach(item => {
                 const date = new Date(item.timestamp).toLocaleDateString();
                 apiCalls[date] = (apiCalls[date] || 0) + 1;
+                responseTimes[date] = (responseTimes[date] || 0) + item.response_time;
+                statusCodes[date] = statusCodes[date] || {};
+                statusCodes[date][item.status_code] = (statusCodes[date][item.status_code] || 0) + 1;
             });
+
+            // Sort dates and get the last 14 days
+            const sortedDates = Object.keys(apiCalls).sort((a, b) => new Date(a) - new Date(b));
+            const last14Days = sortedDates.slice(-14);
+
+            // Prepare data for the chart
+            const chartData = {
+                labels: last14Days,
+                datasets: [
+                    {
+                        label: 'API Calls',
+                        data: last14Days.map(date => apiCalls[date] || 0),
+                        borderColor: 'rgb(75, 192, 192)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                        yAxisID: 'y',
+                        fill: true
+                    },
+                    {
+                        label: 'Avg Response Time (ms)',
+                        data: last14Days.map(date => apiCalls[date] ? (responseTimes[date] / apiCalls[date]) * 1000 : 0),
+                        borderColor: 'rgb(255, 99, 132)',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        yAxisID: 'y1',
+                        fill: true
+                    }
+                ]
+            };
+
+            // Clear previous chart if it exists
+            Chart.getChart(ctx)?.destroy();
 
             new Chart(ctx, {
                 type: 'line',
-                data: {
-                    labels: Object.keys(apiCalls),
-                    datasets: [{
-                        label: 'API Calls per Day',
-                        data: Object.values(apiCalls),
-                        borderColor: 'rgb(75, 192, 192)',
-                        tension: 0.1
-                    }]
-                },
+                data: chartData,
                 options: {
                     responsive: true,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    stacked: false,
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'API Usage Analytics'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                afterBody: function(context) {
+                                    const date = context[0].label;
+                                    const statusCodesForDay = statusCodes[date];
+                                    if (!statusCodesForDay) return '';
+                                    
+                                    let statusText = '\nStatus Codes:';
+                                    for (let code in statusCodesForDay) {
+                                        statusText += `\n${code}: ${statusCodesForDay[code]}`;
+                                    }
+                                    return statusText;
+                                }
+                            }
+                        }
+                    },
                     scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day',
+                                displayFormats: {
+                                    day: 'MMM d'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        },
                         y: {
-                            beginAtZero: true,
+                            type: 'linear',
+                            display: true,
+                            position: 'left',
                             title: {
                                 display: true,
                                 text: 'Number of API Calls'
                             }
                         },
-                        x: {
+                        y1: {
+                            type: 'linear',
+                            display: true,
+                            position: 'right',
                             title: {
                                 display: true,
-                                text: 'Date'
+                                text: 'Avg Response Time (ms)'
+                            },
+                            grid: {
+                                drawOnChartArea: false,
                             }
                         }
                     }
@@ -484,6 +786,262 @@
                 row.insertCell(4).textContent = item.status_code;
             });
         }
+
+        function integrateWhatsApp() {
+            // Implement WhatsApp integration logic here
+            alert('WhatsApp integration coming soon!');
+        }
+
+        function integrateTelegram() {
+            // Implement Telegram integration logic here
+            alert('Telegram integration coming soon!');
+        }
+
+        function integrateSlack() {
+            // Implement Slack integration logic here
+            alert('Slack integration coming soon!');
+        }
+
+        function integrateDiscord() {
+            // Implement Discord integration logic here
+            alert('Discord integration coming soon!');
+        }
+        let currentUser = null;
+    let currentApiKey = null;
+    let currentLLM = null;
+
+    async function processUrl() {
+        const url = document.getElementById('urlInput').value;
+        const llm = document.getElementById('llmSelect').value;
+        const resultDiv = document.getElementById('result');
+        const apiKeyResultDiv = document.getElementById('apiKeyResult');
+        const integrationCodeTextarea = document.getElementById('integration-code');
+        const loader = document.getElementById('loader');
+        const loaderText = loader.querySelector('p');
+
+        loader.classList.remove('hidden');
+
+        const steps = [
+            'Fetching data...',
+            'Training LLM...',
+            'Generating API...'
+        ];
+
+        try {
+            for (const step of steps) {
+                loaderText.textContent = step;
+                await new Promise(resolve => setTimeout(resolve, 5000));
+            }
+
+            const response = await axios.post('/process_url', { url: url, llm: llm });
+            console.log('Full API response:', response.data);
+
+            resultDiv.classList.remove('hidden');
+            apiKeyResultDiv.innerHTML = `
+                <p class="mb-2">Your API Key: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.api_key}</span></p>
+                <p class="mb-2">Selected LLM: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.llm}</span></p>
+            `;
+
+            if (response.data.integration_code) {
+                integrationCodeTextarea.value = response.data.integration_code;
+            } else {
+                integrationCodeTextarea.value = 'Integration code not found in response';
+            }
+
+            await fetchApiKeys();
+            showNotification('URL processed successfully', 'success');
+        } catch (error) {
+            console.error('Error:', error);
+            let errorMessage = 'An unknown error occurred';
+            if (error.response) {
+                errorMessage = error.response.data.error || 'Server error';
+            } else if (error.request) {
+                errorMessage = 'No response received from the server. Please check your internet connection.';
+            } else {
+                errorMessage = error.message;
+            }
+            resultDiv.innerHTML = `<p class="text-red-500">${errorMessage}</p>`;
+            showNotification(errorMessage, 'error');
+        } finally {
+            loader.classList.add('hidden');
+            loaderText.textContent = 'Processing...';
+        }
+    }
+
+    function showNotification(message, type) {
+        const notification = document.createElement('div');
+        notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+        setTimeout(() => {
+            notification.remove();
+        }, 3000);
+    }
+
+    async function fetchApiKeys() {
+        try {
+            const response = await axios.get('/user/api_keys');
+            const apiKeyDropdown = document.getElementById('apiKeyDropdown');
+            const recentApiKeyDiv = document.getElementById('recentApiKey');
+            const recentApiKeyText = document.getElementById('recentApiKeyText');
+            apiKeyDropdown.innerHTML = '';
+            recentApiKeyDiv.classList.add('hidden');
+
+            if (response.data.api_keys.length > 0) {
+                const mostRecentKey = response.data.api_keys[0];
+                recentApiKeyDiv.classList.remove('hidden');
+                recentApiKeyText.textContent = mostRecentKey.api_key;
+                document.getElementById('copyRecentApiKey').onclick = () => copyToClipboard(mostRecentKey.api_key);
+
+                response.data.api_keys.forEach((key, index) => {
+                    const option = document.createElement('option');
+                    option.value = key.api_key;
+                    option.textContent = `${key.api_key} (${key.llm})`;
+                    apiKeyDropdown.appendChild(option);
+                });
+            } else {
+                recentApiKeyDiv.classList.add('hidden');
+                apiKeyDropdown.innerHTML = '<option value="">No API keys available</option>';
+            }
+
+            addApiKeyButtons();
+
+        } catch (error) {
+            console.error('Error fetching API keys:', error);
+            showNotification('Error fetching API keys', 'error');
+        }
+    }
+
+    function copyToClipboard(text) {
+        const tempInput = document.createElement('input');
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showNotification('API key copied to clipboard', 'success');
+    }
+
+    function addApiKeyButtons() {
+        const buttonContainer = document.getElementById('apiKeyButtonContainer');
+        buttonContainer.innerHTML = '';
+        buttonContainer.className = 'mt-2 flex justify-between';
+        buttonContainer.innerHTML = `
+            <button onclick="copySelectedApiKey()" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300">Copy</button>
+            <button onclick="deleteSelectedApiKey()" class="bg-red-500 text-white px-4 py-2 rounded-md hover:bg-red-600 transition duration-300">Delete</button>
+        `;
+    }
+
+    async function deleteSelectedApiKey() {
+        const dropdown = document.getElementById('apiKeyDropdown');
+        const selectedApiKey = dropdown.value;
+        if (!selectedApiKey) {
+            showNotification('Please select an API key to delete', 'error');
+            return;
+        }
+        await deleteApiKey(selectedApiKey);
+        await fetchApiKeys();
+    }
+
+    async function deleteApiKey(apiKey) {
+        const loader = document.getElementById('loader');
+        loader.classList.remove('hidden');
+        try {
+            const response = await axios.post('/delete_api_key', { api_key: apiKey });
+            showNotification('API key deleted successfully', 'success');
+            fetchApiKeys();
+        } catch (error) {
+            console.error('Error deleting API key:', error);
+            showNotification('Error deleting API key', 'error');
+        } finally {
+            loader.classList.add('hidden');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const savedUser = localStorage.getItem('currentUser');
+        if (savedUser) {
+            currentUser = savedUser;
+            updateUI();
+            fetchApiKeys();
+        } else {
+            currentUser = null;
+            window.location.href = '/auth'; // Redirect to auth page if not logged in
+        }
+    });
+
+    function updateUI() {
+        const userInfo = document.getElementById('userInfo');
+        const userEmail = document.getElementById('userEmail');
+
+        if (currentUser) {
+            userInfo.classList.remove('hidden');
+            userEmail.textContent = currentUser;
+        } else {
+            userInfo.classList.add('hidden');
+        }
+    }
+    function showTab(tabId) {
+        const sidebarItems = document.querySelectorAll('.sidebar-item');
+        const tabContents = document.querySelectorAll('.tab-content');
+
+        sidebarItems.forEach(item => item.classList.remove('active'));
+        tabContents.forEach(content => content.classList.remove('active'));
+
+        const activeTab = document.querySelector(`.sidebar-item[data-tab="${tabId}"]`);
+        if (activeTab) {
+            activeTab.classList.add('active');
+        }
+
+        const targetTab = document.getElementById(tabId);
+        if (targetTab) {
+            targetTab.classList.add('active');
+        }
+
+        if (tabId === 'customer-support') {
+            initializeChat();
+        } else if (tabId === 'api-analytics') {
+            loadAnalytics();
+        } else if (tabId === 'fine-tuning') {
+            loadFineTuneJobs();
+        }
+    }
+    function refreshApiKeys() {
+        const loader = document.getElementById('loader');
+        loader.classList.remove('hidden');
+
+        fetch('/user/api_keys')
+            .then(response => response.json())
+            .then(data => {
+                const apiKeysList = document.getElementById('apiKeysList');
+                apiKeysList.innerHTML = '';
+
+                data.api_keys.forEach(key => {
+                    const li = document.createElement('li');
+                    li.className = 'bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105';
+                    li.innerHTML = `
+                        <span>${key.key}</span>
+                        <div>
+                            <button onclick="openApiTestModal('${key.key}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
+                            <form action="/delete_api_key" method="post" class="inline">
+                                <input type="hidden" name="api_key_id" value="${key.id}">
+                                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
+                            </form>
+                        </div>
+                    `;
+                    apiKeysList.appendChild(li);
+                });
+
+                showNotification('API keys refreshed successfully', 'success');
+            })
+            .catch(error => {
+                console.error('Error refreshing API keys:', error);
+                showNotification('Error refreshing API keys', 'error');
+            })
+            .finally(() => {
+                loader.classList.add('hidden');
+            });
+    }
     </script>
 </body>
 

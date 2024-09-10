@@ -1,8 +1,32 @@
-{% extends "base.html" %}
-
-{% block title %}AI Chatbot Creator{% endblock %}
-
-{% block content %}
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>{% block title %}AI Chatbot Creator{% endblock %}</title>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+        <style>
+            body {
+                font-family: 'Roboto', sans-serif;
+                background-color: #f0f2f5;
+            }
+            .glass {
+                background: rgba(255, 255, 255, 0.7);
+                backdrop-filter: blur(10px);
+            }
+            nav a {
+                color: black;
+            }
+            nav a:hover {
+                color: #333;
+            }
+            nav h1 {
+                color: black;
+            }
+        </style>
+    </head>
+<body>
 <div id="userInfo" class="hidden bg-white rounded-2xl mt-8 shadow-xl p-8 w-full max-w-4xl">
     <button data-drawer-target="default-sidebar" data-drawer-toggle="default-sidebar" aria-controls="default-sidebar" type="button" class="inline-flex items-center p-2 mt-2 ms-3 text-sm text-gray-500 rounded-lg sm:hidden hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-gray-200 dark:text-gray-400 dark:hover:bg-gray-700 dark:focus:ring-gray-600">
         <span class="sr-only">Open sidebar</span>
@@ -31,16 +55,6 @@
         <select id="apiKeyDropdown" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"></select>
         <div id="apiKeyButtonContainer"></div>
     </div>
-    <div class="hidden md:block">
-        <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4 mb-1 p-4 rounded-full bg-white bg-opacity-70 backdrop-filter backdrop-blur-lg shadow-lg">
-            <a href="/api/dashboard">
-                <button class="">API Keys</button>
-            </a>
-            <button class="tab-button" data-tab="custom-prompts">Custom Prompts</button>
-            <button class="tab-button" data-tab="change-password">Change Password</button>
-            <button class="tab-button" data-tab="customer-support">Customer Support</button>
-        </div>
-    </div>
 </div>
 <div id="result" class="hidden bg-white rounded-2xl shadow-xl p-8 mt-8 w-full max-w-4xl">
     <h2 class="text-xl font-semibold mb-4">Processing Complete</h2>
@@ -56,9 +70,7 @@
         <p class="text-gray-700 text-lg font-semibold">Processing...</p>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_body %}
 <div id="ai-chatbot" class="fixed bottom-6 right-6 w-96 bg-white rounded-2xl shadow-2xl overflow-hidden hidden">
     <div id="chatbot-content" class="hidden">
         <div id="chat-messages" class="h-80 overflow-y-auto p-4"></div>
@@ -76,9 +88,7 @@
         </div>
     </div>
 </div>
-{% endblock %}
 
-{% block extra_scripts %}
 <script>
     let currentUser = null;
     let currentApiKey = null;
@@ -256,5 +266,6 @@
         }
     }
 </script>
-{% endblock %}
+</body>
+</html>
                

@@ -76,6 +76,7 @@ class User(db.Model):
     password = db.Column(db.String(255), nullable=False)
     api_keys = db.relationship("APIKey", backref="user", lazy=True)
     custom_prompts = db.relationship("CustomPrompt", backref="user", lazy=True)
+    fine_tune_jobs = db.relationship('FineTuneJob', backref='user', lazy=True)
 
 
 # APIKey model
@@ -85,6 +86,7 @@ class APIKey(db.Model):
     llm = db.Column(db.String(50), nullable=False)
     extracted_text = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    fine_tune_jobs = db.relationship('FineTuneJob', backref='api_key', lazy=True)
 
 
 # CustomPrompt model
@@ -124,6 +126,18 @@ class ModelReview(db.Model):
     rating = db.Column(db.Integer, nullable=False)
     review_text = db.Column(db.Text, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
+# Add this new model for fine-tuning
+class FineTuneJob(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    api_key_id = db.Column(db.Integer, db.ForeignKey('api_key.id'), nullable=False)
+    status = db.Column(db.String(50), nullable=False, default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+    training_file = db.Column(db.String(255), nullable=False)
+    model_name = db.Column(db.String(255), nullable=True)
 
 
 def extract_text_from_url(url):
@@ -180,6 +194,7 @@ def home():
 
 
 @app.route("/api")
+@app.route("/api/")
 def index():
     return render_template("index.html")
 
@@ -805,6 +820,34 @@ def get_average_rating(model_id):
         return 0
     return sum(review.rating for review in reviews) / len(reviews)
 
+@app.route('/slack/oauth_callback')
+@login_required
+def slack_oauth_callback():
+    code = request.args.get('code')
+    client_id = os.getenv('SLACK_CLIENT_ID')
+    client_secret = os.getenv('SLACK_CLIENT_SECRET')
+    redirect_uri = url_for('slack_oauth_callback', _external=True)
+
+    # Exchange the code for an access token
+    response = requests.post('https://slack.com/api/oauth.v2.access', data={
+        'client_id': client_id,
+        'client_secret': client_secret,
+        'code': code,
+        'redirect_uri': redirect_uri
+    })
+
+    if response.status_code == 200:
+        data = response.json()
+        access_token = data['access_token']
+        # Store the access_token securely for the current user
+        current_user.slack_token = access_token
+        db.session.commit()
+        flash('Slack integration successful!', 'success')
+    else:
+        flash('Slack integration failed.', 'error')
+
+    return redirect(url_for('dashboard'))
+
 
 @app.route("/ai_marketplace")
 def ai_marketplace():
@@ -814,6 +857,50 @@ def ai_marketplace():
 @app.route("/auth")
 def auth():
     return render_template("auth.html")
+
+@app.route('/api/fine-tune', methods=['POST'])
+@login_required
+def start_fine_tuning():
+    data = request.json
+    api_key_id = data.get('api_key_id')
+    training_file = data.get('training_file')
+
+    if not api_key_id or not training_file:
+        return jsonify({'error': 'API key and training file are required'}), 400
+
+    api_key = APIKey.query.get(api_key_id)
+    if not api_key or api_key.user_id != session['user_id']:
+        return jsonify({'error': 'Invalid API key'}), 400
+
+    # Here you would typically upload the training file to your AI provider
+    # and start the fine-tuning process. For this example, we'll just create a job.
+    new_job = FineTuneJob(
+        user_id=session['user_id'],
+        api_key_id=api_key_id,
+        training_file=training_file,
+        status='pending'
+    )
+    db.session.add(new_job)
+    db.session.commit()
+
+    # In a real scenario, you would start an asynchronous task here to monitor the fine-tuning process
+    # and update the job status accordingly.
+
+    return jsonify({'message': 'Fine-tuning job started successfully', 'job_id': new_job.id}), 201
+
+@app.route('/api/fine-tune/status', methods=['GET'])
+@login_required
+def get_fine_tune_status():
+    jobs = FineTuneJob.query.filter_by(user_id=session['user_id']).order_by(FineTuneJob.created_at.desc()).all()
+    return jsonify([{
+        'id': job.id,
+        'status': job.status,
+        'created_at': job.created_at.isoformat(),
+        'updated_at': job.updated_at.isoformat(),
+        'api_key': job.api_key.key,
+        'model_name': job.model_name
+    } for job in jobs])
+
 
 if __name__ == "__main__":
     with app.app_context():
