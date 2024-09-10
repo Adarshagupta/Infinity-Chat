@@ -36,7 +36,6 @@
         }
 
         .sidebar-menu {
-            padding: 2rem 0;
         }
 
         .sidebar-item {
@@ -259,7 +258,10 @@
                 </div>
             </section>
             <section id="profile" class="tab-content">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Profile Management</h2>
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-2xl font-semibold text-gray-700">Profile Management</h2>
+                    <button onclick="logout()" class="bg-red-500 text-white px-4 py-2 rounded-md font-medium hover:bg-red-600 transition duration-300">Logout</button>
+                </div>
                 <form action="{{ url_for('update_profile') }}" method="post" class="space-y-4">
                     <div>
                         <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
@@ -378,7 +380,7 @@
                             <option value="together">Together AI</option>
                             <option value="openai">OpenAI</option>
                         </select>
-                        <button onclick="processUrl()" class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition duration-300">Process</button>
+                        <button onclick="processUrl()" class="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition duration-300">Process</button>
                     </div>
                 </div>
                 <div id="result" class="hidden bg-white rounded-2xl shadow-xl p-8 mt-8 w-full">
@@ -1042,6 +1044,30 @@
                 loader.classList.add('hidden');
             });
     }
+    function logout() {
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Logged out successfully") {
+            // Clear any user-related data from local storage
+            localStorage.removeItem('currentUser');
+            // Redirect to the login page or home page
+            window.location.href = '/auth';
+        } else {
+            console.error('Logout failed:', data.error);
+            showNotification('Logout failed', 'error');
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        showNotification('An error occurred during logout', 'error');
+    });
+}
     </script>
 </body>
 

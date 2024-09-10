@@ -193,12 +193,6 @@ def home():
     return render_template("home.html")
 
 
-@app.route("/api")
-@app.route("/api/")
-def index():
-    return render_template("index.html")
-
-
 @app.route("/about")
 def about():
     return render_template("about.html")
@@ -601,8 +595,8 @@ def update_profile():
 
     db.session.commit()
     return redirect(url_for("dashboard"))
-
-@app.route("/api/dashboard")
+@app.route("/dashboard")
+@app.route("/api")
 @login_required
 def dashboard():
     user = User.query.get(session["user_id"])
