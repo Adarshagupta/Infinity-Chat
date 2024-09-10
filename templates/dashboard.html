@@ -7,127 +7,260 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
         .tab-content {
             display: none;
         }
-
         .tab-content.active {
             display: block;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 5rem;
+            background-color: white;
+            border-right: 1px solid #e5e7eb;
+            transition: width 0.3s ease;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .sidebar:hover {
+            width: 16rem;
+        }
+
+        .sidebar-menu {
+            padding: 2rem 0;
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem; /* Reduced horizontal padding */
+            color: #4b5563;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0.25rem; /* Reduced horizontal margin */
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .sidebar-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0; /* Prevent icon from shrinking */
+        }
+
+        .sidebar-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar:hover .sidebar-text {
+            opacity: 1;
+            width: auto;
+            margin-left: 1rem;
+        }
+
+        .sidebar-tooltip {
+            position: absolute;
+            left: 4.5rem;
+            padding: 0.5rem;
+            background-color: #1f2937;
+            color: white;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .sidebar:not(:hover) .sidebar-item:hover .sidebar-tooltip {
+            opacity: 1;
+        }
+
+        .main-content {
+            margin-left: 5rem;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar:hover + .main-content {
+            margin-left: 16rem;
         }
     </style>
 </head>
 
-<body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100 font-sans">
-    <nav id="header" class="fixed w-full z-10 bg-white shadow-sm" style="position: fixed; top: 20px; left: 50%; transform: translateX(-50%); width: 75%; backdrop-filter: blur(10px); background-color: rgba(255, 255, 255, 0.7); box-shadow: 0 0 20px rgba(0, 0, 0, 0.1); border-radius: 10px; padding: 2px;">
-        <div class="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div class="flex items-center justify-between h-16">
-            <div class="flex items-center">
-              <a href="javascript:history.back()" class="text-gray-500 hover:text-gray-700 mr-3">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
-                </svg>
-              </a>
-              <img src="https://raw.githubusercontent.com/Adarshagupta/Project-Images/main/logo-cat.png" alt="NeuroWeb Logo" class="h-8 w-8">
-              <h1 class="ml-2 text-xl font-semibold text-gray-900">NeuroWeb</h1>
-            </div>
-            <div class="ml-3 relative">
-              <div>
-                <button type="button" class="flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
-                  <img class="h-8 w-8 rounded-full" src="https://via.placeholder.com/40" alt="Profile">
-                  <svg class="ml-2 h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                  </svg>
-                </button>
-              </div>
-              <div class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none hidden" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabindex="-1">
-                <a href="#" id="profileLink" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Profile</a>
-                <a href="#" id="logoutLink" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Logout</a>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-      </nav>
+<body class="bg-gray-50 font-sans">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <nav class="sidebar-menu">
+            <a href="#" class="sidebar-item active" data-tab="api-keys">
+                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                <span class="sidebar-text">API Keys</span>
+                <span class="sidebar-tooltip">API Keys</span>
+            </a>
+            <a href="#" class="sidebar-item" data-tab="custom-prompts">
+                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                <span class="sidebar-text">Custom Prompts</span>
+                <span class="sidebar-tooltip">Custom Prompts</span>
+            </a>
+            <a href="#" class="sidebar-item" data-tab="change-password">
+                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
+                <span class="sidebar-text">Change Password</span>
+                <span class="sidebar-tooltip">Change Password</span>
+            </a>
+            <a href="#" class="sidebar-item" data-tab="customer-support">
+                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                <span class="sidebar-text">Customer Support</span>
+                <span class="sidebar-tooltip">Customer support</span>
 
-    <main class="pt-32 pb-32 max-w-4xl mx-auto p-6">
-        <div class="fixed bottom-6 left-1/2 transform -translate-x-1/2 flex space-x-4 mb-6 p-4 rounded-full bg-white bg-opacity-70 backdrop-filter backdrop-blur-lg shadow-lg">
-            <button class="tab-button active" data-tab="api-keys">API Keys</button>
-            <button class="tab-button" data-tab="custom-prompts">Custom Prompts</button>
-            <button class="tab-button" data-tab="change-password">Change Password</button>
-            <button class="tab-button" data-tab="customer-support">Customer Support</button>
-        </div>
+            </a>
+            <a href="#" class="sidebar-item" data-tab="profile">
+                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <span class="sidebar-text">Profile</span>
+                <span class="sidebar-tooltip">Profile</span>
+            </a>
+            <a href="#" class="sidebar-item" data-tab="api-analytics">
+                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                <span class="sidebar-text">API Analytics</span>
+                <span class="sidebar-tooltip">API Analytics</span>
+            </a>
+        </nav>
+    </div>
 
-        <section id="api-keys" class="tab-content active">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Your API Keys</h2>
-            <ul>
-                {% for key in api_keys %}
-                <li class="bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105">
-                    <span>{{ key.key }}</span>
+    <!-- Main content -->
+    <div class="main-content">
+        <h1 class="text-3xl font-bold text-gray-800 mb-8">Dashboard</h1>
+
+        <!-- Tab content -->
+        <div class="bg-white rounded-lg shadow-md p-6">
+            <section id="api-keys" class="tab-content active">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Your API Keys</h2>
+                <ul>
+                    {% for key in api_keys %}
+                    <li class="bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105">
+                        <span>{{ key.key }}</span>
+                        <div>
+                            <button onclick="openApiTestModal('{{ key.key }}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>                        <form action="{{ url_for('delete_api_key') }}" method="post" class="inline">
+                                <input type="hidden" name="api_key_id" value="{{ key.id }}">
+                                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
+                            </form>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </section>
+
+            <section id="custom-prompts" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Custom Prompts</h2>
+                <ul>
+                    {% for prompt in custom_prompts %}
+                    <li
+                        class="bg-gray-100 rounded-md p-4 mb-4 transition-transform duration-200 hover:bg-white hover:scale-105">
+                        <div>
+                            <strong>{{ prompt.prompt }}</strong>
+                            <p>{{ prompt.response }}</p>
+                        </div>
+                    </li>
+                    {% endfor %}
+                </ul>
+                <form action="{{ url_for('add_custom_prompt') }}" method="post" class="space-y-4">
+                    <label for="prompt" class="block">Prompt:</label>
+                    <input type="text" id="prompt" name="prompt" required
+                        class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
+                    <label for="response" class="block">Response:</label>
+                    <textarea id="response" name="response" required
+                        class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200"></textarea>
+                    <button type="submit"
+                        class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Add
+                        Custom Prompt</button>
+                </form>
+            </section>
+
+            <section id="change-password" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Change Password</h2>
+                <form action="{{ url_for('change_password') }}" method="post" class="space-y-4">
+                    <label for="current_password" class="block">Current Password:</label>
+                    <input type="password" id="current_password" name="current_password" required
+                        class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
+                    <label for="new_password" class="block">New Password:</label>
+                    <input type="password" id="new_password" name="new_password" required
+                        class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
+                    <button type="submit"
+                        class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Change
+                        Password</button>
+                </form>
+            </section>
+            <section id="customer-support" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Customer Support Chat</h2>
+                <div id="chat-container" class="bg-white rounded-lg shadow-md p-4 max-h-96 overflow-y-auto mb-4">
+                    <!-- Chat messages will be appended here -->
+                </div>
+                <div class="flex">
+                    <input type="text" id="user-input" class="flex-grow px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Type your message...">
+                    <button onclick="sendMessage()" class="bg-purple-500 text-white px-4 py-2 rounded-r-md hover:bg-purple-600 transition duration-300">Send</button>
+                </div>
+            </section>
+            <section id="profile" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Profile Management</h2>
+                <form action="{{ url_for('update_profile') }}" method="post" class="space-y-4">
                     <div>
-                        <button onclick="openApiTestModal('{{ key.key }}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>                        <form action="{{ url_for('delete_api_key') }}" method="post" class="inline">
-                            <input type="hidden" name="api_key_id" value="{{ key.id }}">
-                            <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
-                        </form>
+                        <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                        <input type="email" id="email" name="email" value="{{ user.email }}" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                     </div>
-                </li>
-                {% endfor %}
-            </ul>
-        </section>
-
-        <section id="custom-prompts" class="tab-content">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Custom Prompts</h2>
-            <ul>
-                {% for prompt in custom_prompts %}
-                <li
-                    class="bg-gray-100 rounded-md p-4 mb-4 transition-transform duration-200 hover:bg-white hover:scale-105">
                     <div>
-                        <strong>{{ prompt.prompt }}</strong>
-                        <p>{{ prompt.response }}</p>
+                        <label for="new_password" class="block text-sm font-medium text-gray-700">New Password</label>
+                        <input type="password" id="new_password" name="new_password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
                     </div>
-                </li>
-                {% endfor %}
-            </ul>
-            <form action="{{ url_for('add_custom_prompt') }}" method="post" class="space-y-4">
-                <label for="prompt" class="block">Prompt:</label>
-                <input type="text" id="prompt" name="prompt" required
-                    class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
-                <label for="response" class="block">Response:</label>
-                <textarea id="response" name="response" required
-                    class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200"></textarea>
-                <button type="submit"
-                    class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Add
-                    Custom Prompt</button>
-            </form>
-        </section>
-
-        <section id="change-password" class="tab-content">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Change Password</h2>
-            <form action="{{ url_for('change_password') }}" method="post" class="space-y-4">
-                <label for="current_password" class="block">Current Password:</label>
-                <input type="password" id="current_password" name="current_password" required
-                    class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
-                <label for="new_password" class="block">New Password:</label>
-                <input type="password" id="new_password" name="new_password" required
-                    class="w-full px-4 py-2 border rounded-md focus:border-purple-500 focus:ring focus:ring-purple-200">
-                <button type="submit"
-                    class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Change
-                    Password</button>
-            </form>
-        </section>
-        <section id="customer-support" class="tab-content">
-            <h2 class="text-2xl font-semibold mb-4 border-b border-purple-500 pb-2">Customer Support Chat</h2>
-            <div id="chat-container" class="bg-white rounded-lg shadow-md p-4 max-h-96 overflow-y-auto mb-4">
-                <!-- Chat messages will be appended here -->
-            </div>
-            <div class="flex">
-                <input type="text" id="user-input" class="flex-grow px-4 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Type your message...">
-                <button onclick="sendMessage()" class="bg-purple-500 text-white px-4 py-2 rounded-r-md hover:bg-purple-600 transition duration-300">Send</button>
-            </div>
-        </section>
-        <button class="tab-button" data-tab="customer-support">Customer Support</button>
-    </main>
+                    <div>
+                        <label for="confirm_password" class="block text-sm font-medium text-gray-700">Confirm New Password</label>
+                        <input type="password" id="confirm_password" name="confirm_password" class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                    </div>
+                    <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Update Profile</button>
+                </form>
+            </section>
+            <section id="api-analytics" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">API Usage Analytics</h2>
+                <div id="analytics-container">
+                    <canvas id="apiUsageChart"></canvas>
+                </div>
+                <div id="analytics-table" class="mt-8">
+                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Recent API Calls</h3>
+                    <table class="min-w-full bg-white">
+                        <thead class="bg-gray-100">
+                            <tr>
+                                <th class="py-2 px-4 text-left">API Key</th>
+                                <th class="py-2 px-4 text-left">Endpoint</th>
+                                <th class="py-2 px-4 text-left">Timestamp</th>
+                                <th class="py-2 px-4 text-left">Response Time (ms)</th>
+                                <th class="py-2 px-4 text-left">Status Code</th>
+                            </tr>
+                        </thead>
+                        <tbody id="analytics-table-body">
+                            <!-- Table rows will be dynamically populated -->
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+    </div>
 
     <div id="apiTestModal" class="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" style="display: none;">
         <div class="relative top-20 mx-auto p-5 border w-1/2 shadow-lg rounded-md bg-white">
@@ -146,27 +279,35 @@
                 <div id="apiResponse" class="mt-4 text-left overflow-auto max-h-60"></div>
             </div>
         </div>
-        
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const tabButtons = document.querySelectorAll('.tab-button');
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
             const tabContents = document.querySelectorAll('.tab-content');
 
-            tabButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    const targetTab = button.getAttribute('data-tab');
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const targetTab = this.getAttribute('data-tab');
 
-                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    sidebarItems.forEach(i => i.classList.remove('active'));
                     tabContents.forEach(content => content.classList.remove('active'));
 
-                    button.classList.add('active');
+                    this.classList.add('active');
                     document.getElementById(targetTab).classList.add('active');
+
+                    if (targetTab === 'customer-support') {
+                        initializeChat();
+                    } else if (targetTab === 'api-analytics') {
+                        loadAnalytics();
+                    }
                 });
             });
         });
-                // Add logout functionality
-                const logoutLink = document.getElementById('logoutLink');
+
+        // Add logout functionality
+        const logoutLink = document.getElementById('logoutLink');
         logoutLink.addEventListener('click', function(e) {
             e.preventDefault();
             // Send a POST request to the logout endpoint
@@ -189,109 +330,160 @@
                 console.error('Error:', error);
             });
         });
+
         function testApiKey(apiKey) {
-    fetch('/test_api_key', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-        },
-        body: `api_key=${apiKey}`
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message) {
-            alert(`API test successful! Response: ${JSON.stringify(data.response)}`);
-        } else {
-            alert(`API test failed: ${data.error}`);
+            fetch('/test_api_key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `api_key=${apiKey}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message) {
+                    alert(`API test successful! Response: ${JSON.stringify(data.response)}`);
+                } else {
+                    alert(`API test failed: ${data.error}`);
+                }
+            })
+            .catch((error) => {
+                alert(`Error: ${error}`);
+            });
         }
-    })
-    .catch((error) => {
-        alert(`Error: ${error}`);
-    });
-}
 
-function openApiTestModal(apiKey) {
-    document.getElementById('apiTestModal').style.display = 'block';
-    document.getElementById('apiKeyInput').value = apiKey;
-}
-
-function closeApiTestModal() {
-    document.getElementById('apiTestModal').style.display = 'none';
-    document.getElementById('apiResponse').innerHTML = '';
-}
-
-function sendApiTest() {
-    const apiKey = document.getElementById('apiKeyInput').value;
-    const input = document.getElementById('apiInputText').value;
-    
-    fetch('/test_api_key', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ api_key: apiKey, input: input })
-    })
-    .then(response => response.json())
-    .then(data => {
-        let responseHtml = `<p><strong>Status Code:</strong> ${data.status_code}</p>`;
-        responseHtml += '<p><strong>Headers:</strong></p><pre>' + JSON.stringify(data.headers, null, 2) + '</pre>';
-        responseHtml += '<p><strong>Response:</strong></p><pre>' + JSON.stringify(data.response, null, 2) + '</pre>';
-        document.getElementById('apiResponse').innerHTML = responseHtml;
-    })
-    .catch((error) => {
-        document.getElementById('apiResponse').innerHTML = `<p>Error: ${error}</p>`;
-    });
-}
-let chatInitialized = false;
-
-function initializeChat() {
-    if (!chatInitialized) {
-        const chatContainer = document.getElementById('chat-container');
-        chatContainer.innerHTML = '<div class="mb-2"><strong>Chatbot:</strong> Hello! How can I assist you today?</div>';
-        chatInitialized = true;
-    }
-}
-
-function sendMessage() {
-    const userInput = document.getElementById('user-input');
-    const message = userInput.value.trim();
-    if (message) {
-        appendMessage('You', message);
-        userInput.value = '';
-        
-        // Simulate chatbot response (replace this with actual API call in production)
-        setTimeout(() => {
-            const response = "Thank you for your message. Our support team will get back to you shortly.";
-            appendMessage('Chatbot', response);
-        }, 1000);
-    }
-}
-
-function appendMessage(sender, message) {
-    const chatContainer = document.getElementById('chat-container');
-    const messageElement = document.createElement('div');
-    messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
-    messageElement.classList.add('mb-2');
-    chatContainer.appendChild(messageElement);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-// Modify the existing tab button event listener
-tabButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        const targetTab = button.getAttribute('data-tab');
-
-        tabButtons.forEach(btn => btn.classList.remove('active'));
-        tabContents.forEach(content => content.classList.remove('active'));
-
-        button.classList.add('active');
-        document.getElementById(targetTab).classList.add('active');
-
-        if (targetTab === 'customer-support') {
-            initializeChat();
+        function openApiTestModal(apiKey) {
+            document.getElementById('apiTestModal').style.display = 'block';
+            document.getElementById('apiKeyInput').value = apiKey;
         }
-    });
-});
+
+        function closeApiTestModal() {
+            document.getElementById('apiTestModal').style.display = 'none';
+            document.getElementById('apiResponse').innerHTML = '';
+        }
+
+        function sendApiTest() {
+            const apiKey = document.getElementById('apiKeyInput').value;
+            const input = document.getElementById('apiInputText').value;
+            
+            fetch('/test_api_key', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ api_key: apiKey, input: input })
+            })
+            .then(response => response.json())
+            .then(data => {
+                let responseHtml = `<p><strong>Status Code:</strong> ${data.status_code}</p>`;
+                responseHtml += '<p><strong>Headers:</strong></p><pre>' + JSON.stringify(data.headers, null, 2) + '</pre>';
+                responseHtml += '<p><strong>Response:</strong></p><pre>' + JSON.stringify(data.response, null, 2) + '</pre>';
+                document.getElementById('apiResponse').innerHTML = responseHtml;
+            })
+            .catch((error) => {
+                document.getElementById('apiResponse').innerHTML = `<p>Error: ${error}</p>`;
+            });
+        }
+
+        let chatInitialized = false;
+
+        function initializeChat() {
+            if (!chatInitialized) {
+                const chatContainer = document.getElementById('chat-container');
+                chatContainer.innerHTML = '<div class="mb-2"><strong>Chatbot:</strong> Hello! How can I assist you today?</div>';
+                chatInitialized = true;
+            }
+        }
+
+        function sendMessage() {
+            const userInput = document.getElementById('user-input');
+            const message = userInput.value.trim();
+            if (message) {
+                appendMessage('You', message);
+                userInput.value = '';
+                
+                // Simulate chatbot response (replace this with actual API call in production)
+                setTimeout(() => {
+                    const response = "Thank you for your message. Our support team will get back to you shortly.";
+                    appendMessage('Chatbot', response);
+                }, 1000);
+            }
+        }
+
+        function appendMessage(sender, message) {
+            const chatContainer = document.getElementById('chat-container');
+            const messageElement = document.createElement('div');
+            messageElement.innerHTML = `<strong>${sender}:</strong> ${message}`;
+            messageElement.classList.add('mb-2');
+            chatContainer.appendChild(messageElement);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        function loadAnalytics() {
+            fetch('/api/analytics')
+                .then(response => response.json())
+                .then(data => {
+                    displayAnalyticsChart(data);
+                    displayAnalyticsTable(data);
+                })
+                .catch(error => console.error('Error fetching analytics:', error));
+        }
+
+        function displayAnalyticsChart(data) {
+            const ctx = document.getElementById('apiUsageChart').getContext('2d');
+            
+            // Process data for the chart
+            const apiCalls = {};
+            data.forEach(item => {
+                const date = new Date(item.timestamp).toLocaleDateString();
+                apiCalls[date] = (apiCalls[date] || 0) + 1;
+            });
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(apiCalls),
+                    datasets: [{
+                        label: 'API Calls per Day',
+                        data: Object.values(apiCalls),
+                        borderColor: 'rgb(75, 192, 192)',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Number of API Calls'
+                            }
+                        },
+                        x: {
+                            title: {
+                                display: true,
+                                text: 'Date'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function displayAnalyticsTable(data) {
+            const tableBody = document.getElementById('analytics-table-body');
+            tableBody.innerHTML = '';
+
+            data.slice(0, 10).forEach(item => {
+                const row = tableBody.insertRow();
+                row.insertCell(0).textContent = item.api_key;
+                row.insertCell(1).textContent = item.endpoint;
+                row.insertCell(2).textContent = new Date(item.timestamp).toLocaleString();
+                row.insertCell(3).textContent = (item.response_time * 1000).toFixed(2);
+                row.insertCell(4).textContent = item.status_code;
+            });
+        }
     </script>
 </body>
 

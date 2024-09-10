@@ -489,35 +489,21 @@ def get_user_api_keys():
 # Add this new route to retrieve analytics data
 @app.route("/api/analytics", methods=["GET"])
 def get_analytics():
-    app.logger.info("Accessing /api/analytics route")
-
-    try:
-        if "user_id" not in session:
-            app.logger.warning("User not logged in")
-            return jsonify({"error": "User not logged in"}), 401
-
-        user_id = session["user_id"]
-        app.logger.info(f"Fetching analytics for user_id: {user_id}")
-
-        analytics = Analytics.query.filter_by(user_id=user_id).all()
-        app.logger.info(f"Found {len(analytics)} analytics entries")
-
-        analytics_data = [
-            {
-                "api_key": a.api_key,
-                "endpoint": a.endpoint,
-                "timestamp": a.timestamp.isoformat(),
-                "response_time": a.response_time,
-                "status_code": a.status_code,
-            }
-            for a in analytics
-        ]
-
-        return jsonify(analytics_data)
-    except Exception as e:
-        app.logger.error(f"Error in get_analytics: {str(e)}", exc_info=True)
-        return jsonify({"error": "An unexpected error occurred"}), 500
-
+    user_id = session["user_id"]
+    analytics = Analytics.query.filter_by(user_id=user_id).order_by(Analytics.timestamp.desc()).limit(100).all()
+    
+    analytics_data = [
+        {
+            "api_key": a.api_key,
+            "endpoint": a.endpoint,
+            "timestamp": a.timestamp.isoformat(),
+            "response_time": a.response_time,
+            "status_code": a.status_code,
+        }
+        for a in analytics
+    ]
+    
+    return jsonify(analytics_data)
 
 @app.route("/test/insert_analytics", methods=["GET"])
 def test_insert_analytics():
@@ -574,6 +560,32 @@ def login_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+
+@app.route("/api/update_profile", methods=["POST"])
+@login_required
+def update_profile():
+    user = User.query.get(session["user_id"])
+    
+    new_email = request.form.get("email")
+    new_password = request.form.get("new_password")
+    confirm_password = request.form.get("confirm_password")
+
+    if new_email and new_email != user.email:
+        if User.query.filter_by(email=new_email).first():
+            flash("Email already in use", "error")
+        else:
+            user.email = new_email
+            flash("Email updated successfully", "success")
+
+    if new_password:
+        if new_password == confirm_password:
+            user.password = generate_password_hash(new_password)
+            flash("Password updated successfully", "success")
+        else:
+            flash("Passwords do not match", "error")
+
+    db.session.commit()
+    return redirect(url_for("dashboard"))
 
 @app.route("/api/dashboard")
 @login_required
