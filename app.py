@@ -394,14 +394,11 @@ If you need more information to answer accurately, ask the user a clarifying que
         logger.info(f"Received response from AI service: {ai_response}")
 
         # Append AI response to conversation history
-        conversation_history.append({"role": "assistant", "content": ai_response})
+        conversation_history.append({"role": "assistant", "content": json.dumps(ai_response)})
 
         # Save updated conversation history to session
         session[f"conversation_history_{api_key}"] = conversation_history
         session.modified = True  # Ensure session is saved
-
-        # Process the AI response for e-commerce functionality
-        processed_response = process_ecommerce_response(ai_response)
 
         # Record analytics
         end_time = time.time()
@@ -419,7 +416,7 @@ If you need more information to answer accurately, ask the user a clarifying que
             f"Recorded analytics for user_id: {api_key_data.user_id}, api_key: {api_key}"
         )
 
-        return jsonify(processed_response)
+        return jsonify(ai_response)
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
 
@@ -522,6 +519,11 @@ def process_raw_response(raw_response):
 
 
 def process_ecommerce_response(response):
+    if isinstance(response, dict):
+        # This is our new structured response
+        return response
+    
+    # If it's not a dict, assume it's a string (old format)
     # Try to extract product information using regex
     product_info = re.search(
         r"Product: (.*?)\nPrice: (.*?)\nDescription: (.*?)\nImage: (.*?)\nURL: (.*?)(\n|$)",
