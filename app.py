@@ -463,7 +463,7 @@ def clear_chat_history():
 def get_ai_response(llm_type, messages):
     if llm_type == "together":
         response = together_client.chat.completions.create(
-            model="deepseek-ai/deepseek-llm-67b-chat",
+            model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
             messages=messages,
             max_tokens=100,
             temperature=2,
