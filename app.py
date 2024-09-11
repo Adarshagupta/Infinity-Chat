@@ -331,18 +331,20 @@ def chat():
         # Fetch the extracted text associated with this API key
         context = api_key_data.extracted_text
 
+        # Fetch custom prompts for the user
+        custom_prompts = CustomPrompt.query.filter_by(user_id=api_key_data.user_id).all()
+
         # Initialize or retrieve conversation history
         conversation_history = session.get(f"conversation_history_{api_key}", [])
 
         # Append user input to conversation history
         conversation_history.append({"role": "user", "content": user_input})
 
-        # Prepare messages for AI, including conversation history
-        messages = (
-            [
-                {
-                    "role": "system",
-                    "content": f"""You are an AI assistant specialized for this website. Use the following content as your knowledge base: {context}
+        # Prepare messages for AI, including conversation history and custom prompts
+        messages = [
+            {
+                "role": "system",
+                "content": f"""You are an AI assistant specialized for this website. Use the following content as your knowledge base: {context}
 
 Key guidelines:
 1. Provide concise, accurate answers based on the website's content.
@@ -361,11 +363,12 @@ For e-commerce queries:
 - Suggest complementary items
 - Guide users towards making a purchase decision
 
+Custom prompts:
+{' '.join([f'- {prompt.prompt}: {prompt.response}' for prompt in custom_prompts])}
+
 If you need more information to answer accurately, ask the user a clarifying question.""",
-                }
-            ]
-            + conversation_history[-5:]
-        )  # Include last 5 messages for context
+            }
+        ] + conversation_history[-5:]  # Include last 5 messages for context
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
