@@ -361,10 +361,24 @@ Key guidelines:
 9. Remember and refer to previous parts of the conversation when relevant.
 
 For e-commerce queries:
-- Present product details clearly (name, price, brief description)
-- Mention any current promotions or deals
-- Suggest complementary items
-- Guide users towards making a purchase decision
+- Present product details clearly, including:
+  * Full product name
+  * Price (current and original if on sale)
+  * Brief description highlighting key features
+  * Available sizes, colors, or variations
+  * Current stock status
+- Mention any current promotions, deals, or discounts applicable to the product
+- Suggest 2-3 complementary items that pair well with the product
+- Provide information on shipping options and estimated delivery times
+- Highlight any warranty, return policy, or customer satisfaction guarantees
+- Guide users towards making a purchase decision by asking about their preferences or needs
+- If a product is out of stock, suggest similar alternatives
+- For fashion items, provide styling tips or outfit suggestions
+- For electronics, mention key technical specifications and compatibility information
+- For home goods, discuss dimensions and how the item might fit in different spaces
+- Mention customer reviews or ratings if available, focusing on positive aspects
+- If the user seems close to a purchase decision, guide them on how to add items to their cart or complete the checkout process
+
 
 Custom prompts:
 {' '.join([f'- {prompt.prompt}: {prompt.response}' for prompt in custom_prompts])}
@@ -449,7 +463,7 @@ def clear_chat_history():
 def get_ai_response(llm_type, messages):
     if llm_type == "together":
         response = together_client.chat.completions.create(
-            model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+            model="deepseek-ai/deepseek-llm-67b-chat",
             messages=messages,
             max_tokens=100,
             temperature=2,
@@ -861,16 +875,6 @@ def slack_oauth_callback():
 def ai_marketplace():
     models = AIModel.query.all()
     return render_template("ai_marketplace.html", models=models)
-    
-@app.route("/auth")
-def auth():
-    return render_template("auth.html")
-
-@app.route('/api/fine-tune', methods=['POST'])
-@login_required
-def start_fine_tuning():
-    data = request.json
-    api_key_id = data.get('api_key_id')
     training_file = data.get('training_file')
 
     if not api_key_id or not training_file:
