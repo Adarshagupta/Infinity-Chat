@@ -25,14 +25,18 @@ from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 import uuid
 import re
-from datetime import datetime
+from datetime import datetime, timedelta
 import time
 from alembic import op
 import sqlalchemy as sa
 from functools import wraps
+import razorpay
+from werkzeug.exceptions import BadRequest
 
 # Load environment variables from .env file
 load_dotenv()
+
+razorpay_client = razorpay.Client(auth=(os.getenv('RAZORPAY_KEY_ID'), os.getenv('RAZORPAY_KEY_SECRET')))
 
 # Get the API keys from the environment variables
 together_api_key = os.getenv("TOGETHER_API_KEY")
@@ -77,6 +81,8 @@ class User(db.Model):
     api_keys = db.relationship("APIKey", backref="user", lazy=True)
     custom_prompts = db.relationship("CustomPrompt", backref="user", lazy=True)
     fine_tune_jobs = db.relationship('FineTuneJob', backref='user', lazy=True)
+    subscription = db.relationship('Subscription', backref='user', uselist=False)
+    api_call_count = db.Column(db.Integer, default=0)
 
 
 # APIKey model
@@ -138,6 +144,16 @@ class FineTuneJob(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     training_file = db.Column(db.String(255), nullable=False)
     model_name = db.Column(db.String(255), nullable=True)
+
+
+# Add new Subscription model
+class Subscription(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    plan = db.Column(db.String(20), nullable=False)  # 'free', 'startup', 'business'
+    start_date = db.Column(db.DateTime, default=datetime.utcnow)
+    end_date = db.Column(db.DateTime)
+    is_active = db.Column(db.Boolean, default=True)
 
 
 def extract_text_from_url(url):
@@ -402,6 +418,14 @@ If you need more information to answer accurately, ask the user a clarifying que
             f"Recorded analytics for user_id: {api_key_data.user_id}, api_key: {api_key}"
         )
 
+        user = User.query.get(api_key_data.user_id)
+        if user.api_call_count >= SUBSCRIPTION_PLANS[user.subscription.plan]['api_calls']:
+            return jsonify({"error": "API call limit reached"}), 429
+
+        # Increment API call count
+        user.api_call_count += 1
+        db.session.commit()
+
         return jsonify(processed_response)
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
@@ -598,13 +622,86 @@ def update_profile():
 
     db.session.commit()
     return redirect(url_for("dashboard"))
-@app.route("/dashboard")
+
+
+# Initialize Razorpay client
+razorpay_client = razorpay.Client(auth=(os.getenv('RAZORPAY_KEY_ID'), os.getenv('RAZORPAY_KEY_SECRET')))
+
+# Subscription plans
+SUBSCRIPTION_PLANS = {
+    'free': {'price': 0, 'api_calls': 1000},
+    'startup': {'price': 299900, 'api_calls': 10000},  # Price in paise
+    'business': {'price': 999900, 'api_calls': 1000000}  # Price in paise
+}
+
+@app.route('/create_order', methods=['POST'])
+@login_required
+def create_order():
+    try:
+        data = request.json
+        amount = data.get('amount')
+        if not amount:
+            raise BadRequest('Amount is required')
+        
+        currency = 'INR'
+        
+        # Create Razorpay Order
+        razorpay_order = razorpay_client.order.create(dict(amount=amount, currency=currency, payment_capture='0'))
+        current_app.logger.info(f"Razorpay order created: {razorpay_order}")
+        return jsonify({
+            'order_id': razorpay_order['id']
+        })
+    except BadRequest as e:
+        current_app.logger.error(f"Bad request error: {str(e)}")
+        return jsonify({'error': str(e)}), 400
+    except razorpay.errors.BadRequestError as e:
+        current_app.logger.error(f"Razorpay bad request error: {str(e)}")
+        return jsonify({'error': 'Invalid request to Razorpay'}), 400
+    except Exception as e:
+        current_app.logger.error(f"Error creating Razorpay order: {str(e)}", exc_info=True)
+        return jsonify({'error': 'Failed to create order'}), 500
+
+@app.route('/payment_success', methods=['POST'])
+@login_required
+def payment_success():
+    try:
+        data = request.json
+        
+        # Verify the payment signature
+        params_dict = {
+            'razorpay_payment_id': data['razorpay_payment_id'],
+            'razorpay_order_id': data['razorpay_order_id'],
+            'razorpay_signature': data['razorpay_signature']
+        }
+        razorpay_client.utility.verify_payment_signature(params_dict)
+        
+        # If signature verification is successful, update user's subscription
+        user = User.query.get(session['user_id'])
+        user.subscription = Subscription(plan=data['plan'], start_date=datetime.now(), end_date=datetime.now() + timedelta(days=30))
+        db.session.commit()
+        
+        current_app.logger.info(f"Payment successful for user {user.id}, plan: {data['plan']}")
+        return jsonify({'success': True})
+    except razorpay.errors.SignatureVerificationError as e:
+        current_app.logger.error(f"Razorpay signature verification failed: {str(e)}")
+        return jsonify({'success': False, 'error': 'Payment verification failed'}), 400
+    except Exception as e:
+        current_app.logger.error(f"Payment verification failed: {str(e)}", exc_info=True)
+        return jsonify({'success': False, 'error': str(e)}), 400
+
+# Add a function to check if integration is allowed
+def is_integration_allowed(user, integration):
+    return user.subscription.plan != 'free' or integration not in ['slack', 'discord', 'telegram']
+
+# Update the Slack OAuth callback to check for integration permissio
+@app.route('/dashboard')
 @app.route("/api")
 @login_required
 def dashboard():
-    user = User.query.get(session["user_id"])
+    user = User.query.get(session['user_id'])
     api_keys = user.api_keys
     custom_prompts = user.custom_prompts
+    subscription = user.subscription
 
     # Fetch analytics data
     analytics = (
@@ -631,6 +728,10 @@ def dashboard():
         api_keys=api_keys,
         custom_prompts=custom_prompts,
         analytics_data=analytics_data,
+        subscription=subscription,
+        api_call_count=user.api_call_count,
+        subscription_plans=SUBSCRIPTION_PLANS,
+        razorpay_key_id=os.getenv('RAZORPAY_KEY_ID')
     )
 
 
@@ -820,6 +921,11 @@ def get_average_rating(model_id):
 @app.route('/slack/oauth_callback')
 @login_required
 def slack_oauth_callback():
+    user = User.query.get(session['user_id'])
+    if not is_integration_allowed(user, 'slack'):
+        flash('Slack integration is not available in the free plan', 'error')
+        return redirect(url_for('dashboard'))
+
     code = request.args.get('code')
     client_id = os.getenv('SLACK_CLIENT_ID')
     client_secret = os.getenv('SLACK_CLIENT_SECRET')
@@ -837,7 +943,7 @@ def slack_oauth_callback():
         data = response.json()
         access_token = data['access_token']
         # Store the access_token securely for the current user
-        current_user.slack_token = access_token
+        user.slack_token = access_token
         db.session.commit()
         flash('Slack integration successful!', 'success')
     else:

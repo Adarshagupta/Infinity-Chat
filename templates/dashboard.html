@@ -115,6 +115,28 @@
             display: flex;
             flex-direction: column;
         }
+
+        .subscription-plans {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .plan {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            width: 30%;
+            text-align: center;
+        }
+
+        .plan h4 {
+            margin-top: 0;
+        }
+
+        .plan button {
+            margin-top: 10px;
+        }
     </style>
 </head>
 
@@ -161,8 +183,14 @@
                     <span class="sidebar-text">Customer Support</span>
                     <span class="sidebar-tooltip">Customer support</span>
                 </a>
+
             </div>
             <div>
+                <a href="#" class="sidebar-item" data-tab="subscription">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                    <span class="sidebar-text">Subscription</span>
+                    <span class="sidebar-tooltip">Subscription</span>
+                </a>
                 <a href="#" class="sidebar-item" data-tab="profile">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                     <span class="sidebar-text">Profile</span>
@@ -392,6 +420,9 @@
                     </div>
                 </div>
             </section>
+            <section id="subscription" class="tab-content">
+                {% include 'subscription.html' %}
+            </section>
         </div>
     </div>
 
@@ -423,6 +454,104 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+    console.log("Script loaded"); // Debug log
+
+    function initiatePayment(plan, amount) {
+        console.log("initiatePayment called", plan, amount); // Debug log
+        fetch('/create_order', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ plan: plan, amount: amount }),
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log("Order created", data); // Debug log
+            if (!data.order_id) {
+                throw new Error('No order_id received from server');
+            }
+            var options = {
+                "key": "{{ razorpay_key_id }}", // Replace with your Razorpay Key ID
+                "amount": amount,
+                "currency": "INR",
+                "name": "Your Company Name",
+                "description": plan + " Plan Subscription",
+                "order_id": data.order_id,
+                "handler": function (response){
+                    console.log("Payment successful", response); // Debug log
+                    // Send the payment details to your server
+                    fetch('/payment_success', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_signature: response.razorpay_signature,
+                            plan: plan
+                        }),
+                    })
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! status: ${response.status}`);
+                        }
+                        return response.json();
+                    })
+                    .then(data => {
+                        if (data.success) {
+                            alert('Subscription successful!');
+                            location.reload(); // Reload the page to update subscription info
+                        } else {
+                            alert('Subscription failed. Please try again. Error: ' + (data.error || 'Unknown error'));
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        alert('An error occurred while processing the payment. Please try again.');
+                    });
+                },
+                "prefill": {
+                    "name": "{{ user.email.split('@')[0] }}",
+                    "email": "{{ user.email }}"
+                },
+                "theme": {
+                    "color": "#7C3AED"
+                }
+            };
+            var rzp1 = new Razorpay(options);
+            rzp1.open();
+        })
+        .catch(error => {
+            console.error("Error:", error); // Debug log
+            alert('An error occurred while creating the order. Please try again. Error: ' + error.message);
+        });
+    }
+
+    // Add click event listeners to all subscribe buttons
+    document.addEventListener('DOMContentLoaded', function() {
+        const subscribeButtons = document.querySelectorAll('.subscribe-btn');
+        if (subscribeButtons.length > 0) {
+            subscribeButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    const plan = this.getAttribute('data-plan');
+                    const amount = parseInt(this.getAttribute('data-amount'));
+                    initiatePayment(plan, amount);
+                });
+            });
+        } else {
+            console.log('No subscribe buttons found');
+        }
+    });
+    </script>
     {% include 'dashboard-js.html' %}
 
 </body>
