@@ -31,12 +31,9 @@ from alembic import op
 import sqlalchemy as sa
 from functools import wraps
 import razorpay
-from werkzeug.exceptions import BadRequest
 
 # Load environment variables from .env file
 load_dotenv()
-
-razorpay_client = razorpay.Client(auth=(os.getenv('RAZORPAY_KEY_ID'), os.getenv('RAZORPAY_KEY_SECRET')))
 
 # Get the API keys from the environment variables
 together_api_key = os.getenv("TOGETHER_API_KEY")
@@ -630,64 +627,74 @@ razorpay_client = razorpay.Client(auth=(os.getenv('RAZORPAY_KEY_ID'), os.getenv(
 # Subscription plans
 SUBSCRIPTION_PLANS = {
     'free': {'price': 0, 'api_calls': 1000},
-    'startup': {'price': 299900, 'api_calls': 10000},  # Price in paise
-    'business': {'price': 999900, 'api_calls': 1000000}  # Price in paise
+    'startup': {'price': 2999, 'api_calls': 10000},
+    'business': {'price': 9999, 'api_calls': 1000000}
 }
 
-@app.route('/create_order', methods=['POST'])
+@app.route('/subscribe', methods=['POST'])
 @login_required
-def create_order():
-    try:
-        data = request.json
-        amount = data.get('amount')
-        if not amount:
-            raise BadRequest('Amount is required')
-        
-        currency = 'INR'
-        
-        # Create Razorpay Order
-        razorpay_order = razorpay_client.order.create(dict(amount=amount, currency=currency, payment_capture='0'))
-        current_app.logger.info(f"Razorpay order created: {razorpay_order}")
-        return jsonify({
-            'order_id': razorpay_order['id']
-        })
-    except BadRequest as e:
-        current_app.logger.error(f"Bad request error: {str(e)}")
-        return jsonify({'error': str(e)}), 400
-    except razorpay.errors.BadRequestError as e:
-        current_app.logger.error(f"Razorpay bad request error: {str(e)}")
-        return jsonify({'error': 'Invalid request to Razorpay'}), 400
-    except Exception as e:
-        current_app.logger.error(f"Error creating Razorpay order: {str(e)}", exc_info=True)
-        return jsonify({'error': 'Failed to create order'}), 500
+def subscribe():
+    plan = request.form.get('plan')
+    if plan not in SUBSCRIPTION_PLANS:
+        flash('Invalid subscription plan', 'error')
+        return redirect(url_for('dashboard'))
 
-@app.route('/payment_success', methods=['POST'])
+    user = User.query.get(session['user_id'])
+    if user.subscription and user.subscription.is_active:
+        flash('You already have an active subscription', 'error')
+        return redirect(url_for('dashboard'))
+
+    if plan != 'free':
+        # Create Razorpay order
+        order_amount = SUBSCRIPTION_PLANS[plan]['price']
+        order_currency = 'INR'
+        order_receipt = f'order_{uuid.uuid4().hex}'
+        razorpay_order = razorpay_client.order.create(dict(
+            amount=order_amount * 100,  # Amount in paise
+            currency=order_currency,
+            receipt=order_receipt,
+            payment_capture='0'
+        ))
+        return render_template('payment.html', order=razorpay_order, plan=plan)
+    else:
+        # Free plan
+        new_subscription = Subscription(user_id=user.id, plan='free', end_date=datetime.utcnow() + timedelta(days=30))
+        db.session.add(new_subscription)
+        db.session.commit()
+        flash('Free subscription activated', 'success')
+        return redirect(url_for('dashboard'))
+
+@app.route('/payment/success', methods=['POST'])
 @login_required
 def payment_success():
+    razorpay_payment_id = request.form.get('razorpay_payment_id')
+    razorpay_order_id = request.form.get('razorpay_order_id')
+    razorpay_signature = request.form.get('razorpay_signature')
+
+    # Verify the payment signature
     try:
-        data = request.json
-        
-        # Verify the payment signature
-        params_dict = {
-            'razorpay_payment_id': data['razorpay_payment_id'],
-            'razorpay_order_id': data['razorpay_order_id'],
-            'razorpay_signature': data['razorpay_signature']
-        }
-        razorpay_client.utility.verify_payment_signature(params_dict)
-        
-        # If signature verification is successful, update user's subscription
-        user = User.query.get(session['user_id'])
-        user.subscription = Subscription(plan=data['plan'], start_date=datetime.now(), end_date=datetime.now() + timedelta(days=30))
-        db.session.commit()
-        
-        current_app.logger.info(f"Payment successful for user {user.id}, plan: {data['plan']}")
-        return jsonify({'success': True})
-    except razorpay.errors.SignatureVerificationError as e:
-        current_app.logger.error(f"Razorpay signature verification failed: {str(e)}")
-        return jsonify({'success': False, 'error': 'Payment verification failed'}), 400
-    except Exception as e:
-        current_app.logger.error(f"Payment verification failed: {str(e)}", exc_info=True)
-        return jsonify({'success': False, 'error': str(e)}), 400
+        razorpay_client.utility.verify_payment_signature({
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature
+        })
+    except:
+        flash('Payment verification failed', 'error')
+        return redirect(url_for('dashboard'))
+
+    # Payment successful, create subscription
+    user = User.query.get(session['user_id'])
+    plan = request.form.get('plan')
+    new_subscription = Subscription(
+        user_id=user.id,
+        plan=plan,
+        end_date=datetime.utcnow() + timedelta(days=30)
+    )
+    db.session.add(new_subscription)
+    db.session.commit()
+
+    flash(f'{plan.capitalize()} subscription activated', 'success')
+    return redirect(url_for('dashboard'))
 
 # Add a function to check if integration is allowed
 def is_integration_allowed(user, integration):
@@ -730,8 +737,7 @@ def dashboard():
         analytics_data=analytics_data,
         subscription=subscription,
         api_call_count=user.api_call_count,
-        subscription_plans=SUBSCRIPTION_PLANS,
-        razorpay_key_id=os.getenv('RAZORPAY_KEY_ID')
+        subscription_plans=SUBSCRIPTION_PLANS
     )
 
 
