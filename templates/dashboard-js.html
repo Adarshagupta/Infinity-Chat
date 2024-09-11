@@ -643,4 +643,94 @@ fetch('/logout', {
     showNotification('An error occurred during logout', 'error');
 });
 }
+       // Initialize Shepherd.js
+       const tour = new Shepherd.Tour({
+            defaultStepOptions: {
+                cancelIcon: {
+                    enabled: true
+                },
+                classes: 'shadow-md bg-purple-500',
+                scrollTo: { behavior: 'smooth', block: 'center' }
+            }
+        });
+
+        // Define the steps
+        tour.addStep({
+            id: 'step-1',
+            text: 'Welcome to the Dashboard! This is your main control center.',
+            attachTo: { element: '.main-content h1', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'step-2',
+            text: 'Use the sidebar to navigate between different sections.',
+            attachTo: { element: '.sidebar', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back
+                },
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'step-3',
+            text: 'Here you can manage your API keys.',
+            attachTo: { element: '#api-keys', on: 'top' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back
+                },
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'step-4',
+            text: 'Create new chatbots using the Chatbot Creator.',
+            attachTo: { element: '#chatbot-creator', on: 'top' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back
+                },
+                {
+                    text: 'Next',
+                    action: tour.next
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'step-5',
+            text: 'Manage your profile and settings here.',
+            attachTo: { element: '#profile', on: 'top' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back
+                },
+                {
+                    text: 'Finish',
+                    action: tour.complete
+                }
+            ]
+        });
+
+        // Start the tour
+        tour.start();
 </script>

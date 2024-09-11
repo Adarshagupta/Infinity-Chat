@@ -8,6 +8,11 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <!-- ... existing code ... -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shepherd.js/8.0.0/css/shepherd.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/shepherd.js/8.0.0/js/shepherd.min.js"></script>
+        <script>console.log("Shepherd.js loaded:", typeof Shepherd !== 'undefined');</script>
+        <!-- ... existing code ... -->
     <style>
         body {
             font-family: 'Poppins', sans-serif;
@@ -137,6 +142,93 @@
         .plan button {
             margin-top: 10px;
         }
+
+        .shepherd-content {
+        background-color: white !important;
+        color: #333 !important;
+        border-radius: 0.5rem !important;
+        border: 2px solid #6f01ff !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        overflow: hidden !important; /* Hide any overflow */
+    }
+    .shepherd-text {
+        color: #333 !important;
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+        padding: 1rem !important;
+        max-height: 200px !important; /* Set a max height */
+        overflow-y: auto !important; /* Allow vertical scrolling if needed */
+        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+    }
+    .shepherd-text::-webkit-scrollbar {
+        width: 0 !important;
+        height: 0 !important; /* Chrome/Safari/Webkit */
+    }
+
+    .shepherd-title {
+        color: #333 !important;
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
+    }
+    .shepherd-cancel-icon {
+        color: #333 !important;
+    }
+    .shepherd-footer {
+        padding: 0.75rem 1rem !important;
+    }
+    .shepherd-button {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: 0.375rem !important;
+        transition: all 0.2s !important;
+    }
+    .shepherd-button-primary {
+        background-color: #3B82F6 !important;
+        color: white !important;
+    }
+    .shepherd-button-primary:hover {
+        background-color: #2563EB !important;
+    }
+    .shepherd-button-secondary {
+        background-color: #9CA3AF !important;
+        color: white !important;
+    }
+    .shepherd-button-secondary:hover {
+        background-color: #6B7280 !important;
+    }
+    /* Add styles for the arrow */
+    .shepherd-arrow:before {
+        content: '' !important;
+        display: block !important;
+        position: absolute !important;
+        width: 0 !important;
+        height: 0 !important;
+        border-left: 8px solid transparent !important;
+        border-right: 8px solid transparent !important;
+        border-bottom: 8px solid #e5e7eb !important;
+        background-color: #6c02d5;
+    }
+    .shepherd-element[data-popper-placement^='top'] .shepherd-arrow:before {
+        bottom: -8px !important;
+        border-top: 8px solid #e5e7eb !important;
+        border-bottom: none !important;
+    }
+    .shepherd-element[data-popper-placement^='bottom'] .shepherd-arrow:before {
+        top: -8px !important;
+    }
+    .shepherd-element[data-popper-placement^='left'] .shepherd-arrow:before {
+        right: -8px !important;
+        border-left: 8px solid #e5e7eb !important;
+        border-top: 8px solid transparent !important;
+        border-bottom: 8px solid transparent !important;
+    }
+    .shepherd-element[data-popper-placement^='right'] .shepherd-arrow:before {
+        left: -8px !important;
+        border-right: 8px solid #e5e7eb !important;
+        border-top: 8px solid transparent !important;
+        border-bottom: 8px solid transparent !important;
+    }
     </style>
 </head>
 
@@ -210,14 +302,23 @@
         <!-- Tab content -->
         <div class="bg-white rounded-lg shadow-md p-6">
             <section id="api-keys" class="tab-content active">
+                
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-semibold text-gray-700">Your API Keys</h2>
-                    <button onclick="refreshApiKeys()" class="bg-gray-500 text-white px-4 py-2 rounded-md font-medium hover:bg-gray-600 transition duration-300 flex items-center">
-                        <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                        </svg>
-                        Refresh
-                    </button>
+                    <div class="flex space-x-2">
+                        <button onclick="refreshApiKeys()" class="bg-gray-500 text-white px-4 py-2 rounded-md font-medium hover:bg-gray-600 transition duration-300 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Refresh
+                        </button>
+                        <a href="/documentation" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 flex items-center">
+                            <svg class="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                            </svg>
+                            API Documentation
+                        </a>
+                    </div>
                 </div>
                 <ul id="apiKeysList">
                     {% for key in api_keys %}
@@ -330,7 +431,10 @@
                 </div>
             </section>
             <section id="integrations" class="tab-content">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Integrations</h2>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">
+                    Integrations
+                    <span class="ml-2 px-2 py-1 text-xs font-semibold text-white bg-yellow-500 rounded-full">Coming Soon</span>
+                </h2>                
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <!-- WhatsApp Integration -->
                     <div class="bg-white p-4 rounded-lg shadow">
@@ -362,7 +466,10 @@
                 </div>
             </section>
             <section id="fine-tuning" class="tab-content">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Fine-tune Your API</h2>
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">
+                    Fine-tune Your API
+                    <span class="ml-2 px-2 py-1 text-xs font-semibold text-white bg-yellow-500 rounded-full">Coming Soon</span>
+                </h2>
                 <div class="mb-8">
                     <h3 class="text-xl font-semibold mb-2 text-gray-700">Start New Fine-tuning Job</h3>
                     <form id="fine-tune-form" class="space-y-4">
@@ -553,6 +660,206 @@
     });
     </script>
     {% include 'dashboard-js.html' %}
+    <script>
+        function startTour() {
+            const tour = new Shepherd.Tour({
+                defaultStepOptions: {
+                    cancelIcon: {
+                        enabled: true
+                    },
+                    classes: 'shadow-lg rounded-lg bg-white text-gray-800',
+                    scrollTo: { behavior: 'smooth', block: 'center' }
+                }
+            });
+
+            tour.addStep({
+                id: 'welcome',
+                text: 'Welcome to your new dashboard! Let\'s take a quick tour to help you get started.',
+                attachTo: { element: '.main-content h1', on: 'bottom' },
+                buttons: [
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'sidebar',
+                text: 'This sidebar contains all the main sections of your dashboard. Hover over it to see more details.',
+                attachTo: { element: '.sidebar', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'chatbot-creator',
+                text: 'Create new chatbots quickly and easily using our Chatbot Creator.',
+                attachTo: { element: '[data-tab="chatbot-creator"]', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'api-keys',
+                text: 'Manage your API keys here. You can create, delete, and test your keys.',
+                attachTo: { element: '[data-tab="api-keys"]', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'fine-tuning',
+                text: 'Fine-tune your AI models to improve performance for specific tasks.',
+                attachTo: { element: '[data-tab="fine-tuning"]', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'api-analytics',
+                text: 'Monitor your API usage and performance with detailed analytics.',
+                attachTo: { element: '[data-tab="api-analytics"]', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'integrations',
+                text: 'Connect your chatbot with popular platforms like WhatsApp, Telegram, Slack, and Discord.',
+                attachTo: { element: '[data-tab="integrations"]', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'custom-prompts',
+                text: 'Create and manage custom prompts to enhance your chatbot\'s responses.',
+                attachTo: { element: '[data-tab="custom-prompts"]', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'subscription',
+                text: 'Manage your subscription and billing information here.',
+                attachTo: { element: '[data-tab="subscription"]', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Next',
+                        action: tour.next,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.addStep({
+                id: 'profile',
+                text: 'Update your profile information and account settings.',
+                attachTo: { element: '[data-tab="profile"]', on: 'right' },
+                buttons: [
+                    {
+                        text: 'Back',
+                        action: tour.back,
+                        classes: 'shepherd-button-secondary'
+                    },
+                    {
+                        text: 'Finish',
+                        action: tour.complete,
+                        classes: 'shepherd-button-primary'
+                    }
+                ]
+            });
+
+            tour.start();
+        }
+
+        // Check if the user is newly registered
+        document.addEventListener('DOMContentLoaded', function() {
+            const isNewUser = {{ 'true' if session.get('new_user') else 'false' }};
+            if (isNewUser) {
+                startTour();
+                // Remove the new_user flag from the session
+                fetch('/clear_new_user_flag', { method: 'POST' });
+            }
+        });
+    </script>
 
 </body>
 

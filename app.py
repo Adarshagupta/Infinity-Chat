@@ -215,6 +215,9 @@ def about():
 def projects():
     return render_template("products.html")
 
+@app.route("/documentation")
+def docs():
+    return render_template("documentation.html")
 
 @app.route("/contact")
 def contact():
@@ -240,7 +243,15 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
+    session['user_id'] = new_user.id
+    session['new_user'] = True  # Set the new_user flag
+
     return jsonify({"message": "User registered successfully"}), 201
+
+@app.route('/clear_new_user_flag', methods=['POST'])
+def clear_new_user_flag():
+    session.pop('new_user', None)
+    return '', 204
 
 
 @app.route("/login", methods=["POST"])

@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 5rem;
+            background-color: white;
+            border-right: 1px solid #e5e7eb;
+            transition: width 0.3s ease;
+            overflow: hidden;
+            z-index: 1000;
+        }
+        .sidebar:hover {
+            width: 16rem;
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #4b5563;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0.25rem;
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #ede9fe;
+            color: #7c3aed;
+        }
+        .sidebar-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        .sidebar-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            width: 0;
+            overflow: hidden;
+        }
+        .sidebar:hover .sidebar-text {
+            opacity: 1;
+            width: auto;
+            margin-left: 1rem;
+        }
+        .main-content {
+            margin-left: 5rem;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+        .sidebar:hover + .main-content {
+            margin-left: 16rem;
+        }
+        .content-section {
+            display: none;
+        }
+        .content-section.active {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Sidebar -->
+    <div class="sidebar">
+        <div class="p-4 flex justify-center">
+            <img src="https://ph-files.imgix.net/0b9e56aa-e09b-4e62-9dd6-4c3b149463b5.png?auto=compress&codec=mozjpeg&cs=strip&auto=format&w=72&h=72&fit=crop&dpr=1" alt="Logo" class="w-12 h-12">
+        </div>
+        <nav class="sidebar-menu flex flex-col justify-between h-[calc(100%-5rem)]">
+            <div>
+
+                <a href="#introduction" class="sidebar-item" data-section="introduction">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="sidebar-text">Introduction</span>
+                </a>
+                <a href="#authentication" class="sidebar-item" data-section="authentication">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
+                    <span class="sidebar-text">Authentication</span>
+                </a>
+                <a href="#endpoints" class="sidebar-item" data-section="endpoints">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
+                    <span class="sidebar-text">Endpoints</span>
+                </a>
+                <a href="#error-handling" class="sidebar-item" data-section="error-handling">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="sidebar-text">Error Handling</span>
+                </a>
+                <a href="#rate-limiting" class="sidebar-item" data-section="rate-limiting">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="sidebar-text">Rate Limiting</span>
+                </a>
+                <a href="#examples" class="sidebar-item" data-section="examples">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
+                    <span class="sidebar-text">Examples</span>
+                </a>
+                <a href="#sdks" class="sidebar-item" data-section="sdks">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                    <span class="sidebar-text">SDKs</span>
+                </a>
+                <a href="#faq" class="sidebar-item" data-section="faq">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="sidebar-text">FAQ</span>
+                </a>
+                <a href="#changelog" class="sidebar-item" data-section="changelog">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    <span class="sidebar-text">Changelog</span>
+                </a>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Main content -->
+    <div class="main-content">
+        <header class="mb-8 flex justify-between items-center">
+            <h1 class="text-3xl font-bold text-gray-800">Developer Documentation</h1>
+            <a href="/api" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Dashboard</a>
+        </header>
+
+        <div id="content-container">
+            <section id="introduction" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Introduction</h2>
+                <p class="text-gray-600 mb-4">Welcome to our API documentation. This guide will help you integrate our AI-powered chatbot services into your applications. Our API allows you to create, manage, and interact with chatbots, as well as analyze their performance.</p>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Key Features</h3>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li>Create and manage multiple chatbots</li>
+                    <li>Customize chatbot behavior and responses</li>
+                    <li>Integrate with popular messaging platforms</li>
+                    <li>Analyze chatbot performance and user interactions</li>
+                    <li>Fine-tune AI models for improved accuracy</li>
+                </ul>
+            </section>
+
+            <section id="authentication" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Authentication</h2>
+                <p class="text-gray-600 mb-4">All API requests require authentication using an API key. Include your API key in the Authorization header:</p>
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="text-sm">Authorization: Bearer YOUR_API_KEY</code></pre>
+                <h3 class="text-xl font-semibold text-gray-700 mt-4 mb-2">Obtaining an API Key</h3>
+                <p class="text-gray-600 mb-4">To obtain an API key:</p>
+                <ol class="list-decimal list-inside text-gray-600 mb-4">
+                    <li>Log in to your account dashboard</li>
+                    <li>Navigate to the "API Keys" section</li>
+                    <li>Click on "Generate New API Key"</li>
+                    <li>Copy and securely store your new API key</li>
+                </ol>
+                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
+                    <p class="font-bold">Important:</p>
+                    <p>Never share your API key publicly or commit it to version control systems.</p>
+                </div>
+            </section>
+
+            <section id="endpoints" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Endpoints</h2>
+                
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Chatbots</h3>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/chatbots</code> - List all chatbots</li>
+                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/chatbots</code> - Create a new chatbot</li>
+                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/chatbots/{id}</code> - Get chatbot details</li>
+                    <li><code class="bg-gray-100 px-1 rounded">PUT /api/v1/chatbots/{id}</code> - Update a chatbot</li>
+                    <li><code class="bg-gray-100 px-1 rounded">DELETE /api/v1/chatbots/{id}</code> - Delete a chatbot</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Conversations</h3>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/chatbots/{id}/conversations</code> - Start a new conversation</li>
+                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/conversations/{id}/messages</code> - Send a message in a conversation</li>
+                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/conversations/{id}</code> - Get conversation history</li>
+                </ul>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Analytics</h3>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/chatbots/{id}/analytics</code> - Get chatbot analytics</li>
+                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/analytics/usage</code> - Get API usage statistics</li>
+                </ul>
+            </section>
+
+            <section id="error-handling" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Error Handling</h2>
+                <p class="text-gray-600 mb-4">Our API uses conventional HTTP response codes to indicate success or failure of requests. In general:</p>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li>2xx: Success</li>
+                    <li>4xx: Client errors</li>
+                    <li>5xx: Server errors</li>
+                </ul>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Common Error Codes</h3>
+                <table class="min-w-full bg-white border border-gray-300 mb-4">
+                    <thead>
+                        <tr>
+                            <th class="py-2 px-4 border-b">Code</th>
+                            <th class="py-2 px-4 border-b">Description</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="py-2 px-4 border-b">400</td>
+                            <td class="py-2 px-4 border-b">Bad Request - Invalid parameters</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4 border-b">401</td>
+                            <td class="py-2 px-4 border-b">Unauthorized - Invalid API key</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4 border-b">404</td>
+                            <td class="py-2 px-4 border-b">Not Found - Resource doesn't exist</td>
+                        </tr>
+                        <tr>
+                            <td class="py-2 px-4 border-b">429</td>
+                            <td class="py-2 px-4 border-b">Too Many Requests - Rate limit exceeded</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section id="rate-limiting" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Rate Limiting</h2>
+                <p class="text-gray-600 mb-4">API requests are limited to ensure fair usage and maintain service stability. The current limits are:</p>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li>1000 requests per hour per API key</li>
+                    <li>10,000 requests per day per API key</li>
+                </ul>
+                <p class="text-gray-600 mb-4">If you exceed these limits, you'll receive a 429 Too Many Requests response. The response will include the following headers:</p>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li><code class="bg-gray-100 px-1 rounded">X-RateLimit-Limit</code>: The rate limit period (per hour or per day)</li>
+                    <li><code class="bg-gray-100 px-1 rounded">X-RateLimit-Remaining</code>: The number of requests left for the time window</li>
+                    <li><code class="bg-gray-100 px-1 rounded">X-RateLimit-Reset</code>: The time at which the current rate limit window resets in UTC epoch seconds</li>
+                </ul>
+            </section>
+
+            <section id="examples" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Examples</h2>
+                
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Python</h3>
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code class="text-sm">
+import requests
+
+api_key = "your_api_key_here"
+headers = {"Authorization": f"Bearer {api_key}"}
+base_url = "https://api.example.com/v1"
+
+# Create a new chatbot
+new_chatbot = {
+    "name": "Customer Support Bot",
+    "description": "A chatbot for handling customer inquiries",
+    "language": "en"
+}
+response = requests.post(f"{base_url}/chatbots", json=new_chatbot, headers=headers)
+chatbot = response.json()
+print(f"Created chatbot: {chatbot['id']}")
+
+# Start a conversation
+conversation = requests.post(f"{base_url}/chatbots/{chatbot['id']}/conversations", headers=headers).json()
+conversation_id = conversation['id']
+
+# Send a message
+message = {
+    "content": "Hello, I have a question about my order.",
+    "role": "user"
+}
+response = requests.post(f"{base_url}/conversations/{conversation_id}/messages", json=message, headers=headers)
+bot_response = response.json()
+print(f"Bot response: {bot_response['content']}")
+                </code></pre>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">JavaScript</h3>
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="text-sm">
+const axios = require('axios');
+
+const apiKey = 'your_api_key_here';
+const baseURL = 'https://api.example.com/v1';
+
+const api = axios.create({
+  baseURL,
+  headers: { Authorization: `Bearer ${apiKey}` }
+});
+
+async function createChatbotAndConverse() {
+  try {
+    // Create a new chatbot
+    const { data: chatbot } = await api.post('/chatbots', {
+      name: 'Customer Support Bot',
+      description: 'A chatbot for handling customer inquiries',
+      language: 'en'
+    });
+    console.log(`Created chatbot: ${chatbot.id}`);
+
+    // Start a conversation
+    const { data: conversation } = await api.post(`/chatbots/${chatbot.id}/conversations`);
+
+    // Send a message
+    const { data: botResponse } = await api.post(`/conversations/${conversation.id}/messages`, {
+      content: 'Hello, I have a question about my order.',
+      role: 'user'
+    });
+    console.log(`Bot response: ${botResponse.content}`);
+  } catch (error) {
+    console.error('Error:', error.response ? error.response.data : error.message);
+  }
+}
+
+createChatbotAndConverse();
+                </code></pre>
+            </section>
+
+            <section id="sdks" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">SDKs</h2>
+                <p class="text-gray-600 mb-4">We provide official SDKs for the following languages:</p>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li>Python: <code class="bg-gray-100 px-1 rounded">pip install example-chatbot-sdk</code></li>
+                    <li>JavaScript: <code class="bg-gray-100 px-1 rounded">npm install example-chatbot-sdk</code></li>
+                    <li>Ruby: <code class="bg-gray-100 px-1 rounded">gem install example-chatbot-sdk</code></li>
+                    <li>PHP: <code class="bg-gray-100 px-1 rounded">composer require example/chatbot-sdk</code></li>
+                </ul>
+                <p class="text-gray-600 mb-4">For detailed documentation on using our SDKs, please visit the respective GitHub repositories:</p>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li><a href="#" class="text-blue-600 hover:text-blue-800">Python SDK Documentation</a></li>
+                    <li><a href="#" class="text-blue-600 hover:text-blue-800">JavaScript SDK Documentation</a></li>
+                    <li><a href="#" class="text-blue-600 hover:text-blue-800">Ruby SDK Documentation</a></li>
+                    <li><a href="#" class="text-blue-600 hover:text-blue-800">PHP SDK Documentation</a></li>
+                </ul>
+            </section>
+
+            <section id="faq" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Frequently Asked Questions</h2>
+                <dl class="space-y-4">
+                    <div>
+                        <dt class="font-semibold text-gray-700">How do I reset my API key?</dt>
+                        <dd class="text-gray-600">You can reset your API key from your account settings page. Navigate to the "API Keys" section and click on "Regenerate API Key". Note that this will invalidate your old API key immediately.</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold text-gray-700">Is there a sandbox environment for testing?</dt>
+                        <dd class="text-gray-600">Yes, we provide a sandbox environment for testing. Use the base URL https://api-sandbox.example.com for all your test requests. The sandbox environment has the same functionality as the production environment but does not affect your live data or billing.</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold text-gray-700">How do I report bugs or request features?</dt>
+                        <dd class="text-gray-600">Please submit issues and feature requests through our GitHub repository or contact our support team at support@example.com. For urgent matters, you can reach out to us via the live chat on our website.</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold text-gray-700">What's the difference between the various subscription plans?</dt>
+                        <dd class="text-gray-600">Our subscription plans differ in terms of API call limits, available features, and support levels. You can find a detailed comparison on our pricing page. If you have specific needs, please contact our sales team for a custom plan.</dd>
+                    </div>
+                    <div>
+                        <dt class="font-semibold text-gray-700">Can I use your API in my mobile app?</dt>
+                        <dd class="text-gray-600">Absolutely! Our API is designed to work with any platform, including mobile apps. We recommend using one of our official SDKs for easier integration. Make sure to follow mobile best practices, such as not storing the API key directly in your app's code.</dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section id="changelog" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Changelog</h2>
+                <ul class="space-y-4">
+                    <li>
+                        <h3 class="text-lg font-semibold text-gray-700">v2.1.0 (2023-06-15)</h3>
+                        <ul class="list-disc list-inside text-gray-600">
+                            <li>Added support for multi-language chatbots</li>
+                            <li>Improved response time for high-traffic chatbots</li>
+                            <li>New endpoint: GET /api/v1/chatbots/{id}/performance</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h3 class="text-lg font-semibold text-gray-700">v2.0.0 (2023-05-01)</h3>
+                        <ul class="list-disc list-inside text-gray-600">
+                            <li>Major API overhaul with breaking changes (see migration guide)</li>
+                            <li>Introduced conversation management endpoints</li>
+                            <li>Added support for custom AI model fine-tuning</li>
+                        </ul>
+                    </li>
+                    <li>
+                        <h3 class="text-lg font-semibold text-gray-700">v1.5.2 (2023-03-10)</h3>
+                        <ul class="list-disc list-inside text-gray-600">
+                            <li>Fixed a bug in the rate limiting algorithm</li>
+                            <li>Improved error messages for better debugging</li>
+                        </ul>
+                    </li>
+                </ul>
+            </section>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebarItems = document.querySelectorAll('.sidebar-item');
+            const contentSections = document.querySelectorAll('.content-section');
+
+            function showSection(sectionId) {
+                contentSections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(sectionId).classList.add('active');
+            }
+
+            sidebarItems.forEach(item => {
+                item.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const sectionId = this.getAttribute('data-section');
+                    showSection(sectionId);
+                    sidebarItems.forEach(i => i.classList.remove('active'));
+                    this.classList.add('active');
+                });
+            });
+
+            // Show the first section by default
+            showSection('introduction');
+            sidebarItems[0].classList.add('active');
+        });
+    </script>
+</body>
+</html>
