@@ -601,8 +601,9 @@ def update_profile():
 
     db.session.commit()
     return redirect(url_for("dashboard"))
-@app.route("/dashboard")
+
 @app.route("/api")
+@app.route("/dashboard")
 @login_required
 def dashboard():
     user = User.query.get(session["user_id"])
@@ -635,7 +636,14 @@ def dashboard():
         custom_prompts=custom_prompts,
         analytics_data=analytics_data,
     )
-
+@app.route('/subscription')
+def subscription_page():
+    subscription_plans = {
+        'basic': {'price': 99900, 'api_calls': 1000},
+        'pro': {'price': 199900, 'api_calls': 5000},
+        'enterprise': {'price': 499900, 'api_calls': 20000}
+    }
+    return render_template('subscription.html', subscription_plans=subscription_plans, user=current_user)
 
 @app.route("/profile", methods=["GET", "POST"])
 @login_required
