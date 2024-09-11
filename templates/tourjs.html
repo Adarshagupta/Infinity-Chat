@@ -1,0 +1,295 @@
+<script>
+    console.log("Script loaded"); // Debug log
+
+function initiatePayment(plan, amount) {
+    console.log("initiatePayment called", plan, amount); // Debug log
+    fetch('/create_order', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ plan: plan, amount: amount }),
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log("Order created", data); // Debug log
+        if (!data.order_id) {
+            throw new Error('No order_id received from server');
+        }
+        var options = {
+            "key": "{{ razorpay_key_id }}", // Replace with your Razorpay Key ID
+            "amount": amount,
+            "currency": "INR",
+            "name": "Your Company Name",
+            "description": plan + " Plan Subscription",
+            "order_id": data.order_id,
+            "handler": function (response){
+                console.log("Payment successful", response); // Debug log
+                // Send the payment details to your server
+                fetch('/payment_success', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        razorpay_payment_id: response.razorpay_payment_id,
+                        razorpay_order_id: response.razorpay_order_id,
+                        razorpay_signature: response.razorpay_signature,
+                        plan: plan
+                    }),
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        alert('Subscription successful!');
+                        location.reload(); // Reload the page to update subscription info
+                    } else {
+                        alert('Subscription failed. Please try again. Error: ' + (data.error || 'Unknown error'));
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('An error occurred while processing the payment. Please try again.');
+                });
+            },
+            "prefill": {
+                "name": "{{ user.email.split('@')[0] }}",
+                "email": "{{ user.email }}"
+            },
+            "theme": {
+                "color": "#7C3AED"
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.open();
+    })
+    .catch(error => {
+        console.error("Error:", error); // Debug log
+        alert('An error occurred while creating the order. Please try again. Error: ' + error.message);
+    });
+}
+
+// Add click event listeners to all subscribe buttons
+document.addEventListener('DOMContentLoaded', function() {
+    const subscribeButtons = document.querySelectorAll('.subscribe-btn');
+    if (subscribeButtons.length > 0) {
+        subscribeButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const plan = this.getAttribute('data-plan');
+                const amount = parseInt(this.getAttribute('data-amount'));
+                initiatePayment(plan, amount);
+            });
+        });
+    } else {
+        console.log('No subscribe buttons found');
+    }
+});
+    function startTour() {
+        const tour = new Shepherd.Tour({
+            defaultStepOptions: {
+                cancelIcon: {
+                    enabled: true
+                },
+                classes: 'shadow-lg rounded-lg bg-white text-gray-800',
+                scrollTo: { behavior: 'smooth', block: 'center' }
+            }
+        });
+
+        tour.addStep({
+            id: 'welcome',
+            text: 'Welcome to your new dashboard! Let\'s take a quick tour to help you get started.',
+            attachTo: { element: '.main-content h1', on: 'bottom' },
+            buttons: [
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'sidebar',
+            text: 'This sidebar contains all the main sections of your dashboard. Hover over it to see more details.',
+            attachTo: { element: '.sidebar', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'chatbot-creator',
+            text: 'Create new chatbots quickly and easily using our Chatbot Creator.',
+            attachTo: { element: '[data-tab="chatbot-creator"]', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'api-keys',
+            text: 'Manage your API keys here. You can create, delete, and test your keys.',
+            attachTo: { element: '[data-tab="api-keys"]', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'fine-tuning',
+            text: 'Fine-tune your AI models to improve performance for specific tasks.',
+            attachTo: { element: '[data-tab="fine-tuning"]', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'api-analytics',
+            text: 'Monitor your API usage and performance with detailed analytics.',
+            attachTo: { element: '[data-tab="api-analytics"]', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'integrations',
+            text: 'Connect your chatbot with popular platforms like WhatsApp, Telegram, Slack, and Discord.',
+            attachTo: { element: '[data-tab="integrations"]', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'custom-prompts',
+            text: 'Create and manage custom prompts to enhance your chatbot\'s responses.',
+            attachTo: { element: '[data-tab="custom-prompts"]', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'subscription',
+            text: 'Manage your subscription and billing information here.',
+            attachTo: { element: '[data-tab="subscription"]', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Next',
+                    action: tour.next,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.addStep({
+            id: 'profile',
+            text: 'Update your profile information and account settings.',
+            attachTo: { element: '[data-tab="profile"]', on: 'right' },
+            buttons: [
+                {
+                    text: 'Back',
+                    action: tour.back,
+                    classes: 'shepherd-button-secondary'
+                },
+                {
+                    text: 'Finish',
+                    action: tour.complete,
+                    classes: 'shepherd-button-primary'
+                }
+            ]
+        });
+
+        tour.start();
+    }
+
+    // Check if the user is newly registered
+    document.addEventListener('DOMContentLoaded', function() {
+        const isNewUser = {{ 'true' if session.get('new_user') else 'false' }};
+        if (isNewUser) {
+            startTour();
+            // Remove the new_user flag from the session
+            fetch('/clear_new_user_flag', { method: 'POST' });
+        }
+    });
+</script>
