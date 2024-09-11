@@ -481,8 +481,12 @@ def get_ai_response(llm_type, messages):
     else:
         raise ValueError("Invalid LLM specified")
 
-    response = process_raw_response(raw_response)
-    return response
+    # Ensure raw_response is a string
+    if not isinstance(raw_response, str):
+        raw_response = str(raw_response)
+
+    structured_response = process_raw_response(raw_response)
+    return structured_response
 
 def process_raw_response(raw_response):
     # Split the response into sentences
@@ -513,6 +517,8 @@ def process_raw_response(raw_response):
                 structured_response["introduction"] += " " + sentence
 
     return structured_response
+
+
 
 
 def process_ecommerce_response(response):
