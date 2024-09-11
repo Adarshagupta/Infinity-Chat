@@ -449,7 +449,19 @@
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
             
-            if (typeof message === 'object') {
+            if (typeof message === 'object' && message.introduction) {
+                // This is our new structured response
+                let html = `<p>${message.introduction}</p><ol>`;
+                message.steps.forEach(step => {
+                    html += `<li>${step}</li>`;
+                });
+                html += `</ol>`;
+                if (message.conclusion) {
+                    html += `<p>${message.conclusion}</p>`;
+                }
+                messageElement.innerHTML = html;
+            } else if (typeof message === 'object') {
+                // Handle other types of structured responses (like product data)
                 if (message.product_data) {
                     const productData = message.product_data;
                     messageElement.innerHTML = `

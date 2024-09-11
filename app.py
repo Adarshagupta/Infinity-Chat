@@ -472,14 +472,47 @@ def get_ai_response(llm_type, messages):
             repetition_penalty=1,
             stop=["<|eot_id|>", "<|eom_id|>"],
         )
-        return response.choices[0].message.content
+        raw_response = response.choices[0].message.content
     elif llm_type == "openai":
         response = openai_client.chat.completions.create(
             model="gpt-4", messages=messages, max_tokens=128, temperature=0.7
         )
-        return response.choices[0].message.content
+        raw_response = response.choices[0].message.content
     else:
         raise ValueError("Invalid LLM specified")
+
+    response = process_raw_response(raw_response)
+    return response
+
+def process_raw_response(raw_response):
+    # Split the response into sentences
+    sentences = re.split(r'(?<=[.!?])\s+', raw_response)
+    
+    # Initialize structured response
+    structured_response = {
+        "introduction": "",
+        "steps": [],
+        "conclusion": ""
+    }
+
+    # Process sentences
+    for sentence in sentences:
+        if sentence.startswith(("With", "Using")):
+            structured_response["introduction"] = sentence
+        elif re.match(r'^\d+\.', sentence):
+            # This is a numbered step
+            step = re.sub(r'^\d+\.\s*', '', sentence)
+            structured_response["steps"].append(step)
+        elif sentence.startswith(("Finally", "In conclusion")):
+            structured_response["conclusion"] = sentence
+        else:
+            # If it doesn't fit elsewhere, add it to the last step
+            if structured_response["steps"]:
+                structured_response["steps"][-1] += " " + sentence
+            else:
+                structured_response["introduction"] += " " + sentence
+
+    return structured_response
 
 
 def process_ecommerce_response(response):
