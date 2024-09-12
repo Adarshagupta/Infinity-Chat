@@ -12,3 +12,4 @@ openai
 flask-migrate
 razorpay
 backoff
+sklearn
