@@ -266,19 +266,14 @@
                     <span class="sidebar-tooltip">Integrations</span>
                 </a>
                 <a href="#" class="sidebar-item" data-tab="custom-prompts">
-                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg>
                     <span class="sidebar-text">Custom Prompts</span>
                     <span class="sidebar-tooltip">Custom Prompts</span>
                 </a>
-                <a href="#" class="sidebar-item" data-tab="customer-support">
-                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    <span class="sidebar-text">Customer Support</span>
-                    <span class="sidebar-tooltip">Customer support</span>
-                </a>
                 <a href="#" class="sidebar-item" data-tab="ai-chat">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                    <span class="sidebar-text">AI Chat</span>
-                    <span class="sidebar-tooltip">AI Chat</span>
+                    <span class="sidebar-text">AI Support</span>
+                    <span class="sidebar-tooltip">AI Support</span>
                 </a>
 
             </div>
@@ -296,12 +291,38 @@
             </div>
         </nav>
     </div>
+        <!-- Welcome Popup -->
+        <div id="welcomePopup" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+            <div class="bg-white rounded-xl p-10 max-w-lg shadow-2xl transform transition-all duration-300 ease-in-out">
+                <h2 class="text-3xl font-extrabold mb-6 text-purple-600">Welcome to Your AI Dashboard!</h2>
+                <p class="mb-6 text-gray-600">Discover the power of AI with these features:</p>
+                <ul class="space-y-3 mb-8">
+                    <li class="flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <span>Secure API key management</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                        <span>In-depth analytics and insights</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-yellow-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                        <span>Customizable AI prompts</span>
+                    </li>
+                    <li class="flex items-center">
+                        <svg class="w-6 h-6 mr-2 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                        <span>Powerful integrations</span>
+                    </li>
+                </ul>
+                <button id="closePopup" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:from-purple-600 hover:to-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">Let's Get Started!</button>
+            </div>
+        </div>
 
     <!-- Main content -->
     <div class="main-content">
-        <div class="flex justify-between items-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-800">Dashboard</h1>
-            <a href="#" onclick="showTab('chatbot-creator')" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Create New</a>
+        <div class="flex justify-between items-center mb-8 bg-gradient-to-r from-purple-300 to-indigo-300 p-6 rounded-lg shadow-md">
+            <h1 class="text-3xl font-bold text-white">Dashboard</h1>
+            <a href="#" onclick="showTab('chatbot-creator')" class="bg-white text-purple-600 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition duration-300 shadow-lg">Create New</a>
         </div>
 
         <!-- Tab content -->
@@ -435,100 +456,120 @@
                     </table>
                 </div>
             </section>
-            <section id="integrations" class="tab-content">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">
+            <section id="integrations" class="tab-content bg-gradient-to-r from-purple-100 to-blue-100 p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800 border-b-2 border-purple-300 pb-2">
                     Integrations
-                    <span class="ml-2 px-2 py-1 text-xs font-semibold text-white bg-yellow-500 rounded-full">Coming Soon</span>
+                    <span class="ml-2 px-3 py-1 text-xs font-semibold text-purple-800 bg-yellow-300 rounded-full shadow-sm">Coming Soon</span>
                 </h2>                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
                     <!-- WhatsApp Integration -->
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold mb-2">WhatsApp</h3>
-                        <p class="mb-2">Integrate your chatbot with WhatsApp</p>
-                        <button onclick="integrateWhatsApp()" class="bg-green-500 text-white px-4 py-2 rounded-md font-medium hover:bg-green-600 transition duration-300">Connect WhatsApp</button>
+                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1">
+                        <div class="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-green-100">
+                            <svg class="w-8 h-8 text-green-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">WhatsApp</h3>
+                        <p class="mb-4 text-gray-600">Integrate your chatbot with WhatsApp</p>
+                        <button onclick="integrateWhatsApp()" class="w-full bg-green-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-green-600 transition duration-300 shadow-md">Connect WhatsApp</button>
                     </div>
                     
                     <!-- Telegram Integration -->
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold mb-2">Telegram</h3>
-                        <p class="mb-2">Integrate your chatbot with Telegram</p>
-                        <button onclick="integrateTelegram()" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300">Connect Telegram</button>
+                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1">
+                        <div class="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-blue-100">
+                            <svg class="w-8 h-8 text-blue-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Telegram</h3>
+                        <p class="mb-4 text-gray-600">Integrate your chatbot with Telegram</p>
+                        <button onclick="integrateTelegram()" class="w-full bg-blue-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-blue-600 transition duration-300 shadow-md">Connect Telegram</button>
                     </div>
                     
                     <!-- Slack Integration -->
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold mb-2">Slack</h3>
-                        <p class="mb-2">Integrate your chatbot with Slack</p>
-                        <button onclick="integrateSlack()" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Connect Slack</button>
+                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1">
+                        <div class="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-purple-100">
+                            <svg class="w-8 h-8 text-purple-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M2 5a2 2 0 012-2h12a2 2 0 012 2v10a2 2 0 01-2 2H4a2 2 0 01-2-2V5zm3.293 1.293a1 1 0 011.414 0l3 3a1 1 0 010 1.414l-3 3a1 1 0 01-1.414-1.414L7.586 10 5.293 7.707a1 1 0 010-1.414zM11 12a1 1 0 100 2h3a1 1 0 100-2h-3z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Slack</h3>
+                        <p class="mb-4 text-gray-600">Integrate your chatbot with Slack</p>
+                        <button onclick="integrateSlack()" class="w-full bg-purple-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-purple-600 transition duration-300 shadow-md">Connect Slack</button>
                     </div>
                     
                     <!-- Discord Integration -->
-                    <div class="bg-white p-4 rounded-lg shadow">
-                        <h3 class="text-lg font-semibold mb-2">Discord</h3>
-                        <p class="mb-2">Integrate your chatbot with Discord</p>
-                        <button onclick="integrateDiscord()" class="bg-indigo-500 text-white px-4 py-2 rounded-md font-medium hover:bg-indigo-600 transition duration-300">Connect Discord</button>
+                    <div class="bg-white p-6 rounded-xl shadow-md hover:shadow-lg transition duration-300 transform hover:-translate-y-1">
+                        <div class="flex items-center justify-center w-16 h-16 mb-4 rounded-full bg-indigo-100">
+                            <svg class="w-8 h-8 text-indigo-500" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path></svg>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-3 text-gray-800">Discord</h3>
+                        <p class="mb-4 text-gray-600">Integrate your chatbot with Discord</p>
+                        <button onclick="integrateDiscord()" class="w-full bg-indigo-500 text-white px-6 py-3 rounded-lg font-medium hover:bg-indigo-600 transition duration-300 shadow-md">Connect Discord</button>
                     </div>
                 </div>
             </section>
-            <section id="fine-tuning" class="tab-content">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">
+            <section id="fine-tuning" class="tab-content dashboard-section bg-gradient-to-r from-purple-100 to-blue-100 p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800">
                     Fine-tune Your API
-                    <span class="ml-2 px-2 py-1 text-xs font-semibold text-white bg-yellow-500 rounded-full">Coming Soon</span>
+                    <span class="ml-2 px-3 py-1 text-xs font-semibold text-purple-800 bg-yellow-300 rounded-full shadow-sm">Coming Soon</span>
                 </h2>
-                <div class="mb-8">
-                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Start New Fine-tuning Job</h3>
-                    <form id="fine-tune-form" class="space-y-4">
+                <div class="mb-8 bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-800">Start New Fine-tuning Job</h3>
+                    <form id="fine-tune-form" class="space-y-6">
                         <div>
-                            <label for="api-key-select" class="block text-sm font-medium text-gray-700">Select API Key</label>
-                            <select id="api-key-select" name="api_key_id" required class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-purple-500 focus:border-purple-500 sm:text-sm rounded-md">
+                            <label for="api-key-select" class="block text-sm font-medium text-gray-700 mb-1">Select API Key</label>
+                            <select id="api-key-select" name="api_key_id" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
                                 <!-- Options will be populated dynamically -->
                             </select>
                         </div>
                         <div>
-                            <label for="training-file" class="block text-sm font-medium text-gray-700">Training File (JSON)</label>
-                            <input type="file" id="training-file" name="training_file" accept=".json" required class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-purple-500 focus:border-purple-500">
+                            <label for="training-file" class="block text-sm font-medium text-gray-700 mb-1">Training File (JSON)</label>
+                            <input type="file" id="training-file" name="training_file" accept=".json" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
                         </div>
-                        <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Start Fine-tuning</button>
+                        <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition duration-300 shadow-md">Start Fine-tuning</button>
                     </form>
                 </div>
-                <div>
-                    <h3 class="text-xl font-semibold mb-2 text-gray-700">Fine-tuning Jobs</h3>
-                    <table class="min-w-full bg-white">
-                        <thead class="bg-gray-100">
-                            <tr>
-                                <th class="py-2 px-4 text-left">Job ID</th>
-                                <th class="py-2 px-4 text-left">API Key</th>
-                                <th class="py-2 px-4 text-left">Status</th>
-                                <th class="py-2 px-4 text-left">Created At</th>
-                                <th class="py-2 px-4 text-left">Updated At</th>
-                                <th class="py-2 px-4 text-left">Model Name</th>
-                            </tr>
-                        </thead>
-                        <tbody id="fine-tune-jobs-body">
-                            <!-- Fine-tuning jobs will be populated here -->
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-            <section id="chatbot-creator" class="tab-content">
-                <h2 class="text-2xl font-semibold mb-4 text-gray-700">Chatbot Creator</h2>
-                <div class="mb-8">
-                    <h3 class="text-xl font-semibold mb-4">Create New Chatbot</h3>
-                    <div class="flex flex-col space-y-2">
-                        <input type="text" id="urlInput" placeholder="Enter website URL" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <select id="llmSelect" class="px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="together">Together AI</option>
-                            <option value="openai">OpenAI</option>
-                        </select>
-                        <button onclick="processUrl()" class="bg-purple-500 text-white px-6 py-3 rounded-lg hover:bg-purple-600 transition duration-300">Process</button>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-800">Fine-tuning Jobs</h3>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full bg-white border border-gray-200 rounded-lg overflow-hidden">
+                            <thead class="bg-gray-100">
+                                <tr>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Job ID</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">API Key</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created At</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Updated At</th>
+                                    <th class="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Model Name</th>
+                                </tr>
+                            </thead>
+                            <tbody id="fine-tune-jobs-body" class="divide-y divide-gray-200">
+                                <!-- Fine-tuning jobs will be populated here -->
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-                <div id="result" class="hidden bg-white rounded-2xl shadow-xl p-8 mt-8 w-full">
-                    <h2 class="text-xl font-semibold mb-4">Processing Complete</h2>
+            </section>
+            <section id="chatbot-creator" class="tab-content dashboard-section bg-gradient-to-r from-purple-100 to-blue-100 p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800">Chatbot Creator</h2>
+                <div class="mb-8 bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-800">Create New Chatbot</h3>
+                    <div class="space-y-4">
+                        <div>
+                            <label for="urlInput" class="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
+                            <input type="text" id="urlInput" placeholder="Enter website URL" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
+                        </div>
+                        <div>
+                            <label for="llmSelect" class="block text-sm font-medium text-gray-700 mb-1">Select LLM</label>
+                            <select id="llmSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
+                                <option value="together">Together AI</option>
+                                <option value="openai">OpenAI</option>
+                            </select>
+                        </div>
+                        <button onclick="processUrl()" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition duration-300 shadow-md">Process</button>
+                    </div>
+                </div> 
+                <div id="result" class="hidden bg-white p-6 rounded-lg shadow-md mt-8">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Processing Complete</h2>
                     <div id="apiKeyResult" class="mb-4"></div>
                     <div id="integrationCodeSection" class="mb-4">
-                        <h3 class="text-lg font-semibold mb-2">Integration Code:</h3>
-                        <textarea id="integration-code" readonly class="w-full h-40 p-2 border border-gray-300 rounded-md font-mono text-sm"></textarea>
+                        <h3 class="text-xl font-semibold mb-2 text-gray-800">Integration Code:</h3>
+                        <textarea id="integration-code" readonly class="w-full h-40 p-2 border border-gray-300 rounded-md font-mono text-sm focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"></textarea>
                     </div>
                 </div>
             </section>
@@ -583,7 +624,33 @@
     <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
     {% include 'dashboard-js.html' %}
     {% include 'tourjs.html' %}
+    <script>
+        // Welcome Popup Logic
+        document.addEventListener('DOMContentLoaded', function() {
+            const welcomePopup = document.getElementById('welcomePopup');
+            const closePopup = document.getElementById('closePopup');
 
+            // Check if it's the user's first visit
+            if (!localStorage.getItem('dashboardVisited')) {
+                welcomePopup.classList.remove('hidden');
+                // Add fade-in animation
+                welcomePopup.style.opacity = '0';
+                welcomePopup.style.transition = 'opacity 0.5s ease-in-out';
+                setTimeout(() => {
+                    welcomePopup.style.opacity = '1';
+                }, 100);
+            }
+
+            closePopup.addEventListener('click', function() {
+                // Add fade-out animation
+                welcomePopup.style.opacity = '0';
+                setTimeout(() => {
+                    welcomePopup.classList.add('hidden');
+                }, 500);
+                localStorage.setItem('dashboardVisited', 'true');
+            });
+        });
+    </script>
 </body>
 
 </html>

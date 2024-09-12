@@ -146,6 +146,10 @@ def contact():
 def privacy():
     return render_template("privacy.html")
 
+@app.route("/auth")
+def auth():
+    return render_template('auth.html')
+
 @app.route("/register", methods=["POST"])
 def register():
     data = request.json
