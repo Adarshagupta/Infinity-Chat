@@ -133,14 +133,16 @@
         <div id="content-container">
             <section id="introduction" class="content-section bg-white shadow-md rounded-lg p-6">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">Introduction</h2>
-                <p class="text-gray-600 mb-4">Welcome to our API documentation. This guide will help you integrate our AI-powered chatbot services into your applications. Our API allows you to create, manage, and interact with chatbots, as well as analyze their performance.</p>
+                <p class="text-gray-600 mb-4">Welcome to our API documentation. This guide will help you integrate our advanced AI-powered chatbot services into your applications. Our API allows you to create, manage, and interact with chatbots, as well as analyze their performance and leverage cutting-edge AI technologies.</p>
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">Key Features</h3>
                 <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li>Create and manage multiple chatbots</li>
-                    <li>Customize chatbot behavior and responses</li>
-                    <li>Integrate with popular messaging platforms</li>
-                    <li>Analyze chatbot performance and user interactions</li>
-                    <li>Fine-tune AI models for improved accuracy</li>
+                    <li>Create and manage multiple chatbots with advanced customization options</li>
+                    <li>Utilize state-of-the-art natural language processing models</li>
+                    <li>Seamless integration with popular messaging platforms and voice assistants</li>
+                    <li>Real-time analytics and performance insights</li>
+                    <li>Fine-tune AI models for improved accuracy and domain-specific knowledge</li>
+                    <li>Multi-language support with automatic translation</li>
+                    <li>Advanced sentiment analysis and intent recognition</li>
                 </ul>
             </section>
 
@@ -172,6 +174,7 @@
                     <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/chatbots/{id}</code> - Get chatbot details</li>
                     <li><code class="bg-gray-100 px-1 rounded">PUT /api/v1/chatbots/{id}</code> - Update a chatbot</li>
                     <li><code class="bg-gray-100 px-1 rounded">DELETE /api/v1/chatbots/{id}</code> - Delete a chatbot</li>
+                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/chatbots/{id}/train</code> - Fine-tune chatbot model</li>
                 </ul>
 
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">Conversations</h3>
@@ -179,12 +182,14 @@
                     <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/chatbots/{id}/conversations</code> - Start a new conversation</li>
                     <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/conversations/{id}/messages</code> - Send a message in a conversation</li>
                     <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/conversations/{id}</code> - Get conversation history</li>
+                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/conversations/{id}/analyze</code> - Perform sentiment analysis</li>
                 </ul>
 
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">Analytics</h3>
                 <ul class="list-disc list-inside text-gray-600 mb-4">
                     <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/chatbots/{id}/analytics</code> - Get chatbot analytics</li>
                     <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/analytics/usage</code> - Get API usage statistics</li>
+                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/analytics/performance</code> - Get real-time performance metrics</li>
                 </ul>
             </section>
 
@@ -362,6 +367,15 @@ createChatbotAndConverse();
             <section id="changelog" class="content-section bg-white shadow-md rounded-lg p-6">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">Changelog</h2>
                 <ul class="space-y-4">
+                    <li>
+                        <h3 class="text-lg font-semibold text-gray-700">v3.0.0 (2023-09-01)</h3>
+                        <ul class="list-disc list-inside text-gray-600">
+                            <li>Introduced advanced NLP models with improved understanding and response generation</li>
+                            <li>Added support for voice assistant integration</li>
+                            <li>New endpoint: POST /api/v1/chatbots/{id}/train for fine-tuning models</li>
+                            <li>Enhanced multi-language support with automatic translation</li>
+                        </ul>
+                    </li>
                     <li>
                         <h3 class="text-lg font-semibold text-gray-700">v2.1.0 (2023-06-15)</h3>
                         <ul class="list-disc list-inside text-gray-600">

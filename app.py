@@ -33,6 +33,10 @@ from functools import wraps
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.naive_bayes import MultinomialNB
 import numpy as np
+from sqlalchemy import func
+from apscheduler.schedulers.background import BackgroundScheduler
+
+
 
 # Load environment variables from .env file
 load_dotenv()
@@ -152,6 +156,15 @@ class ChatInteraction(db.Model):
     ai_response = db.Column(db.Text, nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     feedback = db.Column(db.Boolean, nullable=True)
+
+class Conversation(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    api_key_id = db.Column(db.Integer, db.ForeignKey('api_key.id'), nullable=False)
+    messages = db.Column(db.JSON, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
 
 
 def extract_text_from_url(url):
@@ -345,17 +358,21 @@ def chat():
         if not api_key_data:
             return jsonify({"error": "Invalid API key"}), 400
 
+        # Fetch or create conversation
+        conversation = Conversation.query.filter_by(user_id=api_key_data.user_id, api_key_id=api_key_data.id).order_by(Conversation.updated_at.desc()).first()
+        
+        if not conversation or (datetime.utcnow() - conversation.created_at) > timedelta(hours=24):
+            conversation = Conversation(user_id=api_key_data.user_id, api_key_id=api_key_data.id, messages=[])
+            db.session.add(conversation)
+
+        # Append user input to conversation history
+        conversation.messages.append({"role": "user", "content": user_input})
+
         # Fetch the extracted text associated with this API key
         context = api_key_data.extracted_text
 
         # Fetch custom prompts for the user
         custom_prompts = CustomPrompt.query.filter_by(user_id=api_key_data.user_id).all()
-
-        # Initialize or retrieve conversation history
-        conversation_history = session.get(f"conversation_history_{api_key}", [])
-
-        # Append user input to conversation history
-        conversation_history.append({"role": "user", "content": user_input})
 
         # Prepare messages for AI, including conversation history and custom prompts
         messages = [
@@ -399,7 +416,7 @@ Custom prompts:
 
 If you need more information to answer accurately, ask the user a clarifying question.""",
             }
-        ] + conversation_history[-5:]  # Include last 5 messages for context
+        ] + conversation.messages[-5:]  # Include last 5 messages for context
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
@@ -407,22 +424,10 @@ If you need more information to answer accurately, ask the user a clarifying que
 
         logger.info(f"Received response from AI service: {ai_response}")
 
-        # Store the interaction
-        interaction = ChatInteraction(
-            user_id=api_key_data.user_id,
-            api_key_id=api_key_data.id,
-            user_input=user_input,
-            ai_response=json.dumps(ai_response)
-        )
-        db.session.add(interaction)
-        db.session.commit()
-
         # Append AI response to conversation history
-        conversation_history.append({"role": "assistant", "content": json.dumps(ai_response)})
-
-        # Save updated conversation history to session
-        session[f"conversation_history_{api_key}"] = conversation_history
-        session.modified = True  # Ensure session is saved
+        conversation.messages.append({"role": "assistant", "content": json.dumps(ai_response)})
+        conversation.updated_at = datetime.utcnow()
+        db.session.commit()
 
         # Record analytics
         end_time = time.time()
@@ -459,6 +464,18 @@ If you need more information to answer accurately, ask the user a clarifying que
         app.logger.info(f"Recorded error analytics for api_key: {api_key}")
 
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
+
+# Add this new function to delete old conversations
+def delete_old_conversations():
+    with app.app_context():
+        cutoff_time = datetime.utcnow() - timedelta(hours=24)
+        old_conversations = Conversation.query.filter(Conversation.updated_at < cutoff_time).all()
+        for conversation in old_conversations:
+            db.session.delete(conversation)
+        db.session.commit()
+        app.logger.info(f"Deleted {len(old_conversations)} old conversations")
+
+# Add this to your main block
 
 # New route for feedback
 @app.route("/feedback", methods=["POST"])
@@ -1030,4 +1047,10 @@ def get_fine_tune_status():
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
+    
+    # Schedule the deletion of old conversations every 24 hours
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(func=delete_old_conversations, trigger="interval", hours=24)
+    scheduler.start()
+    
     app.run(debug=True, port=5410)

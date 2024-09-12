@@ -13,6 +13,7 @@ flask-migrate
 razorpay
 backoff
 scikit-learn
+apscheduler
 
 # Remove or comment out problematic packages
 # together
