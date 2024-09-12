@@ -12,4 +12,7 @@ openai
 flask-migrate
 razorpay
 backoff
-sklearn
+scikit-learn
+
+# Remove or comment out problematic packages
+# together
