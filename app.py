@@ -30,6 +30,9 @@ import time
 from alembic import op
 import sqlalchemy as sa
 from functools import wraps
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.naive_bayes import MultinomialNB
+import numpy as np
 
 # Load environment variables from .env file
 load_dotenv()
@@ -138,6 +141,17 @@ class FineTuneJob(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     training_file = db.Column(db.String(255), nullable=False)
     model_name = db.Column(db.String(255), nullable=True)
+
+
+# Add new model for storing chat interactions
+class ChatInteraction(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    api_key_id = db.Column(db.Integer, db.ForeignKey('api_key.id'), nullable=False)
+    user_input = db.Column(db.Text, nullable=False)
+    ai_response = db.Column(db.Text, nullable=False)
+    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
+    feedback = db.Column(db.Boolean, nullable=True)
 
 
 def extract_text_from_url(url):
@@ -393,6 +407,16 @@ If you need more information to answer accurately, ask the user a clarifying que
 
         logger.info(f"Received response from AI service: {ai_response}")
 
+        # Store the interaction
+        interaction = ChatInteraction(
+            user_id=api_key_data.user_id,
+            api_key_id=api_key_data.id,
+            user_input=user_input,
+            ai_response=json.dumps(ai_response)
+        )
+        db.session.add(interaction)
+        db.session.commit()
+
         # Append AI response to conversation history
         conversation_history.append({"role": "assistant", "content": json.dumps(ai_response)})
 
@@ -436,6 +460,41 @@ If you need more information to answer accurately, ask the user a clarifying que
 
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
+# New route for feedback
+@app.route("/feedback", methods=["POST"])
+def feedback():
+    interaction_id = request.json.get("interaction_id")
+    is_helpful = request.json.get("is_helpful")
+
+    interaction = ChatInteraction.query.get(interaction_id)
+    if interaction:
+        interaction.feedback = is_helpful
+        db.session.commit()
+        return jsonify({"message": "Feedback recorded successfully"}), 200
+    else:
+        return jsonify({"error": "Interaction not found"}), 404
+
+# New function for contextual learning
+def train_contextual_model(user_id):
+    interactions = ChatInteraction.query.filter_by(user_id=user_id, feedback=True).all()
+    
+    if len(interactions) < 10:  # Require at least 10 positive interactions for training
+        return None
+
+    inputs = [interaction.user_input for interaction in interactions]
+    responses = [interaction.ai_response for interaction in interactions]
+
+    vectorizer = TfidfVectorizer(max_features=1000)
+    X = vectorizer.fit_transform(inputs)
+    y = np.array(responses)
+
+    model = MultinomialNB()
+    model.fit(X, y)
+
+    return (vectorizer, model)
+
+
+
 
 # Update the clear_chat_history route
 @app.route("/clear_chat_history", methods=["POST"])
@@ -458,6 +517,19 @@ def clear_chat_history():
 
 
 def get_ai_response(llm_type, messages):
+    user_id = session.get("user_id")
+    
+    if user_id:
+        contextual_model = train_contextual_model(user_id)
+        if contextual_model:
+            vectorizer, model = contextual_model
+            user_input = messages[-1]["content"]
+            X = vectorizer.transform([user_input])
+            predicted_response = model.predict(X)[0]
+            
+            # Use the predicted response as additional context
+            messages.append({"role": "system", "content": f"Consider this relevant information: {predicted_response}"})
+
     if llm_type == "together":
         response = together_client.chat.completions.create(
             model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
