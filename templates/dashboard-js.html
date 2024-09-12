@@ -200,19 +200,66 @@
     }
 
     function sendMessage() {
-        const userInput = document.getElementById('user-input');
-        const message = userInput.value.trim();
-        if (message) {
-            appendMessage('You', message);
-            userInput.value = '';
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value.trim();
+    if (message) {
+        appendMessage('user', message);
+        messageInput.value = '';
+
+        const eventSource = new EventSource(`/ai_chat?message=${encodeURIComponent(message)}`);
+        let aiResponse = '';
+
+        eventSource.onmessage = function(event) {
+            const data = JSON.parse(event.data);
             
-            // Simulate chatbot response (replace this with actual API call in production)
-            setTimeout(() => {
-                const response = "Thank you for your message. Our support team will get back to you shortly.";
-                appendMessage('Chatbot', response);
-            }, 1000);
-        }
+            if (data.text) {
+                aiResponse += data.text;
+                updateAIResponse(aiResponse);
+            }
+            
+            if (data.done) {
+                eventSource.close();
+                appendMessage('ai', aiResponse);
+            }
+            
+            if (data.error) {
+                eventSource.close();
+                appendMessage('ai', data.error);
+            }
+        };
+
+        eventSource.onerror = function(error) {
+            console.error('EventSource failed:', error);
+            eventSource.close();
+            appendMessage('ai', 'Sorry, an error occurred while processing your request.');
+        };
     }
+}
+
+function updateAIResponse(text) {
+    const chatBox = document.getElementById('chat-box');
+    const lastMessage = chatBox.lastElementChild;
+    
+    if (lastMessage && lastMessage.classList.contains('ai-message')) {
+        lastMessage.textContent = text;
+    } else {
+        const aiMessage = document.createElement('div');
+        aiMessage.classList.add('message', 'ai-message');
+        aiMessage.textContent = text;
+        chatBox.appendChild(aiMessage);
+    }
+    
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
+
+function appendMessage(sender, text) {
+    const chatBox = document.getElementById('chat-box');
+    const message = document.createElement('div');
+    message.classList.add('message', `${sender}-message`);
+    message.textContent = text;
+    chatBox.appendChild(message);
+    chatBox.scrollTop = chatBox.scrollHeight;
+}
 
     function appendMessage(sender, message) {
         const chatContainer = document.getElementById('chat-container');
@@ -733,5 +780,52 @@ fetch('/logout', {
 
         // Start the tour
         tour.start();
-        
+        function sendAiChatMessage() {
+    const input = document.getElementById('ai-chat-input');
+    const message = input.value.trim();
+    if (message) {
+        appendMessage('user', message);
+        input.value = '';
+
+        // Send the message to the server
+        fetch('/ai_chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            appendMessage('ai', data.response);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            appendMessage('ai', 'Sorry, there was an error processing your request.');
+        });
+    }
+}
+
+function appendMessage(sender, message) {
+    const chatContainer = document.getElementById('ai-chat-container');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('mb-2', 'p-2', 'rounded-lg', sender === 'user' ? 'bg-blue-100' : 'bg-green-100');
+    messageElement.textContent = `${sender === 'user' ? 'You' : 'AI'}: ${message}`;
+    chatContainer.appendChild(messageElement);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+
+// Add AI Chat to the sidebar menu
+const sidebarMenu = document.querySelector('.sidebar-menu > div');
+const aiChatMenuItem = document.createElement('a');
+aiChatMenuItem.href = '#';
+aiChatMenuItem.className = 'sidebar-item';
+aiChatMenuItem.setAttribute('data-tab', 'ai-chat');
+aiChatMenuItem.innerHTML = `
+    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
+    <span class="sidebar-text">AI Chat</span>
+    <span class="sidebar-tooltip">AI Chat</span>
+`;
+sidebarMenu.insertBefore(aiChatMenuItem, sidebarMenu.children[1]);
+
 </script>

@@ -25,7 +25,7 @@ from flask_limiter.util import get_remote_address
 from flask_cors import CORS
 import uuid
 import re
-from datetime import datetime, timedelta  # Add timedelta here
+from datetime import datetime, timedelta
 import time
 from alembic import op
 import sqlalchemy as sa
@@ -35,10 +35,11 @@ from sklearn.naive_bayes import MultinomialNB
 import numpy as np
 from sqlalchemy import func
 from apscheduler.schedulers.background import BackgroundScheduler
+from flask import jsonify, request
 
-# ... rest of your imports and code
 
-
+# Import models
+from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation
 
 # Load environment variables from .env file
 load_dotenv()
@@ -74,113 +75,19 @@ app.config["SECRET_KEY"] = os.getenv(
     "SECRET_KEY", "fallback_secret_key_for_development"
 )
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///users.db")
-db = SQLAlchemy(app)
+db.init_app(app)
 migrate = Migrate(app, db)
-
-
-# User model
-class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    email = db.Column(db.String(120), unique=True, nullable=False)
-    password = db.Column(db.String(255), nullable=False)
-    api_keys = db.relationship("APIKey", backref="user", lazy=True)
-    custom_prompts = db.relationship("CustomPrompt", backref="user", lazy=True)
-    fine_tune_jobs = db.relationship('FineTuneJob', backref='user', lazy=True)
-
-
-# APIKey model
-class APIKey(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(255), unique=True, nullable=False)
-    llm = db.Column(db.String(50), nullable=False)
-    extracted_text = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    fine_tune_jobs = db.relationship('FineTuneJob', backref='api_key', lazy=True)
-
-
-# CustomPrompt model
-class CustomPrompt(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    prompt = db.Column(db.String(255), nullable=False)
-    response = db.Column(db.Text, nullable=False)
-
-
-# Add this after the CustomPrompt model
-class Analytics(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    api_key = db.Column(db.String(255), nullable=False)
-    endpoint = db.Column(db.String(50), nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    response_time = db.Column(db.Float, nullable=False)
-    status_code = db.Column(db.Integer, nullable=False)
-
-
-# New database models
-class AIModel(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(100), nullable=False)
-    description = db.Column(db.Text, nullable=False)
-    provider = db.Column(db.String(100), nullable=False)
-    api_endpoint = db.Column(db.String(200), nullable=False)
-    documentation_url = db.Column(db.String(200), nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-
-class ModelReview(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
-    model_id = db.Column(db.Integer, db.ForeignKey("ai_model.id"), nullable=False)
-    rating = db.Column(db.Integer, nullable=False)
-    review_text = db.Column(db.Text, nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-
-# Add this new model for fine-tuning
-class FineTuneJob(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    api_key_id = db.Column(db.Integer, db.ForeignKey('api_key.id'), nullable=False)
-    status = db.Column(db.String(50), nullable=False, default='pending')
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-    training_file = db.Column(db.String(255), nullable=False)
-    model_name = db.Column(db.String(255), nullable=True)
-
-
-# Add new model for storing chat interactions
-class ChatInteraction(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    api_key_id = db.Column(db.Integer, db.ForeignKey('api_key.id'), nullable=False)
-    user_input = db.Column(db.Text, nullable=False)
-    ai_response = db.Column(db.Text, nullable=False)
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
-    feedback = db.Column(db.Boolean, nullable=True)
-
-class Conversation(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    api_key_id = db.Column(db.Integer, db.ForeignKey('api_key.id'), nullable=False)
-    messages = db.Column(db.JSON, nullable=False)
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-
 
 def extract_text_from_url(url):
     response = requests.get(url)
     soup = BeautifulSoup(response.text, "html.parser")
     return " ".join([p.text for p in soup.find_all("p")])
 
-
 def generate_integration_code(api_key):
     return f"""
 <!-- AI Chatbot Integration -->
 <script src="https://chatcat-moo7.onrender.com/chatbot.js?api_key={api_key}"></script>
 """
-
 
 @app.route("/chatbot.js", methods=["GET", "POST"])
 def chatbot_script():
@@ -206,7 +113,6 @@ def chatbot_script():
             500,
         )
 
-
 @app.route("/test_db")
 def test_db():
     try:
@@ -216,11 +122,9 @@ def test_db():
         app.logger.error(f"Database connection error: {str(e)}")
         return f"Database connection failed: {str(e)}"
 
-
 @app.route("/")
 def home():
     return render_template("home.html")
-
 
 @app.route("/about")
 def about():
@@ -234,16 +138,13 @@ def docs():
 def projects():
     return render_template("products.html")
 
-
 @app.route("/contact")
 def contact():
     return render_template("contact.html")
 
-
 @app.route("/privacy")
 def privacy():
     return render_template("privacy.html")
-
 
 @app.route("/register", methods=["POST"])
 def register():
@@ -261,7 +162,6 @@ def register():
 
     return jsonify({"message": "User registered successfully"}), 201
 
-
 @app.route("/login", methods=["POST"])
 def login():
     data = request.json
@@ -275,12 +175,10 @@ def login():
 
     return jsonify({"error": "Invalid credentials"}), 401
 
-
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user_id", None)
     return jsonify({"message": "Logged out successfully"}), 200
-
 
 @app.route("/process_url", methods=["POST"])
 @limiter.limit("50 per minute")
@@ -320,7 +218,6 @@ def process_url():
         app.logger.error(f"Error in process_url: {str(e)}", exc_info=True)
         return jsonify({"error": str(e)}), 500
 
-
 def process_ecommerce_response(response):
     # Try to extract product information using regex
     product_info = re.search(
@@ -342,7 +239,6 @@ def process_ecommerce_response(response):
     else:
         # If no product information is found, return the response as is
         return {"response": response}
-
 
 # Modify the chat route to improve memory handling
 @app.route("/chat", methods=["POST"])
@@ -1044,6 +940,82 @@ def get_fine_tune_status():
         'api_key': job.api_key.key,
         'model_name': job.model_name
     } for job in jobs])
+
+@app.route('/ai_chat', methods=['POST'])
+def ai_chat():
+    message = request.json['message']
+    
+    # Fine-tuning context
+    fine_tuning_context = """
+    Features:
+    - API Key Management: Create, view, and delete API keys
+    - Custom Prompts: Add and manage custom prompts for your chatbot
+    - Profile Management: Update email and password
+    - Customer Support Chat: Built-in chat interface for customer support
+    - API Usage Analytics: View charts and recent API calls
+    - Integrations (Coming Soon): Connect with WhatsApp, Telegram, Slack, and Discord
+    - Fine-tuning (Coming Soon): Train custom AI models
+    - Chatbot Creator: Build chatbots by processing website URLs
+    - Subscription Management: View and manage subscription plans
+    - AI Chat: Interact with an AI assistant
+
+    Tutorials:
+    1. Creating a new API key:
+       - Navigate to the "API Keys" tab
+       - Click the "Create New" button
+       - Copy and save your new API key
+
+    2. Setting up a custom prompt:
+       - Go to the "Custom Prompts" tab
+       - Enter your prompt and desired response
+       - Click "Add Custom Prompt"
+
+    3. Analyzing API usage:
+       - Visit the "API Analytics" tab
+       - View the usage chart and recent API calls table
+
+    4. Creating a chatbot:
+       - Open the "Chatbot Creator" tab
+       - Enter a website URL and select an LLM
+       - Click "Process" and wait for the result
+       - Copy the integration code for your website
+
+    FAQs:
+    Q: How do I change my password?
+    A: Go to the "Profile" tab and use the password change form.
+
+    Q: Can I integrate my chatbot with messaging platforms?
+    A: Integration features are coming soon for WhatsApp, Telegram, Slack, and Discord.
+
+    Q: How can I test my API key?
+    A: In the "API Keys" tab, click the "Test" button next to your key to open the test modal.
+
+    Q: What is fine-tuning, and how can I use it?
+    A: Fine-tuning allows you to train custom AI models. This feature is coming soon and will be available in the "Fine-tuning" tab.
+
+    Q: How do I upgrade my subscription?
+    A: Visit the "Subscription" tab to view available plans and upgrade options.
+
+    Q: Is there an AI assistant I can chat with?
+    A: Yes, you can use the AI Chat feature in the "AI Chat" tab to interact with an AI assistant.
+    """
+    
+    try:
+        response = together_client.chat.completions.create(
+            model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            messages=[
+                {"role": "system", "content": f"You are a helpful AI assistant for a software platform. Use the following information to answer questions: {fine_tuning_context}"},
+                {"role": "user", "content": message}
+            ],
+            max_tokens=200,
+            temperature=0.7,
+        )
+        ai_response = response.choices[0].message.content
+    except Exception as e:
+        app.logger.error(f"Error in AI chat: {str(e)}")
+        ai_response = "I'm sorry, but I encountered an error while processing your request."
+
+    return jsonify({'response': ai_response})
 
 
 if __name__ == "__main__":
