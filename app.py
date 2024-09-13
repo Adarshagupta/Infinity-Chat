@@ -36,7 +36,10 @@ import numpy as np
 from sqlalchemy import func
 from apscheduler.schedulers.background import BackgroundScheduler
 from flask import jsonify, request
-
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+import random
 
 # Import models
 from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation
@@ -150,11 +153,74 @@ def privacy():
 def auth():
     return render_template('auth.html')
 
+# SMTP configuration
+SMTP_SERVER = os.getenv("SMTP_SERVER")
+SMTP_PORT = int(os.getenv("SMTP_PORT"))
+SMTP_USERNAME = os.getenv("SMTP_USERNAME")
+SMTP_PASSWORD = os.getenv("SMTP_PASSWORD")
+
+# Store OTPs temporarily (in a real application, use a database)
+otps = {}
+
+def send_otp(email):
+    otp = ''.join([str(random.randint(0, 9)) for _ in range(6)])
+    otps[email] = otp
+
+    message = MIMEMultipart()
+    message["From"] = SMTP_USERNAME
+    message["To"] = email
+    message["Subject"] = "Your OTP for Chatcat Registration"
+    
+    html_body = f"""
+    <html>
+        <body>
+            <h2>Welcome to Chatcat!</h2>
+            <p>Thank you for registering with us. To complete your registration, please use the following One-Time Password (OTP):</p>
+            <h1 style="color: #4CAF50; font-size: 40px;">{otp}</h1>
+            <p>This OTP is valid for 10 minutes. If you didn't request this, please ignore this email.</p>
+            <p>Best regards,<br>The Cartonify Team</p>
+            <hr>
+            <footer style="font-size: 12px; color: #666;">
+                <p>
+                    <a href="https://chatcat.com/terms">Terms and Conditions</a> | 
+                    <a href="https://chatcat.com/privacy">Privacy Policy</a> | 
+                    <a href="https://chatcat.com/docs">Documentation</a>
+                </p>
+            </footer>
+        </body>
+    </html>
+    """
+    
+    message.attach(MIMEText(html_body, "html"))
+
+    with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.send_message(message)
+
+@app.route('/send-otp', methods=['POST'])
+def send_otp_route():
+    email = request.json.get('email')
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    try:
+        send_otp(email)
+        return jsonify({"message": "OTP sent successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error sending OTP: {str(e)}")
+        return jsonify({"error": "Failed to send OTP"}), 500
+
 @app.route("/register", methods=["POST"])
 def register():
-    data = request.json
-    email = data.get("email")
-    password = data.get("password")
+    email = request.json.get("email")
+    password = request.json.get("password")
+    otp = request.json.get("otp")
+
+    if not email or not password or not otp:
+        return jsonify({"error": "Email, password, and OTP are required"}), 400
+
+    if otps.get(email) != otp:
+        return jsonify({"error": "Invalid OTP"}), 400
 
     if User.query.filter_by(email=email).first():
         return jsonify({"error": "Email already registered"}), 400
@@ -164,7 +230,10 @@ def register():
     db.session.add(new_user)
     db.session.commit()
 
-    return jsonify({"message": "User registered successfully"}), 201
+    # Clear the OTP after successful registration
+    del otps[email]
+
+    return jsonify({"message": "Registration successful"}), 201
 
 @app.route("/login", methods=["POST"])
 def login():
@@ -178,6 +247,7 @@ def login():
         return jsonify({"message": "Logged in successfully"}), 200
 
     return jsonify({"error": "Invalid credentials"}), 401
+
 
 @app.route("/logout", methods=["POST"])
 def logout():

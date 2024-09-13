@@ -30,6 +30,21 @@
         nav h1 {
             color: black;
         }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translate3d(0, -100%, 0);
+            }
+            to {
+                opacity: 1;
+                transform: translate3d(0, 0, 0);
+            }
+        }
+
+        .animate-fade-in-down {
+            animation: fadeInDown 0.5s ease-out;
+        }
     </style>
 </head>
 
@@ -68,8 +83,9 @@
                 <input type="email" id="registerEmail" placeholder="Email"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 <input type="password" id="registerPassword" placeholder="Password"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <button onclick="register()"
+                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <input type="text" id="otpInput" placeholder="Enter OTP" class="hidden w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <button onclick="register()" id="registerButton"
                     class="w-full bg-purple-900 text-white py-3 rounded-lg hover:bg-purple-500 transition duration-300">Register</button>
             </div>
             <div class="mt-6 text-center text-gray-600 text-sm">
@@ -84,6 +100,20 @@
             </div>
         </div>
     </main>
+
+    <div id="notification" class="fixed top-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto hidden animate-fade-in-down" role="alert">
+        <div class="flex p-4">
+            <div id="notificationContent" class="ml-3 w-0 flex-1"></div>
+            <div class="ml-4 flex-shrink-0 flex">
+                <button onclick="hideNotification()" class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <span class="sr-only">Close</span>
+                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         let currentUser = null;
@@ -110,18 +140,36 @@
         async function register() {
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
+            const otpInput = document.getElementById('otpInput');
+            const registerButton = document.getElementById('registerButton');
             const loader = document.getElementById('loader');
 
-            loader.classList.remove('hidden');
-
-            try {
-                const response = await axios.post('/register', { email, password });
-                showNotification(response.data.message, 'success');
-                switchTab('login');
-            } catch (error) {
-                showNotification(error.response.data.error, 'error');
-            } finally {
-                loader.classList.add('hidden');
+            if (otpInput.classList.contains('hidden')) {
+                // First step: Send OTP
+                loader.classList.remove('hidden');
+                try {
+                    const response = await axios.post('/send-otp', { email });
+                    showNotification(response.data.message, 'success');
+                    otpInput.classList.remove('hidden');
+                    registerButton.textContent = 'Verify OTP';
+                } catch (error) {
+                    showNotification(error.response.data.error, 'error');
+                } finally {
+                    loader.classList.add('hidden');
+                }
+            } else {
+                // Second step: Verify OTP and complete registration
+                const otp = otpInput.value;
+                loader.classList.remove('hidden');
+                try {
+                    const response = await axios.post('/register', { email, password, otp });
+                    showNotification(response.data.message, 'success');
+                    switchTab('login');
+                } catch (error) {
+                    showNotification(error.response.data.error, 'error');
+                } finally {
+                    loader.classList.add('hidden');
+                }
             }
         }
 
@@ -145,8 +193,38 @@
         }
 
         function showNotification(message, type) {
-            // Implement your notification logic here
-            alert(`${type.toUpperCase()}: ${message}`);
+            const notification = document.getElementById('notification');
+            const notificationContent = document.getElementById('notificationContent');
+            
+            // Set the message
+            notificationContent.textContent = message;
+            
+            // Set the color based on the type
+            if (type === 'success') {
+                notification.classList.add('bg-green-100');
+                notificationContent.classList.add('text-green-900');
+            } else if (type === 'error') {
+                notification.classList.add('bg-red-100');
+                notificationContent.classList.add('text-red-900');
+            }
+            
+            // Show the notification
+            notification.classList.remove('hidden');
+            
+            // Hide the notification after 5 seconds
+            setTimeout(hideNotification, 5000);
+        }
+
+        function hideNotification() {
+            const notification = document.getElementById('notification');
+            const notificationContent = document.getElementById('notificationContent');
+            
+            // Hide the notification
+            notification.classList.add('hidden');
+            
+            // Reset the classes
+            notification.classList.remove('bg-green-100', 'bg-red-100');
+            notificationContent.classList.remove('text-green-900', 'text-red-900');
         }
 
         document.addEventListener('DOMContentLoaded', function () {

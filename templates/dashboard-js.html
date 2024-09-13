@@ -75,15 +75,15 @@
                 .then(response => response.json())
                 .then(data => {
                     if (data.message) {
-                        alert(data.message);
+                        showNotification(data.message);
                         loadFineTuneJobs();
                     } else {
-                        alert('Error: ' + data.error);
+                        showNotification('Error: ' + data.error, 'error');
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
-                    alert('An error occurred while starting the fine-tuning job.');
+                    showNotification('An error occurred while starting the fine-tuning job.', 'error');
                 });
             };
 
@@ -146,13 +146,13 @@
         .then(response => response.json())
         .then(data => {
             if (data.message) {
-                alert(`API test successful! Response: ${JSON.stringify(data.response)}`);
+                showNotification(`API test successful! Response: ${JSON.stringify(data.response)}`);
             } else {
-                alert(`API test failed: ${data.error}`);
+                showNotification(`API test failed: ${data.error}`, 'error');
             }
         })
         .catch((error) => {
-            alert(`Error: ${error}`);
+            showNotification(`Error: ${error}`, 'error');
         });
     }
 
@@ -166,27 +166,60 @@
         document.getElementById('apiResponse').innerHTML = '';
     }
 
-    function sendApiTest() {
+    async function sendApiTest() {
         const apiKey = document.getElementById('apiKeyInput').value;
-        const input = document.getElementById('apiInputText').value;
-        
-        fetch('/test_api_key', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ api_key: apiKey, input: input })
-        })
-        .then(response => response.json())
-        .then(data => {
-            let responseHtml = `<p><strong>Status Code:</strong> ${data.status_code}</p>`;
-            responseHtml += '<p><strong>Headers:</strong></p><pre>' + JSON.stringify(data.headers, null, 2) + '</pre>';
-            responseHtml += '<p><strong>Response:</strong></p><pre>' + JSON.stringify(data.response, null, 2) + '</pre>';
-            document.getElementById('apiResponse').innerHTML = responseHtml;
-        })
-        .catch((error) => {
-            document.getElementById('apiResponse').innerHTML = `<p>Error: ${error}</p>`;
-        });
+        const endpoint = document.getElementById('endpointSelect').value;
+        const method = document.getElementById('methodSelect').value;
+        const headers = JSON.parse(document.getElementById('headersInput').value || '{}');
+        const body = document.getElementById('apiInputText').value;
+
+        // Add the API key to the headers
+        headers['Authorization'] = `Bearer ${apiKey}`;
+
+        const responseDiv = document.getElementById('apiResponse');
+        responseDiv.innerHTML = 'Sending request...';
+
+        try {
+            console.log('Request URL:', endpoint);
+            console.log('Request Method:', method);
+            console.log('Request Headers:', headers);
+            console.log('Request Body:', body);
+
+            const response = await fetch(endpoint, {
+                method: method,
+                headers: headers,
+                body: method === 'POST' ? body : undefined
+            });
+
+            console.log('Response Status:', response.status, response.statusText);
+            console.log('Response Headers:', Object.fromEntries(response.headers));
+
+            const statusLine = `Status: ${response.status} ${response.statusText}\n\n`;
+            
+            let headerText = 'Headers:\n';
+            for (let [key, value] of response.headers) {
+                headerText += `${key}: ${value}\n`;
+            }
+            headerText += '\n';
+
+            const responseText = await response.text();
+
+            const formattedResponse = `${statusLine}${headerText}Response Body:\n${responseText}`;
+            responseDiv.innerHTML = `<pre>${escapeHtml(formattedResponse)}</pre>`;
+        } catch (error) {
+            console.error('Fetch Error:', error);
+            responseDiv.innerHTML = `Error: ${escapeHtml(error.message)}`;
+        }
+    }
+
+    // Helper function to escape HTML special characters
+    function escapeHtml(unsafe) {
+        return unsafe
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
     }
 
     let chatInitialized = false;
@@ -200,66 +233,19 @@
     }
 
     function sendMessage() {
-    const messageInput = document.getElementById('message-input');
-    const message = messageInput.value.trim();
-    if (message) {
-        appendMessage('user', message);
-        messageInput.value = '';
-
-        const eventSource = new EventSource(`/ai_chat?message=${encodeURIComponent(message)}`);
-        let aiResponse = '';
-
-        eventSource.onmessage = function(event) {
-            const data = JSON.parse(event.data);
+        const userInput = document.getElementById('user-input');
+        const message = userInput.value.trim();
+        if (message) {
+            appendMessage('You', message);
+            userInput.value = '';
             
-            if (data.text) {
-                aiResponse += data.text;
-                updateAIResponse(aiResponse);
-            }
-            
-            if (data.done) {
-                eventSource.close();
-                appendMessage('ai', aiResponse);
-            }
-            
-            if (data.error) {
-                eventSource.close();
-                appendMessage('ai', data.error);
-            }
-        };
-
-        eventSource.onerror = function(error) {
-            console.error('EventSource failed:', error);
-            eventSource.close();
-            appendMessage('ai', 'Sorry, an error occurred while processing your request.');
-        };
+            // Simulate chatbot response (replace this with actual API call in production)
+            setTimeout(() => {
+                const response = "Thank you for your message. Our support team will get back to you shortly.";
+                appendMessage('Chatbot', response);
+            }, 1000);
+        }
     }
-}
-
-function updateAIResponse(text) {
-    const chatBox = document.getElementById('chat-box');
-    const lastMessage = chatBox.lastElementChild;
-    
-    if (lastMessage && lastMessage.classList.contains('ai-message')) {
-        lastMessage.textContent = text;
-    } else {
-        const aiMessage = document.createElement('div');
-        aiMessage.classList.add('message', 'ai-message');
-        aiMessage.textContent = text;
-        chatBox.appendChild(aiMessage);
-    }
-    
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
-
-function appendMessage(sender, text) {
-    const chatBox = document.getElementById('chat-box');
-    const message = document.createElement('div');
-    message.classList.add('message', `${sender}-message`);
-    message.textContent = text;
-    chatBox.appendChild(message);
-    chatBox.scrollTop = chatBox.scrollHeight;
-}
 
     function appendMessage(sender, message) {
         const chatContainer = document.getElementById('chat-container');
@@ -413,22 +399,22 @@ function appendMessage(sender, text) {
 
     function integrateWhatsApp() {
         // Implement WhatsApp integration logic here
-        alert('WhatsApp integration coming soon!');
+        showNotification('WhatsApp integration coming soon!');
     }
 
     function integrateTelegram() {
         // Implement Telegram integration logic here
-        alert('Telegram integration coming soon!');
+        showNotification('Telegram integration coming soon!');
     }
 
     function integrateSlack() {
         // Implement Slack integration logic here
-        alert('Slack integration coming soon!');
+        showNotification('Slack integration coming soon!');
     }
 
     function integrateDiscord() {
         // Implement Discord integration logic here
-        alert('Discord integration coming soon!');
+        showNotification('Discord integration coming soon!');
     }
     let currentUser = null;
 let currentApiKey = null;
@@ -473,7 +459,7 @@ async function processUrl() {
         }
 
         await fetchApiKeys();
-        showNotification('URL processed successfully', 'success');
+        showNotification('URL processed successfully');
     } catch (error) {
         console.error('Error:', error);
         let errorMessage = 'An unknown error occurred';
@@ -492,14 +478,35 @@ async function processUrl() {
     }
 }
 
-function showNotification(message, type) {
-    const notification = document.createElement('div');
-    notification.className = `fixed bottom-4 right-4 px-6 py-3 rounded-md text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
-    notification.textContent = message;
-    document.body.appendChild(notification);
+function showNotification(message, type = 'success') {
+    const notification = document.getElementById('notification');
+    const content = document.getElementById('notification-content');
+    const icon = notification.querySelector('svg');
+
+    content.textContent = message;
+
+    // Change icon and color based on type
+    if (type === 'error') {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+        icon.classList.remove('text-green-400');
+        icon.classList.add('text-red-400');
+    } else {
+        icon.innerHTML = '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />';
+        icon.classList.remove('text-red-400');
+        icon.classList.add('text-green-400');
+    }
+
+    notification.style.display = 'block';
+
+    // Hide the notification after 5 seconds
     setTimeout(() => {
-        notification.remove();
-    }, 3000);
+        closeNotification();
+    }, 5000);
+}
+
+function closeNotification() {
+    const notification = document.getElementById('notification');
+    notification.style.display = 'none';
 }
 
 async function fetchApiKeys() {
@@ -543,7 +550,7 @@ function copyToClipboard(text) {
     tempInput.select();
     document.execCommand('copy');
     document.body.removeChild(tempInput);
-    showNotification('API key copied to clipboard', 'success');
+    showNotification('API key copied to clipboard');
 }
 
 function addApiKeyButtons() {
@@ -572,7 +579,7 @@ async function deleteApiKey(apiKey) {
     loader.classList.remove('hidden');
     try {
         const response = await axios.post('/delete_api_key', { api_key: apiKey });
-        showNotification('API key deleted successfully', 'success');
+        showNotification('API key deleted successfully');
         fetchApiKeys();
     } catch (error) {
         console.error('Error deleting API key:', error);
@@ -656,7 +663,7 @@ function refreshApiKeys() {
                 apiKeysList.appendChild(li);
             });
 
-            showNotification('API keys refreshed successfully', 'success');
+            showNotification('API keys refreshed successfully');
         })
         .catch(error => {
             console.error('Error refreshing API keys:', error);
@@ -780,54 +787,4 @@ fetch('/logout', {
 
         // Start the tour
         tour.start();
-        function sendAiChatMessage() {
-    const input = document.getElementById('ai-chat-input');
-    const message = input.value.trim();
-    if (message) {
-        appendMessage('user', message);
-        input.value = '';
-
-        // Send the message to the server
-        fetch('/ai_chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message: message }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            appendMessage('ai', data.response);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            appendMessage('ai', 'Sorry, there was an error processing your request.');
-        });
-    }
-}
-
-function appendMessage(sender, message) {
-    const chatContainer = document.getElementById('ai-chat-container');
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('mb-2', 'p-2', 'rounded-lg', sender === 'user' ? 'bg-blue-100' : 'bg-green-100');
-    messageElement.textContent = `${sender === 'user' ? 'You' : 'AI'}: ${message}`;
-    chatContainer.appendChild(messageElement);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
-
-// Add AI Chat to the sidebar menu
-const sidebarMenu = document.querySelector('.sidebar-menu > div');
-const aiChatMenuItem = document.createElement('a');
-aiChatMenuItem.href = '#';
-aiChatMenuItem.className = 'sidebar-item';
-aiChatMenuItem.setAttribute('data-tab', 'ai-chat');
-aiChatMenuItem.innerHTML = `
-    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-    <span class="sidebar-text">AI Chat</span>
-    <span class="sidebar-tooltip">AI Chat</span>
-`;
-sidebarMenu.insertBefore(aiChatMenuItem, sidebarMenu.children[1]);
-
-
-
 </script>
