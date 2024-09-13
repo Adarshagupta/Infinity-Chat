@@ -1,0 +1,90 @@
+<!-- AI Model Playground Section -->
+<section id="ai-playground" class="mb-8 bg-white p-6 rounded-lg shadow-md">
+    <h2 class="text-2xl font-bold mb-4">AI Model Playground</h2>
+    <div class="space-y-4">
+        <div>
+            <label for="promptInput" class="block text-sm font-medium text-gray-700 mb-1">Enter your prompt</label>
+            <textarea id="promptInput" rows="4" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Enter your prompt here..."></textarea>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="model1Select" class="block text-sm font-medium text-gray-700 mb-1">Model 1</label>
+                <select id="model1Select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="claude-v1">Claude v1</option>
+                    <option value="palm">PaLM</option>
+                </select>
+            </div>
+            <div>
+                <label for="model2Select" class="block text-sm font-medium text-gray-700 mb-1">Model 2</label>
+                <select id="model2Select" class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                    <option value="gpt-4">GPT-4</option>
+                    <option value="claude-v1">Claude v1</option>
+                    <option value="palm">PaLM</option>
+                </select>
+            </div>
+        </div>
+        <button onclick="compareModels()" class="w-full bg-blue-600 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50 transition duration-300">Compare Models</button>
+    </div>
+    <div id="comparisonResult" class="hidden mt-6">
+        <h3 class="text-xl font-semibold mb-3">Comparison Results</h3>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div id="model1Result" class="bg-gray-100 p-4 rounded-md">
+                <h4 id="model1Name" class="text-lg font-semibold mb-2 text-blue-600"></h4>
+                <p id="model1Output" class="text-gray-700"></p>
+            </div>
+            <div id="model2Result" class="bg-gray-100 p-4 rounded-md">
+                <h4 id="model2Name" class="text-lg font-semibold mb-2 text-blue-600"></h4>
+                <p id="model2Output" class="text-gray-700"></p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+function compareModels() {
+    const prompt = document.getElementById('promptInput').value;
+    const model1 = document.getElementById('model1Select').value;
+    const model2 = document.getElementById('model2Select').value;
+
+    if (!prompt) {
+        alert('Please enter a prompt.');
+        return;
+    }
+
+    // Show loading state
+    document.getElementById('comparisonResult').classList.remove('hidden');
+    document.getElementById('model1Output').textContent = 'Loading...';
+    document.getElementById('model2Output').textContent = 'Loading...';
+
+    // Make API calls to get responses from both models
+    Promise.all([
+        getModelResponse(model1, prompt),
+        getModelResponse(model2, prompt)
+    ]).then(([response1, response2]) => {
+        displayComparison(model1, response1, model2, response2);
+    }).catch(error => {
+        console.error('Error comparing models:', error);
+        alert('An error occurred while comparing models.');
+    });
+}
+
+function getModelResponse(model, prompt) {
+    // Replace this with your actual API call to the selected model
+    return new Promise((resolve, reject) => {
+        setTimeout(() => {
+            resolve(`This is a simulated response from ${model} for the prompt: "${prompt}"`);
+        }, 1000);
+    });
+}
+
+function displayComparison(model1, response1, model2, response2) {
+    document.getElementById('model1Name').textContent = model1;
+    document.getElementById('model1Output').textContent = response1;
+    
+    document.getElementById('model2Name').textContent = model2;
+    document.getElementById('model2Output').textContent = response2;
+}
+</script>

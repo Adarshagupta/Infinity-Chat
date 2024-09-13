@@ -150,7 +150,9 @@ def privacy():
     return render_template("privacy.html")
 
 @app.route("/auth")
+@app.route("/login")
 def auth():
+    app.logger.info("Auth route accessed")
     return render_template('auth.html')
 
 # SMTP configuration
