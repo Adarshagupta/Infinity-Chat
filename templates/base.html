@@ -1,0 +1,232 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+        <!-- ... existing code ... -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/shepherd.js/8.0.0/css/shepherd.css">
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/shepherd.js/8.0.0/js/shepherd.min.js"></script>
+        <script>console.log("Shepherd.js loaded:", typeof Shepherd !== 'undefined');</script>
+        <!-- ... existing code ... -->
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 5rem;
+            background-color: white;
+            border-right: 1px solid #e5e7eb;
+            transition: width 0.3s ease;
+            overflow: hidden;
+            z-index: 1000;
+        }
+
+        .sidebar:hover {
+            width: 16rem;
+        }
+
+        .sidebar-menu {
+        }
+
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem; /* Reduced horizontal padding */
+            color: #4b5563;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0.25rem; /* Reduced horizontal margin */
+        }
+
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #ede9fe;
+            color: #7c3aed;
+        }
+
+        .sidebar-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0; /* Prevent icon from shrinking */
+        }
+
+        .sidebar-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            width: 0;
+            overflow: hidden;
+        }
+
+        .sidebar:hover .sidebar-text {
+            opacity: 1;
+            width: auto;
+            margin-left: 1rem;
+        }
+
+        .sidebar-tooltip {
+            position: absolute;
+            left: 4.5rem;
+            padding: 0.5rem;
+            background-color: #1f2937;
+            color: white;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+
+        .sidebar:not(:hover) .sidebar-item:hover .sidebar-tooltip {
+            opacity: 1;
+        }
+
+        .main-content {
+            margin-left: 5rem;
+            padding: 2rem;
+            transition: margin-left 0.3s ease;
+        }
+
+        .sidebar:hover + .main-content {
+            margin-left: 16rem;
+        }
+
+        .sidebar-menu {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: calc(100% - 5rem); /* Adjust based on the logo container height */
+        }
+
+        .sidebar-menu > div {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .subscription-plans {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .plan {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 20px;
+            width: 30%;
+            text-align: center;
+        }
+
+        .plan h4 {
+            margin-top: 0;
+        }
+
+        .plan button {
+            margin-top: 10px;
+        }
+
+        .shepherd-content {
+        background-color: white !important;
+        color: #333 !important;
+        border-radius: 0.5rem !important;
+        border: 2px solid #6f01ff !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+        overflow: hidden !important; /* Hide any overflow */
+    }
+    .shepherd-text {
+        color: #333 !important;
+        font-size: 1rem !important;
+        line-height: 1.5 !important;
+        padding: 1rem !important;
+        max-height: 200px !important; /* Set a max height */
+        overflow-y: auto !important; /* Allow vertical scrolling if needed */
+        scrollbar-width: none !important; /* Firefox */
+        -ms-overflow-style: none !important; /* Internet Explorer 10+ */
+    }
+    .shepherd-text::-webkit-scrollbar {
+        width: 0 !important;
+        height: 0 !important; /* Chrome/Safari/Webkit */
+    }
+
+    .shepherd-title {
+        color: #333 !important;
+        font-size: 1.25rem !important;
+        font-weight: 600 !important;
+    }
+    .shepherd-cancel-icon {
+        color: #333 !important;
+    }
+    .shepherd-footer {
+        padding: 0.75rem 1rem !important;
+    }
+    .shepherd-button {
+        font-size: 0.875rem !important;
+        padding: 0.5rem 1rem !important;
+        border-radius: 0.375rem !important;
+        transition: all 0.2s !important;
+    }
+    .shepherd-button-primary {
+        background-color: #3B82F6 !important;
+        color: white !important;
+    }
+    .shepherd-button-primary:hover {
+        background-color: #2563EB !important;
+    }
+    .shepherd-button-secondary {
+        background-color: #9CA3AF !important;
+        color: white !important;
+    }
+    .shepherd-button-secondary:hover {
+        background-color: #6B7280 !important;
+    }
+    /* Add styles for the arrow */
+    .shepherd-arrow:before {
+        content: '' !important;
+        display: block !important;
+        position: absolute !important;
+        width: 0 !important;
+        height: 0 !important;
+        border-left: 8px solid transparent !important;
+        border-right: 8px solid transparent !important;
+        border-bottom: 8px solid #e5e7eb !important;
+        background-color: #6c02d5;
+    }
+    .shepherd-element[data-popper-placement^='top'] .shepherd-arrow:before {
+        bottom: -8px !important;
+        border-top: 8px solid #e5e7eb !important;
+        border-bottom: none !important;
+    }
+    .shepherd-element[data-popper-placement^='bottom'] .shepherd-arrow:before {
+        top: -8px !important;
+    }
+    .shepherd-element[data-popper-placement^='left'] .shepherd-arrow:before {
+        right: -8px !important;
+        border-left: 8px solid #e5e7eb !important;
+        border-top: 8px solid transparent !important;
+        border-bottom: 8px solid transparent !important;
+    }
+    .shepherd-element[data-popper-placement^='right'] .shepherd-arrow:before {
+        left: -8px !important;
+        border-right: 8px solid #e5e7eb !important;
+        border-top: 8px solid transparent !important;
+        border-bottom: 8px solid transparent !important;
+    }
+    </style>
+</head>

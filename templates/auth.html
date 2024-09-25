@@ -84,7 +84,10 @@
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
                 <input type="password" id="registerPassword" placeholder="Password"
                     class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <input type="text" id="otpInput" placeholder="Enter OTP" class="hidden w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <div id="otpSection" class="hidden">
+                    <input type="text" id="otpInput" placeholder="Enter OTP" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <button onclick="resendOTP()" id="resendOTPButton" class="text-purple-600 hover:text-purple-800 mb-4">Resend OTP</button>
+                </div>
                 <button onclick="register()" id="registerButton"
                     class="w-full bg-purple-900 text-white py-3 rounded-lg hover:bg-purple-500 transition duration-300">Register</button>
             </div>
@@ -141,16 +144,17 @@
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
             const otpInput = document.getElementById('otpInput');
+            const otpSection = document.getElementById('otpSection');
             const registerButton = document.getElementById('registerButton');
             const loader = document.getElementById('loader');
 
-            if (otpInput.classList.contains('hidden')) {
+            if (otpSection.classList.contains('hidden')) {
                 // First step: Send OTP
                 loader.classList.remove('hidden');
                 try {
                     const response = await axios.post('/send-otp', { email });
                     showNotification(response.data.message, 'success');
-                    otpInput.classList.remove('hidden');
+                    otpSection.classList.remove('hidden');
                     registerButton.textContent = 'Verify OTP';
                 } catch (error) {
                     showNotification(error.response.data.error, 'error');
@@ -170,6 +174,26 @@
                 } finally {
                     loader.classList.add('hidden');
                 }
+            }
+        }
+
+        async function resendOTP() {
+            const email = document.getElementById('registerEmail').value;
+            const loader = document.getElementById('loader');
+
+            if (!email) {
+                showNotification('Please enter your email address', 'error');
+                return;
+            }
+
+            loader.classList.remove('hidden');
+            try {
+                const response = await axios.post('/resend-otp', { email });
+                showNotification(response.data.message, 'success');
+            } catch (error) {
+                showNotification(error.response.data.error, 'error');
+            } finally {
+                loader.classList.add('hidden');
             }
         }
 

@@ -922,6 +922,18 @@ def get_ai_model(model_id):
         }
     )
 
+@app.route('/resend-otp', methods=['POST'])
+def resend_otp_route():
+    email = request.json.get('email')
+    if not email:
+        return jsonify({"error": "Email is required"}), 400
+
+    try:
+        send_otp(email)
+        return jsonify({"message": "OTP resent successfully"}), 200
+    except Exception as e:
+        app.logger.error(f"Error resending OTP: {str(e)}")
+        return jsonify({"error": "Failed to resend OTP"}), 500
 
 @app.route("/ai_models/<int:model_id>/review", methods=["POST"])
 def add_model_review(model_id):
