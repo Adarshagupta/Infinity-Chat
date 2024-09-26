@@ -523,7 +523,7 @@ def get_ai_response(llm_type, messages):
 
     if llm_type == "together":
         response = together_client.chat.completions.create(
-            model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
             messages=messages,
             max_tokens=100,
             temperature=2,
@@ -663,7 +663,7 @@ def test_apis():
 
     try:
         response = together_client.chat.completions.create(
-            model="meta-llama/Meta-Llama-3.1-405B-Instruct-Turbo",
+            model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
             messages=[{"role": "user", "content": "Hello"}],
             max_tokens=5,
         )
@@ -1090,7 +1090,7 @@ def ai_chat():
     
     try:
         response = together_client.chat.completions.create(
-            model="meta-llama/Meta-Llama-3.1-70B-Instruct-Turbo",
+            model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
             messages=[
                 {"role": "system", "content": f"You are a helpful AI assistant for a software platform. Use the following information to answer questions: {fine_tuning_context}"},
                 {"role": "user", "content": message}
