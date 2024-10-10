@@ -1105,6 +1105,20 @@ def ai_chat():
 
     return jsonify({'response': ai_response})
 
+# Add this new route
+@app.route('/api/setup_webhook', methods=['POST'])
+@login_required
+def setup_webhook():
+    user_id = session['user_id']
+    webhook_url = request.json.get('webhook_url')
+    
+    if not webhook_url:
+        return jsonify({'error': 'Webhook URL is required'}), 400
+
+    # In a real application, you would store this webhook URL in the database
+    # associated with the user_id
+    # For this example, we'll just return a success message
+    return jsonify({'message': 'Webhook setup successfully', 'webhook_url': webhook_url}), 200
 
 if __name__ == "__main__":
     with app.app_context():

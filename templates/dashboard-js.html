@@ -20,6 +20,8 @@
                     loadAnalytics();
                 } else if (targetTab === 'fine-tuning') {
                     loadFineTuneJobs();
+                } else if (targetTab === 'plugins') {
+                    loadPlugins();
                 }
             });
         });
@@ -635,6 +637,8 @@ function showTab(tabId) {
         loadAnalytics();
     } else if (tabId === 'fine-tuning') {
         loadFineTuneJobs();
+    } else if (tabId === 'plugins') {
+        loadPlugins();
     }
 }
 function refreshApiKeys() {
@@ -787,4 +791,76 @@ fetch('/logout', {
 
         // Start the tour
         tour.start();
+
+function loadPlugins() {
+    const pluginList = document.getElementById('plugin-list');
+    pluginList.innerHTML = ''; // Clear existing plugins
+
+    const plugins = [
+        {
+            id: 'webhook-integration',
+            name: 'Webhook Integration',
+            description: 'Set up webhooks for real-time notifications of chatbot events.',
+            installed: false
+        },
+        // Add more plugins here
+    ];
+
+    plugins.forEach(plugin => {
+        const card = document.createElement('div');
+        card.className = 'bg-white p-4 rounded-lg shadow-md';
+        card.innerHTML = `
+            <h3 class="text-lg font-semibold mb-2">${plugin.name}</h3>
+            <p class="text-gray-600 mb-4">${plugin.description}</p>
+            <button onclick="togglePlugin('${plugin.id}')" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600 transition duration-300">
+                ${plugin.installed ? 'Uninstall' : 'Install'}
+            </button>
+        `;
+        pluginList.appendChild(card);
+    });
+}
+
+function togglePlugin(pluginId) {
+    if (pluginId === 'webhook-integration') {
+        openWebhookModal();
+    } else {
+        console.log(`Toggling plugin: ${pluginId}`);
+        showNotification(`Plugin ${pluginId} has been toggled. This is a placeholder action.`);
+    }
+    loadPlugins(); // Reload plugins to update UI
+}
+
+// Add these functions to the existing script
+function openWebhookModal() {
+    document.getElementById('webhookModal').style.display = 'block';
+}
+
+function closeWebhookModal() {
+    document.getElementById('webhookModal').style.display = 'none';
+}
+
+function setupWebhook() {
+    const webhookUrl = document.getElementById('webhookUrl').value;
+    
+    fetch('/api/setup_webhook', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ webhook_url: webhookUrl }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message) {
+            showNotification(data.message);
+            closeWebhookModal();
+        } else {
+            showNotification(data.error, 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while setting up the webhook', 'error');
+    });
+}
 </script>
