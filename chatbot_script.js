@@ -1,7 +1,7 @@
 (function() {
     async function loadDesign(designNumber) {
         try {
-            const response = await fetch(`https://chatcat-moo7.onrender.com/design${designNumber}.css`);
+            const response = await fetch(`https://infin8t.onrender.com/design${designNumber}.css`);
             const css = await response.text();
             var style = document.createElement('style');
             style.textContent = css;
@@ -125,7 +125,7 @@
 
         window.chatWithAI = async function(input) {
             try {
-                const response = await fetch('https://chatcat-moo7.onrender.com/chat', {
+                const response = await fetch('https://infin8t.onrender.com/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

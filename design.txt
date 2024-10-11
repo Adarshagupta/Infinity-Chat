@@ -442,7 +442,7 @@
 
         window.chatWithAI = async function(input) {
             try {
-                const response = await fetch('https://chatcat-moo7.onrender.com/chat', {
+                const response = await fetch('https://infin8t.onrender.com/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

@@ -91,7 +91,7 @@ def extract_text_from_url(url):
 def generate_integration_code(api_key):
     return f"""
 <!-- AI Chatbot Integration -->
-<script src="https://chatcat-moo7.onrender.com/chatbot.js?api_key={api_key}"></script>
+<script src="https://infin8t.onrender.com/chatbot.js?api_key={api_key}"></script>
 """
 
 @app.route("/chatbot.js", methods=["GET", "POST"])
@@ -851,7 +851,7 @@ def test_api_key():
 
     try:
         response = requests.post(
-            "https://chatcat-moo7.onrender.com/chat",
+            "https://infin8t.onrender.com/chat",
             json={"input": test_input, "api_key": api_key},
             timeout=10,
         )  # Add a timeout
