@@ -40,9 +40,11 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import random
+import shopify
+import woocommerce
 
 # Import models
-from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation
+from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration
 
 # Load environment variables from .env file
 load_dotenv()
@@ -348,6 +350,19 @@ def chat():
         # Fetch custom prompts for the user
         custom_prompts = CustomPrompt.query.filter_by(user_id=api_key_data.user_id).all()
 
+        # Check if the query is related to e-commerce
+        ecommerce_query_types = ['order_status', 'product_info', 'processing_time']
+        query_type = next((qt for qt in ecommerce_query_types if qt in user_input.lower()), None)
+
+        if query_type:
+            # Extract the query parameter (e.g., order number or product ID)
+            query_param = re.search(r'\d+', user_input)
+            if query_param:
+                query_param = query_param.group()
+                ecommerce_data = get_ecommerce_data(api_key_data.user_id, query_type, query_param)
+                if ecommerce_data:
+                    return jsonify({"response": ecommerce_data})
+
         # Prepare messages for AI, including conversation history and custom prompts
         messages = [
             {
@@ -366,24 +381,10 @@ Key guidelines:
 9. Remember and refer to previous parts of the conversation when relevant.
 
 For e-commerce queries:
-- Present product details clearly, including:
-  * Full product name
-  * Price (current and original if on sale)
-  * Brief description highlighting key features
-  * Available sizes, colors, or variations
-  * Current stock status
-- Mention any current promotions, deals, or discounts applicable to the product
-- Suggest 2-3 complementary items that pair well with the product
-- Provide information on shipping options and estimated delivery times
-- Highlight any warranty, return policy, or customer satisfaction guarantees
-- Guide users towards making a purchase decision by asking about their preferences or needs
-- If a product is out of stock, suggest similar alternatives
-- For fashion items, provide styling tips or outfit suggestions
-- For electronics, mention key technical specifications and compatibility information
-- For home goods, discuss dimensions and how the item might fit in different spaces
-- Mention customer reviews or ratings if available, focusing on positive aspects
-- If the user seems close to a purchase decision, guide them on how to add items to their cart or complete the checkout process
-
+- Handle order status inquiries by providing the current status of the order.
+- Provide product information including name, price, and stock availability.
+- Inform about current processing times for orders.
+- If you can't find specific e-commerce information, apologize and offer to connect the user with customer support.
 
 Custom prompts:
 {' '.join([f'- {prompt.prompt}: {prompt.response}' for prompt in custom_prompts])}
@@ -1119,6 +1120,49 @@ def setup_webhook():
     # associated with the user_id
     # For this example, we'll just return a success message
     return jsonify({'message': 'Webhook setup successfully', 'webhook_url': webhook_url}), 200
+
+@app.route('/api/ecommerce/integrate', methods=['POST'])
+@login_required
+def integrate_ecommerce():
+    platform = request.json.get('platform')
+    api_key = request.json.get('api_key')
+    store_url = request.json.get('store_url')
+    
+    if not all([platform, api_key, store_url]):
+        return jsonify({'error': 'All fields are required'}), 400
+    
+    new_integration = EcommerceIntegration(
+        user_id=session['user_id'],
+        platform=platform,
+        api_key=api_key,
+        store_url=store_url
+    )
+    db.session.add(new_integration)
+    db.session.commit()
+    
+    return jsonify({'message': f'{platform} integration successful'}), 201
+
+@app.route('/api/ecommerce/integrations', methods=['GET'])
+@login_required
+def get_ecommerce_integrations():
+    integrations = EcommerceIntegration.query.filter_by(user_id=session['user_id']).all()
+    return jsonify([{
+        'id': i.id,
+        'platform': i.platform,
+        'store_url': i.store_url,
+        'created_at': i.created_at.isoformat()
+    } for i in integrations])
+
+@app.route('/api/ecommerce/integrations/<int:integration_id>', methods=['DELETE'])
+@login_required
+def delete_ecommerce_integration(integration_id):
+    integration = EcommerceIntegration.query.get_or_404(integration_id)
+    if integration.user_id != session['user_id']:
+        return jsonify({'error': 'Unauthorized'}), 403
+    
+    db.session.delete(integration)
+    db.session.commit()
+    return jsonify({'message': 'Integration deleted successfully'}), 200
 
 if __name__ == "__main__":
     with app.app_context():

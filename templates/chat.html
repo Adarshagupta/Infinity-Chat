@@ -1,0 +1,35 @@
+<div class="card mt-4">
+    <div class="card-header">
+        <h3>E-commerce Queries</h3>
+    </div>
+    <div class="card-body">
+        <p>You can ask about:</p>
+        <ul>
+            <li>Order status (e.g., "What's the status of order 12345?")</li>
+            <li>Product information (e.g., "Tell me about product 67890")</li>
+            <li>Processing time (e.g., "What's the current processing time?")</li>
+        </ul>
+    </div>
+</div>
+
+<script>
+    // Add this to your existing chat.js or inline script
+    function handleChatResponse(response) {
+        // Your existing code to display the chat response
+
+        // Check if the response contains e-commerce data
+        if (response.product_data) {
+            var productInfo = `
+                <div class="card mt-2">
+                    <div class="card-body">
+                        <h5 class="card-title">${response.product_data.name}</h5>
+                        <p class="card-text">Price: ${response.product_data.price}</p>
+                        <p class="card-text">Stock: ${response.product_data.stock}</p>
+                        <a href="${response.product_data.url}" target="_blank" class="btn btn-primary">View Product</a>
+                    </div>
+                </div>
+            `;
+            $('#chat-messages').append(productInfo);
+        }
+    }
+</script>

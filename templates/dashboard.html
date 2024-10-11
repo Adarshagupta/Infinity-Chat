@@ -276,11 +276,17 @@
                     <span class="sidebar-tooltip">AI Support</span>
                 </a>
                 <a href="#" class="sidebar-item" data-tab="plugins">
-                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1v-3a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V7a1 1 0 011-1h3a1 1 0 001-1V4z"></path></svg>
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1V7a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V4z"></path></svg>
                     <span class="sidebar-text">Plugins</span>
                     <span class="sidebar-tooltip">Plugins</span>
                 </a>
-
+                <a href="#" class="sidebar-item" data-tab="ecommerce-integrations">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                    </svg>
+                    <span class="sidebar-text">E-commerce</span>
+                    <span class="sidebar-tooltip">E-commerce Integrations</span>
+                </a>
             </div>
             <div>
                 <a href="#" class="sidebar-item" data-tab="subscription">
@@ -327,7 +333,18 @@
     <div class="main-content">
         <div class="flex justify-between items-center mb-8 bg-gradient-to-r from-purple-300 to-indigo-300 p-6 rounded-lg shadow-md">
             <h1 class="text-3xl font-bold text-white">Dashboard</h1>
-            <a href="#" onclick="showTab('chatbot-creator')" class="bg-white text-purple-600 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition duration-300 shadow-lg">Create New</a>
+            <div class="flex space-x-4">
+                <a href="#" onclick="showTab('chatbot-creator')" class="bg-white text-purple-600 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition duration-300 shadow-lg flex items-center">
+                    <span>Create New</span>
+                </a>
+                <a href="https://drive.google.com/uc?export=download&id=1mgOpesaKB2z1gd-D1PxIPIXwi7obOXck" class="bg-white text-purple-600 px-6 py-3 rounded-full font-medium hover:bg-gray-100 transition duration-300 shadow-lg flex items-center">
+                    <svg class="w-6 h-6 mr-2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" fill="#21759b"/>
+                        <path d="M9 11.5l3 3 3-3M12 17.5V8" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span>WordPress Plugin</span>
+                </a>
+            </div>
         </div>
 
         <!-- Tab content -->
@@ -615,6 +632,39 @@
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700">Plugins</h2>
                 <div id="plugin-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <!-- Plugin cards will be dynamically added here -->
+                </div>
+            </section>
+            <!-- Add this new section after the other sections -->
+            <section id="ecommerce-integrations" class="tab-content">
+                <h2 class="text-2xl font-semibold mb-4 text-gray-700">E-commerce Integrations</h2>
+                <div class="mb-8 bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Add New Integration</h3>
+                    <form id="ecommerce-integration-form" class="space-y-4">
+                        <div>
+                            <label for="platform" class="block text-sm font-medium text-gray-700">Platform</label>
+                            <select id="platform" name="platform" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                <option value="shopify">Shopify</option>
+                                <option value="woocommerce">WooCommerce</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="api_key" class="block text-sm font-medium text-gray-700">API Key</label>
+                            <input type="text" id="api_key" name="api_key" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <div>
+                            <label for="store_url" class="block text-sm font-medium text-gray-700">Store URL</label>
+                            <input type="url" id="store_url" name="store_url" required class="mt-1 focus:ring-indigo-500 focus:border-indigo-500 block w-full shadow-sm sm:text-sm border-gray-300 rounded-md">
+                        </div>
+                        <button type="submit" class="w-full bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Add Integration
+                        </button>
+                    </form>
+                </div>
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-xl font-semibold mb-4 text-gray-800">Current Integrations</h3>
+                    <ul id="integrations-list" class="divide-y divide-gray-200">
+                        <!-- Integrations will be dynamically added here -->
+                    </ul>
                 </div>
             </section>
         </div>
