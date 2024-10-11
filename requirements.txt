@@ -25,4 +25,4 @@ psycopg2-binary==2.9.3
 # psycopg2==2.9.3
 
 # Keep the together package
-together==0.1.5
+together
