@@ -72,6 +72,11 @@
         const loader = document.getElementById('loader');
         const apiKeysList = document.getElementById('apiKeysList');
         
+        if (!loader || !apiKeysList) {
+            console.error('Loader or API keys list element not found');
+            return;
+        }
+
         loader.classList.remove('hidden');
         apiKeysList.innerHTML = '<p class="text-gray-500">Loading API keys...</p>';
 
@@ -498,6 +503,12 @@ async function processUrl() {
 function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     const content = document.getElementById('notification-content');
+    
+    if (!notification || !content) {
+        console.error('Notification elements not found');
+        return;
+    }
+
     const icon = notification.querySelector('svg');
 
     content.textContent = message;
@@ -1006,4 +1017,61 @@ window.chatWithAI = async function(input) {
         return {error: `Error: ${error.message || 'Unknown error occurred'}`};
     }
 };
+
+function fetchApiKeys() {
+    fetch('/dashboard/home/user/api_keys')
+        .then(response => response.json())
+        .then(data => {
+            const apiKeysList = document.getElementById('apiKeysList');
+            apiKeysList.innerHTML = '';
+            data.api_keys.forEach(key => {
+                const li = document.createElement('li');
+                li.textContent = `API Key: ${key.key} (LLM: ${key.llm})`;
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = 'Delete';
+                deleteButton.onclick = () => deleteApiKey(key.id);
+                li.appendChild(deleteButton);
+                apiKeysList.appendChild(li);
+            });
+        })
+        .catch(error => console.error('Error fetching API keys:', error));
+}
+
+// ... (existing code)
+
+function createApiKey() {
+    const url = document.getElementById('websiteUrl');
+    const llm = document.getElementById('llmChoice');
+    
+    if (!url || !llm) {
+        console.error('Website URL or LLM choice elements not found');
+        return;
+    }
+
+    fetch('/dashboard/home/process_url', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ url: url.value, llm: llm.value }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        showNotification(`API Key created: ${data.api_key}`);
+        const integrationCode = document.getElementById('integrationCode');
+        if (integrationCode) {
+            integrationCode.value = data.integration_code;
+        }
+        loadApiKeys(); // Refresh the API keys list
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while creating the API key.', 'error');
+    });
+}
+
+// ... (existing code)
+
+// Call loadApiKeys when the page loads
+document.addEventListener('DOMContentLoaded', loadApiKeys);
 </script>
