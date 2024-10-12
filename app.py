@@ -8,6 +8,7 @@ from flask import (
     redirect,
     url_for,
     flash,
+    send_from_directory,
 )
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -63,7 +64,7 @@ together_client = Together(api_key=together_api_key)
 openai_client = OpenAI(api_key=openai_api_key, base_url="https://api.aimlapi.com")
 
 app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
 
 # Add this after creating the Flask app
 app.config['GITHUB_CLIENT_ID'] = os.getenv('GITHUB_CLIENT_ID')
@@ -331,9 +332,12 @@ def process_ecommerce_response(response):
         return {"response": response}
 
 # Modify the chat route to improve memory handling
-@app.route("/dashboard/home/chat", methods=["POST"])
+@app.route("/chat", methods=["POST", "OPTIONS"])
 @limiter.limit("50 per minute")
 def chat():
+    if request.method == "OPTIONS":
+        return jsonify({}), 200
+    
     start_time = time.time()
     try:
         user_input = request.json.get("input")
@@ -1185,6 +1189,10 @@ def github_login():
     session['user_id'] = user.id
     
     return jsonify({"message": "Logged in successfully", "redirect": "/dashboard/home", "email": email}), 200
+
+@app.route("/static/styles.css")
+def serve_css():
+    return send_from_directory('static', 'styles.css')
 
 if __name__ == "__main__":
     with app.app_context():
