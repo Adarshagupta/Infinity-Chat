@@ -23,7 +23,7 @@
                 activeContent.classList.add('active');
 
                 // Update the URL without reloading the page
-                history.pushState(null, '', `/dashboard${section === 'home' ? '' : '/' + section}`);
+                history.pushState(null, '', `/dashboard/${section === 'home' ? 'home' : section}`);
 
                 if (section === 'customer-support') {
                     initializeChat();
@@ -42,12 +42,12 @@
         // Handle browser back/forward buttons
         window.addEventListener('popstate', function() {
             const section = window.location.pathname.split('/').pop();
-            navigateToSection(section);
+            navigateToSection(section === 'home' ? 'home' : section);
         });
 
         // Initial navigation based on current URL
         const initialSection = window.location.pathname.split('/').pop();
-        navigateToSection(initialSection || 'home');  // Changed 'api-keys' to 'home'
+        navigateToSection(initialSection === '' ? 'home' : initialSection);
 
         // Automatically load API keys when the page loads
         refreshApiKeys();
@@ -285,7 +285,7 @@
     }
 
     function loadAnalytics() {
-        fetch('/api/analytics')
+        fetch('/dashboard/home/api/analytics')
             .then(response => response.json())
             .then(data => {
                 displayAnalyticsChart(data);
@@ -647,7 +647,7 @@ function refreshApiKeys() {
     const loader = document.getElementById('loader');
     loader.classList.remove('hidden');
 
-    fetch('/user/api_keys')
+    fetch('/dashboard/home/user/api_keys')
         .then(response => response.json())
         .then(data => {
             console.log('API keys data:', data); // Debug log
@@ -689,7 +689,7 @@ function refreshApiKeys() {
 
 function deleteApiKey(keyId) {
     if (confirm('Are you sure you want to delete this API key?')) {
-        fetch('/delete_api_key', {
+        fetch('/dashboard/home/delete_api_key', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -719,28 +719,28 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function logout() {
-fetch('/logout', {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json',
-    },
-})
-.then(response => response.json())
-.then(data => {
-    if (data.message === "Logged out successfully") {
-        // Clear any user-related data from local storage
-        localStorage.removeItem('currentUser');
-        // Redirect to the login page or home page
-        window.location.href = '/auth';
-    } else {
-        console.error('Logout failed:', data.error);
-        showNotification('Logout failed', 'error');
-    }
-})
-.catch((error) => {
-    console.error('Error:', error);
-    showNotification('An error occurred during logout', 'error');
-});
+    fetch('/logout', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.message === "Logged out successfully") {
+            // Clear any user-related data from local storage
+            localStorage.removeItem('currentUser');
+            // Redirect to the login page or home page
+            window.location.href = data.redirect || '/auth';
+        } else {
+            console.error('Logout failed:', data.error);
+            showNotification('Logout failed', 'error');
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        showNotification('An error occurred during logout', 'error');
+    });
 }
        // Initialize Shepherd.js
        const tour = new Shepherd.Tour({
@@ -1064,7 +1064,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 window.chatWithAI = async function(input) {
     try {
-        const response = await fetch('https://infin8t.onrender.com/chat', {
+        const response = await fetch('/dashboard/home/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

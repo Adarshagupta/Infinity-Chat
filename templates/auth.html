@@ -49,11 +49,11 @@
 </head>
 
 <body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
-    <main class="container mx-auto pt-24 p-6 flex flex-col items-center min-h-screen">
-        <div id="authForms" class="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
-            <div class="flex justify-between items-center mb-6">
+    <main class="container mx-auto pt-12 p-6 flex flex-col items-center min-h-screen">
+        <div id="authForms" class="bg-white rounded-2xl shadow-xl p-10 w-full max-w-2xl">
+            <div class="flex justify-between items-center mb-8">
                 <a href="/" class="text-gray-600 hover:text-gray-800 transition duration-300">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
                         stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -61,39 +61,53 @@
                 </a>
                 <div class="flex justify-center">
                     <img src="https://ph-files.imgix.net/0b9e56aa-e09b-4e62-9dd6-4c3b149463b5.png?auto=compress&codec=mozjpeg&cs=strip&auto=format&w=72&h=72&fit=crop&dpr=1"
-                        alt="Logo" class="w-24 h-24">
+                        alt="Logo" class="w-32 h-32">
                 </div>
-                <div class="w-5"></div> <!-- Spacer to maintain alignment -->
+                <div class="w-6"></div> <!-- Spacer to maintain alignment -->
             </div>
-            <div class="flex mb-6">
+            <div class="flex mb-8">
                 <button id="loginTab" onclick="switchTab('login')"
-                    class="flex-1 py-2 px-4 text-center font-medium focus:outline-none transition duration-300 rounded-l-lg bg-gray-100">Login</button>
+                    class="flex-1 py-3 px-6 text-center font-medium text-lg focus:outline-none transition duration-300 rounded-l-lg bg-gray-100">Login</button>
                 <button id="registerTab" onclick="switchTab('register')"
-                    class="flex-1 py-2 px-4 text-center font-medium focus:outline-none transition duration-300 rounded-r-lg">Register</button>
+                    class="flex-1 py-3 px-6 text-center font-medium text-lg focus:outline-none transition duration-300 rounded-r-lg">Register</button>
             </div>
-            <div id="loginForm">
+            <div id="loginForm" class="space-y-6">
                 <input type="email" id="loginEmail" placeholder="Email"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    class="w-full px-5 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
                 <input type="password" id="loginPassword" placeholder="Password"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-6 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    class="w-full px-5 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
                 <button onclick="login()"
-                    class="w-full bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600">Login</button>
+                    class="w-full bg-purple-500 text-white px-5 py-4 rounded-lg font-medium text-lg hover:bg-purple-600 transition duration-300">Login</button>
+                <div class="relative">
+                    <div class="absolute inset-0 flex items-center">
+                        <div class="w-full border-t border-gray-300"></div>
+                    </div>
+                    <div class="relative flex justify-center text-sm">
+                        <span class="px-2 bg-white text-gray-500">Or</span>
+                    </div>
+                </div>
+                <button onclick="loginWithGitHub()"
+                    class="w-full bg-gray-800 text-white px-5 py-4 rounded-lg font-medium text-lg hover:bg-gray-700 transition duration-300 flex items-center justify-center">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clip-rule="evenodd" />
+                    </svg>
+                    Login with GitHub
+                </button>
             </div>
-            <div id="registerForm" class="hidden">
+            <div id="registerForm" class="hidden space-y-6">
                 <input type="email" id="registerEmail" placeholder="Email"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    class="w-full px-5 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
                 <input type="password" id="registerPassword" placeholder="Password"
-                    class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                <div id="otpSection" class="hidden">
-                    <input type="text" id="otpInput" placeholder="Enter OTP" class="w-full px-4 py-3 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400">
-                    <button onclick="resendOTP()" id="resendOTPButton" class="text-purple-600 hover:text-purple-800 mb-4">Resend OTP</button>
+                    class="w-full px-5 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <div id="otpSection" class="hidden space-y-4">
+                    <input type="text" id="otpInput" placeholder="Enter OTP" class="w-full px-5 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                    <button onclick="resendOTP()" id="resendOTPButton" class="text-purple-600 hover:text-purple-800 text-lg">Resend OTP</button>
                 </div>
                 <button onclick="register()" id="registerButton"
-                    class="w-full bg-purple-900 text-white py-3 rounded-lg hover:bg-purple-500 transition duration-300">Register</button>
+                    class="w-full bg-purple-900 text-white py-4 rounded-lg font-medium text-lg hover:bg-purple-700 transition duration-300">Register</button>
             </div>
-            <div class="mt-6 text-center text-gray-600 text-sm">
-                <a href="#" class="hover:underline">Terms of Use</a> | <a href="#" class="hover:underline">Privacy
-                    Policy</a>
+            <div class="mt-8 text-center text-gray-600 text-base">
+                <a href="#" class="hover:underline">Terms of Use</a> | <a href="#" class="hover:underline">Privacy Policy</a>
             </div>
         </div>
         <div id="loader" class="hidden fixed top-0 left-0 w-full h-full bg-gray-900 bg-opacity-50 flex items-center justify-center">
@@ -104,13 +118,13 @@
         </div>
     </main>
 
-    <div id="notification" class="fixed top-4 right-4 max-w-sm w-full bg-white shadow-lg rounded-lg pointer-events-auto hidden animate-fade-in-down" role="alert">
+    <div id="notification" class="fixed top-4 right-4 max-w-md w-full bg-white shadow-lg rounded-lg pointer-events-auto hidden animate-fade-in-down" role="alert">
         <div class="flex p-4">
-            <div id="notificationContent" class="ml-3 w-0 flex-1"></div>
+            <div id="notificationContent" class="ml-3 w-0 flex-1 text-lg"></div>
             <div class="ml-4 flex-shrink-0 flex">
                 <button onclick="hideNotification()" class="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                     <span class="sr-only">Close</span>
-                    <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                    <svg class="h-6 w-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                         <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
                     </svg>
                 </button>
@@ -197,23 +211,30 @@
             }
         }
 
-        async function login() {
+        function login() {
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
-            const loader = document.getElementById('loader');
 
-            loader.classList.remove('hidden');
-
-            try {
-                const response = await axios.post('/login', { email, password });
-                currentUser = email;
-                localStorage.setItem('currentUser', email);
-                window.location.href = '/api'; // Redirect to /api after login
-            } catch (error) {
-                showNotification(error.response.data.error, 'error');
-            } finally {
-                loader.classList.add('hidden');
-            }
+            fetch('/login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ email, password }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Logged in successfully") {
+                    localStorage.setItem('currentUser', email);
+                    window.location.href = data.redirect || '/dashboard/home';
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                showNotification('An error occurred during login', 'error');
+            });
         }
 
         function showNotification(message, type) {
@@ -251,13 +272,72 @@
             notificationContent.classList.remove('text-green-900', 'text-red-900');
         }
 
+        function loginWithGitHub() {
+            // GitHub OAuth app client ID
+            const clientId = '{{ config.GITHUB_CLIENT_ID }}';
+            // Redirect URI (should match the one set in your GitHub OAuth app)
+            const redirectUri = encodeURIComponent('http://localhost:5000/github-callback');
+            // Random state for security
+            const state = Math.random().toString(36).substring(7);
+            // Store state in localStorage to verify later
+            localStorage.setItem('githubOAuthState', state);
+            // GitHub OAuth authorization URL
+            const githubUrl = `https://github.com/login/oauth/authorize?client_id=${clientId}&redirect_uri=${redirectUri}&state=${state}&scope=user:email`;
+            
+            // Redirect to GitHub for authorization
+            window.location.href = githubUrl;
+        }
+
+        // Function to handle the GitHub callback
+        function handleGitHubCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const storedState = localStorage.getItem('githubOAuthState');
+
+            if (state !== storedState) {
+                showNotification('Invalid state parameter', 'error');
+                return;
+            }
+
+            // Clear the stored state
+            localStorage.removeItem('githubOAuthState');
+
+            // Exchange the code for an access token
+            fetch('/github-login', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ code }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Logged in successfully") {
+                    localStorage.setItem('currentUser', data.email);
+                    window.location.href = data.redirect || '/dashboard/home';
+                } else {
+                    showNotification(data.error, 'error');
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                showNotification('An error occurred during GitHub login', 'error');
+            });
+        }
+
         document.addEventListener('DOMContentLoaded', function () {
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = savedUser;
-                window.location.href = '/api'; // Redirect to /api if already logged in
+                window.location.href = '/dashboard/home';
             } else {
                 currentUser = null;
+                // Check if this is a GitHub callback
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.has('code') && urlParams.has('state')) {
+                    handleGitHubCallback();
+                }
             }
         });
     </script>

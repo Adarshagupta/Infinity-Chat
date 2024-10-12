@@ -65,6 +65,9 @@ openai_client = OpenAI(api_key=openai_api_key, base_url="https://api.aimlapi.com
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
+# Add this after creating the Flask app
+app.config['GITHUB_CLIENT_ID'] = os.getenv('GITHUB_CLIENT_ID')
+
 # Set up logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -258,17 +261,16 @@ def login():
     user = User.query.filter_by(email=email).first()
     if user and check_password_hash(user.password, password):
         session["user_id"] = user.id
-        return jsonify({"message": "Logged in successfully"}), 200
+        return jsonify({"message": "Logged in successfully", "redirect": "/dashboard/home"}), 200
 
     return jsonify({"error": "Invalid credentials"}), 401
-
 
 @app.route("/logout", methods=["POST"])
 def logout():
     session.pop("user_id", None)
-    return jsonify({"message": "Logged out successfully"}), 200
+    return jsonify({"message": "Logged out successfully", "redirect": "/auth"}), 200
 
-@app.route("/process_url", methods=["POST"])
+@app.route("/dashboard/home/process_url", methods=["POST"])
 @limiter.limit("50 per minute")
 def process_url():
     if "user_id" not in session:
@@ -329,7 +331,7 @@ def process_ecommerce_response(response):
         return {"response": response}
 
 # Modify the chat route to improve memory handling
-@app.route("/chat", methods=["POST"])
+@app.route("/dashboard/home/chat", methods=["POST"])
 @limiter.limit("50 per minute")
 def chat():
     start_time = time.time()
@@ -620,7 +622,7 @@ def process_ecommerce_response(response):
         return {"response": response}
 
 
-@app.route("/user/api_keys", methods=["GET"])
+@app.route("/dashboard/home/user/api_keys", methods=["GET"])
 @login_required
 def get_user_api_keys():
     user = User.query.get(session["user_id"])
@@ -630,7 +632,8 @@ def get_user_api_keys():
 
 
 # Add this new route to retrieve analytics data
-@app.route("/api/analytics", methods=["GET"])
+@app.route("/dashboard/home/api/analytics", methods=["GET"])
+@login_required
 def get_analytics():
     user_id = session["user_id"]
     analytics = Analytics.query.filter_by(user_id=user_id).order_by(Analytics.timestamp.desc()).limit(100).all()
@@ -648,7 +651,7 @@ def get_analytics():
     
     return jsonify(analytics_data)
 
-@app.route("/test/insert_analytics", methods=["GET"])
+@app.route("/dashboard/home/test/insert_analytics", methods=["GET"])
 def test_insert_analytics():
     try:
         test_analytics = Analytics(
@@ -694,7 +697,7 @@ def test_apis():
     return f"Together API: {together_result}, OpenAI API: {openai_result}"
 
 
-@app.route("/api/update_profile", methods=["POST"])
+@app.route("/dashboard/home/api/update_profile", methods=["POST"])
 @login_required
 def update_profile():
     user = User.query.get(session["user_id"])
@@ -763,19 +766,16 @@ def profile():
     return render_template("profile.html", user=user)
 
 
-@app.route("/delete_api_key", methods=["POST"])
+@app.route("/dashboard/home/delete_api_key", methods=["POST"])
 @login_required
 def delete_api_key():
-    api_key_id = request.form.get("api_key_id")
+    api_key_id = request.json.get('api_key_id')
     api_key = APIKey.query.get(api_key_id)
     if api_key and api_key.user_id == session["user_id"]:
         db.session.delete(api_key)
         db.session.commit()
-        flash("API key deleted successfully", "success")
-    else:
-        flash("API key not found or you do not have permission to delete it", "error")
-
-    return redirect(url_for("dashboard"))
+        return jsonify({"message": "API key deleted successfully"}), 200
+    return jsonify({"error": "API key not found or you don't have permission to delete it"}), 404
 
 
 @app.route("/add_custom_prompt", methods=["POST"])
@@ -1202,6 +1202,54 @@ def get_team_members(team_id):
 
     members = [{'id': tm.user.id, 'email': tm.user.email, 'role': tm.role} for tm in team.members]
     return jsonify(members)
+
+@app.route('/github-callback')
+def github_callback():
+    return render_template('auth.html')
+
+@app.route('/github-login', methods=['POST'])
+def github_login():
+    code = request.json.get('code')
+    
+    # Exchange code for access token
+    response = requests.post(
+        'https://github.com/login/oauth/access_token',
+        data={
+            'client_id': os.getenv('GITHUB_CLIENT_ID'),
+            'client_secret': os.getenv('GITHUB_CLIENT_SECRET'),
+            'code': code
+        },
+        headers={'Accept': 'application/json'}
+    )
+    
+    access_token = response.json().get('access_token')
+    
+    # Get user info
+    user_response = requests.get(
+        'https://api.github.com/user',
+        headers={'Authorization': f'token {access_token}'}
+    )
+    user_data = user_response.json()
+    
+    # Get user email
+    email_response = requests.get(
+        'https://api.github.com/user/emails',
+        headers={'Authorization': f'token {access_token}'}
+    )
+    email_data = email_response.json()
+    email = next((email['email'] for email in email_data if email['primary']), None)
+    
+    # Check if user exists, if not create a new user
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        user = User(email=email, password=generate_password_hash('github_oauth_user'))
+        db.session.add(user)
+        db.session.commit()
+    
+    # Log in the user
+    session['user_id'] = user.id
+    
+    return jsonify({"message": "Logged in successfully", "redirect": "/dashboard/home", "email": email}), 200
 
 if __name__ == "__main__":
     with app.app_context():
