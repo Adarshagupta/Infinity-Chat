@@ -11,6 +11,8 @@ class User(db.Model):
     api_keys = db.relationship("APIKey", backref="user", lazy=True)
     custom_prompts = db.relationship("CustomPrompt", backref="user", lazy=True)
     fine_tune_jobs = db.relationship('FineTuneJob', backref='user', lazy=True)
+    teams = db.relationship('Team', secondary='team_member', backref=db.backref('users', lazy='dynamic'))
+    team_memberships = db.relationship('TeamMember', back_populates='user')
 
 class APIKey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -89,3 +91,18 @@ class EcommerceIntegration(db.Model):
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
     user = db.relationship('User', backref=db.backref('ecommerce_integrations', lazy=True))
+
+class Team(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(100), unique=True, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    members = db.relationship('TeamMember', back_populates='team')
+
+class TeamMember(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    team_id = db.Column(db.Integer, db.ForeignKey('team.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    role = db.Column(db.String(20), nullable=False)
+    joined_at = db.Column(db.DateTime, default=datetime.utcnow)
+    team = db.relationship('Team', back_populates='members')
+    user = db.relationship('User', back_populates='team_memberships')

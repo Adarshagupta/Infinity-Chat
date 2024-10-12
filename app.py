@@ -42,9 +42,10 @@ from email.mime.multipart import MIMEMultipart
 import random
 import shopify
 import woocommerce
+import sqlalchemy
 
 # Import models
-from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration
+from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember
 
 # Load environment variables from .env file
 load_dotenv()
@@ -82,6 +83,15 @@ app.config["SECRET_KEY"] = os.getenv(
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///users.db")
 db.init_app(app)
 migrate = Migrate(app, db)
+
+# Define the login_required decorator
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "user_id" not in session:
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+    return decorated_function
 
 def extract_text_from_url(url):
     response = requests.get(url)
@@ -121,7 +131,7 @@ def chatbot_script():
 @app.route("/test_db")
 def test_db():
     try:
-        db.session.query("1").from_statement(text("SELECT 1")).all()
+        db.session.query(func.now()).scalar()
         return "Database connection successful"
     except Exception as e:
         app.logger.error(f"Database connection error: {str(e)}")
@@ -611,12 +621,11 @@ def process_ecommerce_response(response):
 
 
 @app.route("/user/api_keys", methods=["GET"])
+@login_required
 def get_user_api_keys():
-    if "user_id" not in session:
-        return jsonify({"error": "User not logged in"}), 401
-
     user = User.query.get(session["user_id"])
-    api_keys = [{"api_key": key.key, "llm": key.llm} for key in user.api_keys]
+    api_keys = [{"id": key.id, "key": key.key, "llm": key.llm} for key in user.api_keys]
+    print("API keys:", api_keys)  # Debug print
     return jsonify({"api_keys": api_keys})
 
 
@@ -685,16 +694,6 @@ def test_apis():
     return f"Together API: {together_result}, OpenAI API: {openai_result}"
 
 
-# Create a decorator to check if the user is logged in
-def login_required(f):
-    @wraps(f)
-    def decorated_function(*args, **kwargs):
-        if "user_id" not in session:
-            return redirect(url_for("login"))
-        return f(*args, **kwargs)
-    return decorated_function
-
-
 @app.route("/api/update_profile", methods=["POST"])
 @login_required
 def update_profile():
@@ -721,40 +720,14 @@ def update_profile():
     db.session.commit()
     return redirect(url_for("dashboard"))
 
-@app.route("/api")
 @app.route("/dashboard")
+@app.route("/dashboard/<section>")
 @login_required
-def dashboard():
+def dashboard_section(section=None):
     user = User.query.get(session["user_id"])
-    api_keys = user.api_keys
-    custom_prompts = user.custom_prompts
+    show_cards = section is None  # Only show cards on the main dashboard page
+    return render_template("dashboard.html", user=user, active_section=section or "home", show_cards=show_cards)
 
-    # Fetch analytics data
-    analytics = (
-        Analytics.query.filter_by(user_id=user.id)
-        .order_by(Analytics.timestamp.desc())
-        .limit(100)
-        .all()
-    )
-
-    analytics_data = [
-        {
-            "api_key": a.api_key,
-            "endpoint": a.endpoint,
-            "timestamp": a.timestamp.isoformat(),
-            "response_time": a.response_time,
-            "status_code": a.status_code,
-        }
-        for a in analytics
-    ]
-
-    return render_template(
-        "dashboard.html",
-        user=user,
-        api_keys=api_keys,
-        custom_prompts=custom_prompts,
-        analytics_data=analytics_data,
-    )
 @app.route('/subscription')
 def subscription_page():
     subscription_plans = {
@@ -1163,6 +1136,72 @@ def delete_ecommerce_integration(integration_id):
     db.session.delete(integration)
     db.session.commit()
     return jsonify({'message': 'Integration deleted successfully'}), 200
+
+@app.route('/api/teams', methods=['GET'])
+@login_required
+def get_teams():
+    user = User.query.get(session['user_id'])
+    teams = [{'id': tm.team.id, 'name': tm.team.name, 'role': tm.role} for tm in user.team_memberships]
+    return jsonify(teams)
+
+@app.route('/api/teams', methods=['POST'])
+@login_required
+def create_team():
+    name = request.json.get('name')
+    if not name:
+        return jsonify({'error': 'Team name is required'}), 400
+
+    user_id = session.get('user_id')
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    team = Team(name=name)
+    db.session.add(team)
+    db.session.flush()
+
+    team_member = TeamMember(team_id=team.id, user_id=user.id, role='admin')
+    db.session.add(team_member)
+
+    db.session.commit()
+
+    return jsonify({'message': 'Team created successfully', 'team_id': team.id}), 201
+
+@app.route('/api/teams/<int:team_id>/invite', methods=['POST'])
+@login_required
+def invite_team_member(team_id):
+    email = request.json.get('email')
+    if not email:
+        return jsonify({'error': 'Email is required'}), 400
+
+    team = Team.query.get(team_id)
+    if not team:
+        return jsonify({'error': 'Team not found'}), 404
+
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    if TeamMember.query.filter_by(team_id=team_id, user_id=user.id).first():
+        return jsonify({'error': 'User is already a member of this team'}), 400
+
+    team_member = TeamMember(team=team, user=user)
+    db.session.add(team_member)
+    db.session.commit()
+
+    # Here you would typically send an email invitation to the user
+    # For now, we'll just return a success message
+    return jsonify({'message': f'Invitation sent to {email}'}), 200
+
+@app.route('/api/teams/<int:team_id>/members', methods=['GET'])
+@login_required
+def get_team_members(team_id):
+    team = Team.query.get(team_id)
+    if not team:
+        return jsonify({'error': 'Team not found'}), 404
+
+    members = [{'id': tm.user.id, 'email': tm.user.email, 'role': tm.role} for tm in team.members]
+    return jsonify(members)
 
 if __name__ == "__main__":
     with app.app_context():
