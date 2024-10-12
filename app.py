@@ -54,11 +54,16 @@ load_dotenv()
 # Get the API keys from the environment variables
 together_api_key = os.getenv("TOGETHER_API_KEY")
 openai_api_key = os.getenv("OPENAI_API_KEY")
+GITHUB_CLIENT_ID = os.getenv('GITHUB_CLIENT_ID')
+GITHUB_CLIENT_SECRET = os.getenv('GITHUB_CLIENT_SECRET')
+GITHUB_REDIRECT_URI = os.getenv('GITHUB_REDIRECT_URI')
 
 if not together_api_key:
     raise ValueError("No Together API key set for TOGETHER_API_KEY")
 if not openai_api_key:
     raise ValueError("No OpenAI API key set for OPENAI_API_KEY")
+if not GITHUB_CLIENT_ID or not GITHUB_CLIENT_SECRET:
+    raise ValueError("GitHub OAuth credentials are not set in the environment variables.")
 
 together_client = Together(api_key=together_api_key)
 openai_client = OpenAI(api_key=openai_api_key, base_url="https://api.aimlapi.com")
@@ -1154,17 +1159,22 @@ def get_team_members(team_id):
 def github_callback():
     return render_template('auth.html')
 
-@app.route('/github-login', methods=['POST'])
+@app.route('/github-login')
 def github_login():
-    code = request.json.get('code')
+    return redirect(f'https://github.com/login/oauth/authorize?client_id={GITHUB_CLIENT_ID}&redirect_uri={GITHUB_REDIRECT_URI}&scope=user:email')
+
+@app.route('/github-callback')
+def github_callback():
+    code = request.args.get('code')
     
     # Exchange code for access token
     response = requests.post(
         'https://github.com/login/oauth/access_token',
         data={
-            'client_id': os.getenv('GITHUB_CLIENT_ID'),
-            'client_secret': os.getenv('GITHUB_CLIENT_SECRET'),
-            'code': code
+            'client_id': GITHUB_CLIENT_ID,
+            'client_secret': GITHUB_CLIENT_SECRET,
+            'code': code,
+            'redirect_uri': GITHUB_REDIRECT_URI
         },
         headers={'Accept': 'application/json'}
     )
@@ -1196,7 +1206,12 @@ def github_login():
     # Log in the user
     session['user_id'] = user.id
     
-    return jsonify({"message": "Logged in successfully", "redirect": "/dashboard/home", "email": email}), 200
+    return redirect(url_for('dashboard'))
+
+# Update your existing github_login route to use the new GITHUB_CLIENT_ID
+@app.route('/github-login', methods=['POST'])
+def github_login_post():
+    return jsonify({"auth_url": f'https://github.com/login/oauth/authorize?client_id={GITHUB_CLIENT_ID}&redirect_uri={GITHUB_REDIRECT_URI}&scope=user:email'})
 
 @app.route("/static/styles.css")
 def serve_css():

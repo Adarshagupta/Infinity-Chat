@@ -1074,4 +1074,23 @@ function createApiKey() {
 
 // Call loadApiKeys when the page loads
 document.addEventListener('DOMContentLoaded', loadApiKeys);
+
+// Add this function to handle GitHub login
+function handleGitHubLogin() {
+    fetch('/github-login', {
+        method: 'POST',
+    })
+    .then(response => response.json())
+    .then(data => {
+        window.location.href = data.auth_url;
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred during GitHub login.', 'error');
+    });
+}
+
+// Make sure you have a button or link in your HTML that calls this function
+// For example:
+// <button onclick="handleGitHubLogin()">Login with GitHub</button>
 </script>

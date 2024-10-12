@@ -27,7 +27,7 @@
                             </svg>
                         </button>
                     </div>
-                    <p class="powered-by">powered by <a href="#">NeuroWeb</a></p>               
+                    <p class="powered-by">powered by <a href="#">Infin8t</a></p>               
                 </div>
             </div>
         `;
