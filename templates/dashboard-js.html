@@ -23,18 +23,16 @@
                 activeContent.classList.add('active');
 
                 // Update the URL without reloading the page
-                history.pushState(null, '', `/dashboard/${section === 'home' ? 'home' : section}`);
+                history.pushState(null, '', `/dashboard/${section}`);
 
                 if (section === 'customer-support') {
                     initializeChat();
                 } else if (section === 'api-analytics') {
                     loadAnalytics();
                 } else if (section === 'fine-tuning') {
-                    initializeFineTuning();
+                    loadFineTuneJobs();
                 } else if (section === 'plugins') {
                     loadPlugins();
-                } else if (section === 'api-keys' || section === 'home') {
-                    refreshApiKeys();  // Load API keys when navigating to the API keys section or home
                 }
             }
         }
@@ -42,53 +40,41 @@
         // Handle browser back/forward buttons
         window.addEventListener('popstate', function() {
             const section = window.location.pathname.split('/').pop();
-            navigateToSection(section === 'home' ? 'home' : section);
+            navigateToSection(section);
         });
 
         // Initial navigation based on current URL
         const initialSection = window.location.pathname.split('/').pop();
-        navigateToSection(initialSection === '' ? 'home' : initialSection);
-
-        // Automatically load API keys when the page loads
-        refreshApiKeys();
+        navigateToSection(initialSection || 'api-keys');  // Default to 'api-keys' if no section in URL
 
         // Populate API keys for fine-tuning
-        function loadApiKeysForFineTuning() {
-            fetch('/dashboard/home/user/api_keys')
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    console.log('API keys data:', data); // Debug log
-                    const apiKeySelect = document.getElementById('api-key-select');
-                    apiKeySelect.innerHTML = ''; // Clear existing options
-                    if (data.api_keys && data.api_keys.length > 0) {
-                        data.api_keys.forEach(key => {
-                            const option = document.createElement('option');
-                            option.value = key.id;
-                            option.textContent = key.key.substring(0, 8) + '...';
-                            apiKeySelect.appendChild(option);
-                        });
-                    } else {
-                        apiKeySelect.innerHTML = '<option value="">No API keys available</option>';
-                    }
-                })
-                .catch(error => {
-                    console.error('Error fetching API keys:', error);
-                    const apiKeySelect = document.getElementById('api-key-select');
-                    apiKeySelect.innerHTML = '<option value="">Error loading API keys</option>';
-                    showNotification('Error loading API keys. Please try again.', 'error');
-                });
-        }
-
-        // Call this function when the fine-tuning tab is opened
-        function initializeFineTuning() {
-            loadApiKeysForFineTuning();
-            // Other initialization for fine-tuning if needed
-        }
+        fetch('/user/api_keys')
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('API keys data:', data); // Log the received data
+                const apiKeySelect = document.getElementById('api-key-select');
+                apiKeySelect.innerHTML = ''; // Clear existing options
+                if (data.api_keys && data.api_keys.length > 0) {
+                    data.api_keys.forEach(key => {
+                        const option = document.createElement('option');
+                        option.value = key.id;
+                        option.textContent = key.key.substring(0, 8) + '...';
+                        apiKeySelect.appendChild(option);
+                    });
+                } else {
+                    apiKeySelect.innerHTML = '<option value="">No API keys available</option>';
+                }
+            })
+            .catch(error => {
+                console.error('Error fetching API keys:', error);
+                const apiKeySelect = document.getElementById('api-key-select');
+                apiKeySelect.innerHTML = '<option value="">Error loading API keys</option>';
+            });
 
         // Handle fine-tuning form submission
         document.getElementById('fine-tune-form').addEventListener('submit', function(e) {
@@ -294,7 +280,7 @@
     }
 
     function loadAnalytics() {
-        fetch('/dashboard/home/api/analytics')
+        fetch('/api/analytics')
             .then(response => response.json())
             .then(data => {
                 displayAnalyticsChart(data);
@@ -480,7 +466,7 @@ async function processUrl() {
             await new Promise(resolve => setTimeout(resolve, 5000));
         }
 
-        const response = await axios.post('/process_url', { url: url, llm: llm });
+        const response = await axios.post('/dashboard/home/process_url', { url: url, llm: llm });
         console.log('Full API response:', response.data);
 
         resultDiv.classList.remove('hidden');
@@ -656,36 +642,29 @@ function refreshApiKeys() {
     const loader = document.getElementById('loader');
     loader.classList.remove('hidden');
 
-    fetch('/dashboard/home/user/api_keys')
+    fetch('/user/api_keys')
         .then(response => response.json())
         .then(data => {
-            console.log('API keys data:', data); // Debug log
             const apiKeysList = document.getElementById('apiKeysList');
             apiKeysList.innerHTML = '';
 
-            if (data.api_keys && Array.isArray(data.api_keys) && data.api_keys.length > 0) {
-                data.api_keys.forEach(key => {
-                    const li = document.createElement('li');
-                    li.className = 'bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105';
-                    li.innerHTML = `
-                        <div class="flex items-center">
-                            <span class="mr-2">${key.key || 'N/A'}</span>
-                            <button onclick="copyToClipboard('${key.key || ''}')" class="text-gray-500 hover:text-gray-700">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div>
-                            <button onclick="openApiTestModal('${key.key || ''}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
-                            <button onclick="deleteApiKey('${key.id || ''}')" class="bg-red-500 text-white px-4 py-2 rounded-md font-medium hover:bg-red-600 transition duration-300">Delete</button>
-                        </div>
-                    `;
-                    apiKeysList.appendChild(li);
-                });
-            } else {
-                apiKeysList.innerHTML = '<li class="text-gray-500">No API keys found.</li>';
-            }
+            data.api_keys.forEach(key => {
+                const li = document.createElement('li');
+                li.className = 'bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105';
+                li.innerHTML = `
+                    <span>${key.key}</span>
+                    <div>
+                        <button onclick="openApiTestModal('${key.key}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
+                        <form action="/delete_api_key" method="post" class="inline">
+                            <input type="hidden" name="api_key_id" value="${key.id}">
+                            <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
+                        </form>
+                    </div>
+                `;
+                apiKeysList.appendChild(li);
+            });
+
+            showNotification('API keys refreshed successfully');
         })
         .catch(error => {
             console.error('Error refreshing API keys:', error);
@@ -695,61 +674,29 @@ function refreshApiKeys() {
             loader.classList.add('hidden');
         });
 }
-
-function deleteApiKey(keyId) {
-    if (confirm('Are you sure you want to delete this API key?')) {
-        fetch('/dashboard/home/delete_api_key', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ api_key_id: keyId }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message) {
-                showNotification(data.message);
-                refreshApiKeys();
-            } else {
-                showNotification(data.error, 'error');
-            }
-        })
-        .catch(error => {
-            console.error('Error deleting API key:', error);
-            showNotification('An error occurred while deleting the API key', 'error');
-        });
-    }
-}
-
-// Call refreshApiKeys when the page loads
-document.addEventListener('DOMContentLoaded', function() {
-    // ... (existing code)
-    refreshApiKeys();
-});
-
 function logout() {
-    fetch('/logout', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.message === "Logged out successfully") {
-            // Clear any user-related data from local storage
-            localStorage.removeItem('currentUser');
-            // Redirect to the login page or home page
-            window.location.href = data.redirect || '/auth';
-        } else {
-            console.error('Logout failed:', data.error);
-            showNotification('Logout failed', 'error');
-        }
-    })
-    .catch((error) => {
-        console.error('Error:', error);
-        showNotification('An error occurred during logout', 'error');
-    });
+fetch('/logout', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+    },
+})
+.then(response => response.json())
+.then(data => {
+    if (data.message === "Logged out successfully") {
+        // Clear any user-related data from local storage
+        localStorage.removeItem('currentUser');
+        // Redirect to the login page or home page
+        window.location.href = '/auth';
+    } else {
+        console.error('Logout failed:', data.error);
+        showNotification('Logout failed', 'error');
+    }
+})
+.catch((error) => {
+    console.error('Error:', error);
+    showNotification('An error occurred during logout', 'error');
+});
 }
        // Initialize Shepherd.js
        const tour = new Shepherd.Tour({
@@ -1073,7 +1020,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
 window.chatWithAI = async function(input) {
     try {
-        const response = await fetch('/dashboard/home/chat', {
+        const response = await fetch('https://infin8t.onrender.com/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

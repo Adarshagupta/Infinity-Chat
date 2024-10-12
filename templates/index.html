@@ -117,7 +117,7 @@
                 await new Promise(resolve => setTimeout(resolve, 5000));
             }
 
-            const response = await axios.post('/process_url', { url: url, llm: llm });
+            const response = await axios.post('/dashboard/home/process_url', { url: url, llm: llm });
             console.log('Full API response:', response.data);
 
             resultDiv.classList.remove('hidden');

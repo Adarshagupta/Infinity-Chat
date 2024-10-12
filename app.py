@@ -270,7 +270,7 @@ def logout():
     session.pop("user_id", None)
     return jsonify({"message": "Logged out successfully", "redirect": "/auth"}), 200
 
-@app.route("/process_url", methods=["POST"])
+@app.route("/dashboard/home/process_url", methods=["POST"])
 @limiter.limit("50 per minute")
 def process_url():
     if "user_id" not in session:
