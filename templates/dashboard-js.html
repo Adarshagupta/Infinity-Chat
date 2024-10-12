@@ -30,7 +30,7 @@
                 } else if (section === 'api-analytics') {
                     loadAnalytics();
                 } else if (section === 'fine-tuning') {
-                    loadFineTuneJobs();
+                    initializeFineTuning();
                 } else if (section === 'plugins') {
                     loadPlugins();
                 } else if (section === 'api-keys' || section === 'home') {
@@ -53,33 +53,42 @@
         refreshApiKeys();
 
         // Populate API keys for fine-tuning
-        fetch('/user/api_keys')
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('API keys data:', data); // Log the received data
-                const apiKeySelect = document.getElementById('api-key-select');
-                apiKeySelect.innerHTML = ''; // Clear existing options
-                if (data.api_keys && data.api_keys.length > 0) {
-                    data.api_keys.forEach(key => {
-                        const option = document.createElement('option');
-                        option.value = key.id;
-                        option.textContent = key.key.substring(0, 8) + '...';
-                        apiKeySelect.appendChild(option);
-                    });
-                } else {
-                    apiKeySelect.innerHTML = '<option value="">No API keys available</option>';
-                }
-            })
-            .catch(error => {
-                console.error('Error fetching API keys:', error);
-                const apiKeySelect = document.getElementById('api-key-select');
-                apiKeySelect.innerHTML = '<option value="">Error loading API keys</option>';
-            });
+        function loadApiKeysForFineTuning() {
+            fetch('/dashboard/home/user/api_keys')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('API keys data:', data); // Debug log
+                    const apiKeySelect = document.getElementById('api-key-select');
+                    apiKeySelect.innerHTML = ''; // Clear existing options
+                    if (data.api_keys && data.api_keys.length > 0) {
+                        data.api_keys.forEach(key => {
+                            const option = document.createElement('option');
+                            option.value = key.id;
+                            option.textContent = key.key.substring(0, 8) + '...';
+                            apiKeySelect.appendChild(option);
+                        });
+                    } else {
+                        apiKeySelect.innerHTML = '<option value="">No API keys available</option>';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching API keys:', error);
+                    const apiKeySelect = document.getElementById('api-key-select');
+                    apiKeySelect.innerHTML = '<option value="">Error loading API keys</option>';
+                    showNotification('Error loading API keys. Please try again.', 'error');
+                });
+        }
+
+        // Call this function when the fine-tuning tab is opened
+        function initializeFineTuning() {
+            loadApiKeysForFineTuning();
+            // Other initialization for fine-tuning if needed
+        }
 
         // Handle fine-tuning form submission
         document.getElementById('fine-tune-form').addEventListener('submit', function(e) {
