@@ -45,10 +45,43 @@
         .animate-fade-in-down {
             animation: fadeInDown 0.5s ease-out;
         }
+
+        /* Add these new styles for the preloader */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s ease-out;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 
 <body class="min-h-screen bg-gradient-to-br from-blue-100 via-purple-100 to-pink-100">
+    <div id="preloader">
+        <div class="spinner"></div>
+    </div>
+
     <main class="container mx-auto pt-12 p-6 flex flex-col items-center min-h-screen">
         <div id="authForms" class="bg-white rounded-2xl shadow-xl p-10 w-full max-w-2xl">
             <div class="flex justify-between items-center mb-8">
@@ -154,6 +187,19 @@
             }
         }
 
+        function showLoader() {
+            document.getElementById('preloader').style.display = 'flex';
+        }
+
+        function hideLoader() {
+            const loader = document.getElementById('preloader');
+            loader.style.opacity = '0';
+            setTimeout(() => {
+                loader.style.display = 'none';
+                loader.style.opacity = '1';
+            }, 300);
+        }
+
         async function register() {
             const email = document.getElementById('registerEmail').value;
             const password = document.getElementById('registerPassword').value;
@@ -164,7 +210,7 @@
 
             if (otpSection.classList.contains('hidden')) {
                 // First step: Send OTP
-                loader.classList.remove('hidden');
+                showLoader();
                 try {
                     const response = await axios.post('/send-otp', { email });
                     showNotification(response.data.message, 'success');
@@ -173,12 +219,12 @@
                 } catch (error) {
                     showNotification(error.response.data.error, 'error');
                 } finally {
-                    loader.classList.add('hidden');
+                    hideLoader();
                 }
             } else {
                 // Second step: Verify OTP and complete registration
                 const otp = otpInput.value;
-                loader.classList.remove('hidden');
+                showLoader();
                 try {
                     const response = await axios.post('/register', { email, password, otp });
                     showNotification(response.data.message, 'success');
@@ -186,7 +232,7 @@
                 } catch (error) {
                     showNotification(error.response.data.error, 'error');
                 } finally {
-                    loader.classList.add('hidden');
+                    hideLoader();
                 }
             }
         }
@@ -200,41 +246,43 @@
                 return;
             }
 
-            loader.classList.remove('hidden');
+            showLoader();
             try {
                 const response = await axios.post('/resend-otp', { email });
                 showNotification(response.data.message, 'success');
             } catch (error) {
                 showNotification(error.response.data.error, 'error');
             } finally {
-                loader.classList.add('hidden');
+                hideLoader();
             }
         }
 
-        function login() {
+        async function login() {
+            showLoader();
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
-            fetch('/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ email, password }),
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch('/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ email, password }),
+                });
+                const data = await response.json();
                 if (data.message === "Logged in successfully") {
                     localStorage.setItem('currentUser', email);
                     window.location.href = data.redirect || '/dashboard/home';
                 } else {
                     showNotification(data.error, 'error');
                 }
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.error('Error:', error);
                 showNotification('An error occurred during login', 'error');
-            });
+            } finally {
+                hideLoader();
+            }
         }
 
         function showNotification(message, type) {
@@ -273,6 +321,7 @@
         }
 
         function loginWithGitHub() {
+            showLoader();
             // GitHub OAuth app client ID
             const clientId = '{{ config.GITHUB_CLIENT_ID }}';
             // Redirect URI (should match the one set in your GitHub OAuth app)
@@ -289,7 +338,8 @@
         }
 
         // Function to handle the GitHub callback
-        function handleGitHubCallback() {
+        async function handleGitHubCallback() {
+            showLoader();
             const urlParams = new URLSearchParams(window.location.search);
             const code = urlParams.get('code');
             const state = urlParams.get('state');
@@ -304,29 +354,31 @@
             localStorage.removeItem('githubOAuthState');
 
             // Exchange the code for an access token
-            fetch('/github-login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ code }),
-            })
-            .then(response => response.json())
-            .then(data => {
+            try {
+                const response = await fetch('/github-login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ code }),
+                });
+                const data = await response.json();
                 if (data.message === "Logged in successfully") {
                     localStorage.setItem('currentUser', data.email);
                     window.location.href = data.redirect || '/dashboard/home';
                 } else {
                     showNotification(data.error, 'error');
                 }
-            })
-            .catch((error) => {
+            } catch (error) {
                 console.error('Error:', error);
                 showNotification('An error occurred during GitHub login', 'error');
-            });
+            } finally {
+                hideLoader();
+            }
         }
 
         document.addEventListener('DOMContentLoaded', function () {
+            hideLoader();
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
                 currentUser = savedUser;
@@ -340,6 +392,9 @@
                 }
             }
         });
+
+        // Keep this as a fallback
+        setTimeout(hideLoader, 5000);
     </script>
 </body>
 
