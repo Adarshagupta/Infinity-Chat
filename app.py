@@ -1005,78 +1005,13 @@ def get_fine_tune_status():
 
 @app.route('/ai_chat', methods=['POST'])
 def ai_chat():
-    message = request.json['message']
+    data = request.json
+    user_message = data.get('message')
     
-    # Fine-tuning context
-    fine_tuning_context = """
-    Features:
-    - API Key Management: Create, view, and delete API keys
-    - Custom Prompts: Add and manage custom prompts for your chatbot
-    - Profile Management: Update email and password
-    - Customer Support Chat: Built-in chat interface for customer support
-    - API Usage Analytics: View charts and recent API calls
-    - Integrations (Coming Soon): Connect with WhatsApp, Telegram, Slack, and Discord
-    - Fine-tuning (Coming Soon): Train custom AI models
-    - Chatbot Creator: Build chatbots by processing website URLs
-    - Subscription Management: View and manage subscription plans
-    - AI Chat: Interact with an AI assistant
-
-    Tutorials:
-    1. Creating a new API key:
-       - Navigate to the "API Keys" tab
-       - Click the "Create New" button
-       - Copy and save your new API key
-
-    2. Setting up a custom prompt:
-       - Go to the "Custom Prompts" tab
-       - Enter your prompt and desired response
-       - Click "Add Custom Prompt"
-
-    3. Analyzing API usage:
-       - Visit the "API Analytics" tab
-       - View the usage chart and recent API calls table
-
-    4. Creating a chatbot:
-       - Open the "Chatbot Creator" tab
-       - Enter a website URL and select an LLM
-       - Click "Process" and wait for the result
-       - Copy the integration code for your website
-
-    FAQs:
-    Q: How do I change my password?
-    A: Go to the "Profile" tab and use the password change form.
-
-    Q: Can I integrate my chatbot with messaging platforms?
-    A: Integration features are coming soon for WhatsApp, Telegram, Slack, and Discord.
-
-    Q: How can I test my API key?
-    A: In the "API Keys" tab, click the "Test" button next to your key to open the test modal.
-
-    Q: What is fine-tuning, and how can I use it?
-    A: Fine-tuning allows you to train custom AI models. This feature is coming soon and will be available in the "Fine-tuning" tab.
-
-    Q: How do I upgrade my subscription?
-    A: Visit the "Subscription" tab to view available plans and upgrade options.
-
-    Q: Is there an AI assistant I can chat with?
-    A: Yes, you can use the AI Chat feature in the "AI Chat" tab to interact with an AI assistant.
-    """
+    # Here you would typically process the user_message and generate a response
+    # For now, we'll just echo the message back
+    ai_response = f"You said: {user_message}"
     
-    try:
-        response = together_client.chat.completions.create(
-            model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
-            messages=[
-                {"role": "system", "content": f"You are a helpful AI assistant for a software platform. Use the following information to answer questions: {fine_tuning_context}"},
-                {"role": "user", "content": message}
-            ],
-            max_tokens=200,
-            temperature=0.7,
-        )
-        ai_response = response.choices[0].message.content
-    except Exception as e:
-        app.logger.error(f"Error in AI chat: {str(e)}")
-        ai_response = "I'm sorry, but I encountered an error while processing your request."
-
     return jsonify({'response': ai_response})
 
 # Add this new route

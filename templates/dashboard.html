@@ -277,11 +277,6 @@
                     <span class="sidebar-text">Custom Prompts</span>
                     <span class="sidebar-tooltip">Custom Prompts</span>
                 </a>
-                <a href="{{ url_for('dashboard_section', section='ai-chat') }}" class="sidebar-item" data-tab="ai-chat">
-                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path></svg>
-                    <span class="sidebar-text">AI Support</span>
-                    <span class="sidebar-tooltip">AI Support</span>
-                </a>
                 <a href="{{ url_for('dashboard_section', section='plugins') }}" class="sidebar-item" data-tab="plugins">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 4a2 2 0 114 0v1a1 1 0 001 1h3a1 1 0 011 1v3a1 1 0 01-1 1h-1a2 2 0 100 4h1a1 1 0 011 1v3a1 1 0 01-1 1h-3a1 1 0 01-1-1v-1a2 2 0 10-4 0v1a1 1 0 01-1 1H7a1 1 0 01-1-1V7a1 1 0 00-1-1H4a2 2 0 110-4h1a1 1 0 001-1V4z"></path></svg>
                     <span class="sidebar-text">Plugins</span>
@@ -313,6 +308,8 @@
                     <span class="sidebar-text">Profile</span>
                     <span class="sidebar-tooltip">Profile</span>
                 </a>
+                            <!-- Add this just before the closing </nav> tag in the sidebar -->
+   
             </div>
         </nav>
     </div>
@@ -837,6 +834,87 @@
             <p class="text-gray-700 text-lg font-semibold">Processing...</p>
         </div>
     </div>
+    <!-- Add this just before the closing </body> tag, outside of any existing sections or divs -->
+
+<!-- Floating AI Support Button -->
+<div id="ai-support-button" class="fixed bottom-6 right-6 z-50">
+    <button onclick="toggleAiChat()" class="bg-gradient-to-r from-purple-400 to-pink-300 hover:from-purple-450 hover:to-pink-350 text-white font-bold py-4 px-6 rounded-full shadow-lg flex items-center transition duration-300 transform hover:scale-105">
+        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+        </svg>
+        AI Support
+    </button>
+</div>
+
+<!-- Floating AI Chat Window -->
+<div id="ai-chat-window" class="fixed bottom-24 right-6 w-96 bg-white rounded-lg shadow-xl overflow-hidden transition-all duration-300 transform translate-y-full opacity-0 invisible z-50">
+    <div class="bg-gradient-to-r from-purple-500 to-pink-500 text-white p-4 flex justify-between items-center">
+        <h3 class="text-lg font-semibold">AI Support Chat</h3>
+        <button onclick="toggleAiChat()" class="text-white hover:text-gray-200">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path>
+            </svg>
+        </button>
+    </div>
+    <div id="ai-chat-container" class="h-80 overflow-y-auto p-4"></div>
+    <div class="border-t p-4">
+        <div class="flex items-center">
+            <input type="text" id="ai-chat-input" class="flex-grow px-3 py-2 border rounded-l-md focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Type your message...">
+            <button onclick="sendAiChatMessage()" class="bg-gradient-to-r from-purple-500 to-pink-500 text-white px-4 py-2 rounded-r-md hover:from-purple-600 hover:to-pink-600 transition duration-300">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAiChat() {
+    const chatWindow = document.getElementById('ai-chat-window');
+    chatWindow.classList.toggle('translate-y-full');
+    chatWindow.classList.toggle('opacity-0');
+    chatWindow.classList.toggle('invisible');
+}
+
+function sendAiChatMessage() {
+    const input = document.getElementById('ai-chat-input');
+    const message = input.value.trim();
+    if (message) {
+        addMessageToChat('user', message);
+        input.value = '';
+        
+        fetch('/ai_chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            addMessageToChat('ai', data.response);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            addMessageToChat('ai', 'Sorry, there was an error processing your request.');
+        });
+    }
+}
+
+function addMessageToChat(sender, message) {
+    const chatContainer = document.getElementById('ai-chat-container');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('mb-4', sender === 'user' ? 'text-right' : 'text-left');
+    messageElement.innerHTML = `
+        <div class="inline-block p-2 rounded-lg ${sender === 'user' ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800'}">
+            ${message}
+        </div>
+    `;
+    chatContainer.appendChild(messageElement);
+    chatContainer.scrollTop = chatContainer.scrollHeight;
+}
+</script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns"></script>
