@@ -426,7 +426,7 @@
 
         window.chatWithAI = async function(input) {
             try {
-                const response = await fetch('https://infin8t.onrender.com/chat', {
+                const response = await fetch('https://infin8t.tech/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

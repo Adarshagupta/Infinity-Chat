@@ -24,7 +24,7 @@ function wc_chatbot_settings_page() {
         <div class="notice notice-info">
             <p><strong>How to get your API key:</strong></p>
             <ol>
-                <li>Go to <a href="https://infin8t.onrender.com/" target="_blank">https://infin8t.onrender.com/</a></li>
+                <li>Go to <a href="https://infin8t.tech/" target="_blank">https://infin8t.tech/</a></li>
                 <li>Login or register for an account (it's free)</li>
                 <li>Create a new chatbot</li>
                 <li>Copy the generated API key</li>
@@ -61,7 +61,7 @@ function wc_chatbot_api_key_callback() {
 function wc_chatbot_add_script() {
     $api_key = get_option('wc_chatbot_api_key');
     if (!empty($api_key)) {
-        echo "<script src='https://infin8t.onrender.com/chatbot.js?api_key={$api_key}'></script>";
+        echo "<script src='https://infin8t.tech/chatbot.js?api_key={$api_key}'></script>";
     }
 }
 add_action('wp_footer', 'wc_chatbot_add_script');

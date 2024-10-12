@@ -25,7 +25,7 @@ AI Chatbot by infin8t is a powerful WordPress plugin that integrates an AI-power
 
 1. After activation, go to Settings > AI Chatbot in your WordPress admin panel.
 2. You will need an API key from infin8t to use this plugin. If you don't have one:
-   - Visit [https://infin8t.onrender.com/](https://infin8t.onrender.com/)
+   - Visit [https://infin8t.tech/](https://infin8t.tech/)
    - Create an account or log in
    - Create a new chatbot
    - Copy the generated API key
@@ -37,7 +37,7 @@ Once configured, the chatbot will automatically appear on your WooCommerce store
 
 ## Support
 
-For support, feature requests, or bug reports, please visit our [support page](https://infin8t.onrender.com/support) or contact us at support@infin8t.com.
+For support, feature requests, or bug reports, please visit our [support page](https://infin8t.tech/support) or contact us at support@infin8t.com.
 
 ## Frequently Asked Questions
 
@@ -59,4 +59,4 @@ A: The plugin is designed to work with most WordPress themes, especially those t
 
 infin8t is a leading provider of AI-powered solutions for e-commerce. Our mission is to help online stores provide exceptional customer experiences through intelligent automation.
 
-For more information, visit [https://infin8t.onrender.com/](https://infin8t.onrender.com/)
+For more information, visit [https://infin8t.tech/](https://infin8t.tech/)

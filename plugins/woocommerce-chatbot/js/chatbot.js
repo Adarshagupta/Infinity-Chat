@@ -19,7 +19,7 @@ jQuery(document).ready(function($) {
 
             // Send message to the Chatcat API
             $.ajax({
-                url: 'https://infin8t.onrender.com/chat',
+                url: 'https://infin8t.tech/chat',
                 method: 'POST',
                 data: JSON.stringify({
                     input: message,
