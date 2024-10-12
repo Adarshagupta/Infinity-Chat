@@ -31,12 +31,14 @@ class CustomPrompt(db.Model):
 
 class Analytics(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     api_key = db.Column(db.String(255), nullable=False)
-    endpoint = db.Column(db.String(50), nullable=False)
+    endpoint = db.Column(db.String(255), nullable=False)
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
     response_time = db.Column(db.Float, nullable=False)
     status_code = db.Column(db.Integer, nullable=False)
+
+    user = db.relationship('User', backref=db.backref('analytics', lazy=True))
 
 class AIModel(db.Model):
     id = db.Column(db.Integer, primary_key=True)

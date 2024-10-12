@@ -44,6 +44,7 @@ import random
 import shopify
 import woocommerce
 import sqlalchemy
+from collections import defaultdict
 
 # Import models
 from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember
@@ -421,38 +422,31 @@ If you need more information to answer accurately, ask the user a clarifying que
         db.session.commit()
 
         # Record analytics
-        end_time = time.time()
-        response_time = end_time - start_time
         analytics = Analytics(
             user_id=api_key_data.user_id,
             api_key=api_key,
             endpoint="/chat",
-            response_time=response_time,
+            response_time=time.time() - start_time,
             status_code=200,
         )
         db.session.add(analytics)
         db.session.commit()
-        app.logger.info(
-            f"Recorded analytics for user_id: {api_key_data.user_id}, api_key: {api_key}"
-        )
+        app.logger.info(f"Analytics recorded for user_id: {api_key_data.user_id}, api_key: {api_key}")
 
         return jsonify(ai_response)
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
 
         # Record analytics for error case
-        end_time = time.time()
-        response_time = end_time - start_time
         analytics = Analytics(
             user_id=api_key_data.user_id if "api_key_data" in locals() else None,
             api_key=api_key if "api_key" in locals() else None,
             endpoint="/chat",
-            response_time=response_time,
+            response_time=time.time() - start_time,
             status_code=500,
         )
         db.session.add(analytics)
         db.session.commit()
-        app.logger.info(f"Recorded error analytics for api_key: {api_key}")
 
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
@@ -638,39 +632,58 @@ def get_user_api_keys():
 @app.route("/dashboard/home/api/analytics", methods=["GET"])
 @login_required
 def get_analytics():
-    user_id = session["user_id"]
-    analytics = Analytics.query.filter_by(user_id=user_id).order_by(Analytics.timestamp.desc()).limit(100).all()
-    
-    analytics_data = [
-        {
-            "api_key": a.api_key,
-            "endpoint": a.endpoint,
-            "timestamp": a.timestamp.isoformat(),
-            "response_time": a.response_time,
-            "status_code": a.status_code,
-        }
-        for a in analytics
-    ]
-    
-    return jsonify(analytics_data)
-
-@app.route("/dashboard/home/test/insert_analytics", methods=["GET"])
-def test_insert_analytics():
     try:
-        test_analytics = Analytics(
-            user_id=1,  # Replace with a valid user_id
-            api_key="test_key",
-            endpoint="/test",
-            response_time=0.5,
-            status_code=200,
-        )
-        db.session.add(test_analytics)
-        db.session.commit()
-        return jsonify({"message": "Test analytics data inserted successfully"}), 200
-    except Exception as e:
-        app.logger.error(f"Error in test_insert_analytics: {str(e)}", exc_info=True)
-        return jsonify({"error": "An error occurred while inserting test data"}), 500
+        user_id = session["user_id"]
+        app.logger.info(f"Fetching analytics for user_id: {user_id}")
+        
+        # Get all analytics data for the user
+        analytics = Analytics.query.filter_by(user_id=user_id).order_by(Analytics.timestamp.desc()).all()
+        
+        app.logger.info(f"Found {len(analytics)} analytics entries for user_id: {user_id}")
 
+        if not analytics:
+            return jsonify({"message": "No analytics data available", "analytics": [], "graph_data": [], "total_calls": 0, "avg_response_time": 0}), 200
+
+        # Prepare data for charts
+        daily_usage = defaultdict(int)
+        response_times = []
+        
+        for entry in analytics:
+            date = entry.timestamp.date()
+            daily_usage[date] += 1
+            response_times.append(entry.response_time)
+        
+        graph_data = [
+            {"date": date.isoformat(), "count": count}
+            for date, count in sorted(daily_usage.items())
+        ]
+        
+        avg_response_time = sum(response_times) / len(response_times) if response_times else 0
+        
+        analytics_data = [
+            {
+                "api_key": a.api_key,
+                "endpoint": a.endpoint,
+                "timestamp": a.timestamp.isoformat(),
+                "response_time": a.response_time,
+                "status_code": a.status_code,
+            }
+            for a in analytics[:100]  # Limit to last 100 entries for the table
+        ]
+        
+        result = {
+            "analytics": analytics_data,
+            "graph_data": graph_data,
+            "avg_response_time": avg_response_time,
+            "total_calls": len(analytics)
+        }
+        
+        app.logger.info(f"Returning analytics data: {result}")
+        return jsonify(result)
+
+    except Exception as e:
+        app.logger.error(f"Error in get_analytics: {str(e)}", exc_info=True)
+        return jsonify({"error": "An error occurred while fetching analytics data"}), 500
 
 @app.route("/test_apis")
 def test_apis():
@@ -731,8 +744,8 @@ def update_profile():
 @login_required
 def dashboard_section(section=None):
     user = User.query.get(session["user_id"])
-    show_cards = section is None  # Only show cards on the main dashboard page
-    return render_template("dashboard.html", user=user, active_section=section or "home", show_cards=show_cards)
+    custom_prompts = CustomPrompt.query.filter_by(user_id=user.id).all()
+    return render_template("dashboard.html", user=user, active_section=section or "home", custom_prompts=custom_prompts)
 
 @app.route('/subscription')
 def subscription_page():
@@ -766,7 +779,6 @@ def profile():
         flash("Profile updated successfully", "success")
         return redirect(url_for("profile"))
 
-    return render_template("profile.html", user=user)
 
 
 @app.route("/dashboard/home/delete_api_key", methods=["POST"])
@@ -805,7 +817,7 @@ def add_custom_prompt():
     else:
         flash("Prompt and response are required", "error")
 
-    return redirect(url_for("dashboard"))
+    return redirect(url_for("dashboard_section", section="custom-prompts"))
 
 
 @app.route("/change_password", methods=["POST"])
@@ -895,7 +907,7 @@ def get_ai_model(model_id):
             "description": model.description,
             "provider": model.provider,
             "documentation_url": model.documentation_url,
-            "average_rating": get_average_rating(model_id),
+            "average_rating": get_average_rating(model.id),
             "reviews": [
                 {
                     "user_id": review.user_id,
@@ -1201,6 +1213,59 @@ def github_login():
 @app.route("/static/styles.css")
 def serve_css():
     return send_from_directory('static', 'styles.css')
+
+# Add these imports if they're not already present
+from flask import request, jsonify
+from datetime import datetime
+
+# Add this global variable to store API usage data
+api_usage = {}
+
+# Add this decorator to the routes that you want to track
+def track_api_usage(func):
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        endpoint = request.endpoint
+        if endpoint not in api_usage:
+            api_usage[endpoint] = []
+        api_usage[endpoint].append(datetime.now())
+        return func(*args, **kwargs)
+    return wrapper
+
+# Add this new route to retrieve API usage data
+@app.route('/api/analytics', methods=['GET'])
+def get_api_analytics():
+    analytics = {}
+    for endpoint, calls in api_usage.items():
+        analytics[endpoint] = len(calls)
+    return jsonify(analytics)
+
+# Apply the decorator to the API routes you want to track
+@app.route('/api/some_endpoint', methods=['POST'])
+@track_api_usage
+def some_api_endpoint():
+    # Your existing code here
+    pass
+
+# Repeat for other API endpoints you want to track
+
+# Add this route temporarily to generate test data
+@app.route("/generate_test_analytics")
+@login_required
+def generate_test_analytics():
+    user_id = session["user_id"]
+    for i in range(50):  # Generate 50 test entries
+        analytics = Analytics(
+            user_id=user_id,
+            api_key="test_key",
+            endpoint="/test",
+            response_time=random.uniform(0.1, 2.0),
+            status_code=random.choice([200, 200, 200, 400, 500]),
+            timestamp=datetime.utcnow() - timedelta(days=random.randint(0, 29))
+        )
+        db.session.add(analytics)
+    db.session.commit()
+    return "Test analytics data generated"
 
 if __name__ == "__main__":
     with app.app_context():

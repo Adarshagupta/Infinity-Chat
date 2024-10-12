@@ -34,7 +34,11 @@
                 } else if (section === 'plugins') {
                     loadPlugins();
                 } else if (section === 'api-keys') {
-                    loadApiKeys();  // Refresh API keys when visiting the api-keys section
+                    loadApiKeys();
+                } else if (section === 'custom-prompts') {
+                    // You can add any specific functionality for custom prompts here if needed
+                } else if (section === 'team-management') {
+                    loadTeams();
                 }
             }
         }
@@ -65,6 +69,12 @@
         const refreshButton = document.querySelector('button[onclick="refreshApiKeys()"]');
         if (refreshButton) {
             refreshButton.addEventListener('click', loadApiKeys);
+        }
+
+        // Add event listener for the API Analytics tab
+        const apiAnalyticsTab = document.querySelector('.sidebar-item[data-tab="api-analytics"]');
+        if (apiAnalyticsTab) {
+            apiAnalyticsTab.addEventListener('click', loadAnalytics);
         }
     });
 
@@ -279,143 +289,72 @@
     }
 
     function loadAnalytics() {
-        fetch('/api/analytics')
+        console.log('Loading analytics...');
+        fetch('/dashboard/home/api/analytics')
             .then(response => response.json())
             .then(data => {
-                displayAnalyticsChart(data);
-                displayAnalyticsTable(data);
+                console.log('Received analytics data:', data);
+                if (data.error) {
+                    console.error('Error fetching analytics:', data.error);
+                    return;
+                }
+                updateAnalyticsDisplay(data);
             })
-            .catch(error => console.error('Error fetching analytics:', error));
+            .catch(error => console.error('Error:', error));
     }
 
-    function displayAnalyticsChart(data) {
-        const ctx = document.getElementById('apiUsageChart').getContext('2d');
-        
-        // Process data for the chart
-        const apiCalls = {};
-        const responseTimes = {};
-        const statusCodes = {};
-        
-        data.forEach(item => {
-            const date = new Date(item.timestamp).toLocaleDateString();
-            apiCalls[date] = (apiCalls[date] || 0) + 1;
-            responseTimes[date] = (responseTimes[date] || 0) + item.response_time;
-            statusCodes[date] = statusCodes[date] || {};
-            statusCodes[date][item.status_code] = (statusCodes[date][item.status_code] || 0) + 1;
+    function updateAnalyticsDisplay(data) {
+        // Update API usage graph
+        updateApiUsageGraph(data.graph_data);
+
+        // Update analytics table
+        const tableBody = document.getElementById('analytics-table-body');
+        tableBody.innerHTML = '';
+        data.analytics.forEach(entry => {
+            const row = `
+                <tr>
+                    <td>${entry.api_key}</td>
+                    <td>${entry.endpoint}</td>
+                    <td>${new Date(entry.timestamp).toLocaleString()}</td>
+                    <td>${entry.response_time.toFixed(2)} ms</td>
+                    <td>${entry.status_code}</td>
+                </tr>
+            `;
+            tableBody.innerHTML += row;
         });
 
-        // Sort dates and get the last 14 days
-        const sortedDates = Object.keys(apiCalls).sort((a, b) => new Date(a) - new Date(b));
-        const last14Days = sortedDates.slice(-14);
+        // Update other analytics data
+        document.getElementById('total-api-calls').textContent = data.total_calls;
+        document.getElementById('avg-response-time').textContent = data.avg_response_time.toFixed(2) + ' ms';
+    }
 
-        // Prepare data for the chart
-        const chartData = {
-            labels: last14Days,
-            datasets: [
-                {
-                    label: 'API Calls',
-                    data: last14Days.map(date => apiCalls[date] || 0),
-                    borderColor: 'rgb(75, 192, 192)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    yAxisID: 'y',
-                    fill: true
-                },
-                {
-                    label: 'Avg Response Time (ms)',
-                    data: last14Days.map(date => apiCalls[date] ? (responseTimes[date] / apiCalls[date]) * 1000 : 0),
-                    borderColor: 'rgb(255, 99, 132)',
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                    yAxisID: 'y1',
-                    fill: true
-                }
-            ]
-        };
-
-        // Clear previous chart if it exists
-        Chart.getChart(ctx)?.destroy();
-
+    function updateApiUsageGraph(graphData) {
+        const ctx = document.getElementById('apiUsageChart').getContext('2d');
         new Chart(ctx, {
             type: 'line',
-            data: chartData,
+            data: {
+                labels: graphData.map(entry => entry.date),
+                datasets: [{
+                    label: 'API Calls',
+                    data: graphData.map(entry => entry.count),
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
             options: {
                 responsive: true,
-                interaction: {
-                    mode: 'index',
-                    intersect: false,
-                },
-                stacked: false,
-                plugins: {
-                    title: {
-                        display: true,
-                        text: 'API Usage Analytics'
-                    },
-                    tooltip: {
-                        callbacks: {
-                            afterBody: function(context) {
-                                const date = context[0].label;
-                                const statusCodesForDay = statusCodes[date];
-                                if (!statusCodesForDay) return '';
-                                
-                                let statusText = '\nStatus Codes:';
-                                for (let code in statusCodesForDay) {
-                                    statusText += `\n${code}: ${statusCodesForDay[code]}`;
-                                }
-                                return statusText;
-                            }
-                        }
-                    }
-                },
                 scales: {
                     x: {
                         type: 'time',
                         time: {
-                            unit: 'day',
-                            displayFormats: {
-                                day: 'MMM d'
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Date'
+                            unit: 'day'
                         }
                     },
                     y: {
-                        type: 'linear',
-                        display: true,
-                        position: 'left',
-                        title: {
-                            display: true,
-                            text: 'Number of API Calls'
-                        }
-                    },
-                    y1: {
-                        type: 'linear',
-                        display: true,
-                        position: 'right',
-                        title: {
-                            display: true,
-                            text: 'Avg Response Time (ms)'
-                        },
-                        grid: {
-                            drawOnChartArea: false,
-                        }
+                        beginAtZero: true
                     }
                 }
             }
-        });
-    }
-
-    function displayAnalyticsTable(data) {
-        const tableBody = document.getElementById('analytics-table-body');
-        tableBody.innerHTML = '';
-
-        data.slice(0, 10).forEach(item => {
-            const row = tableBody.insertRow();
-            row.insertCell(0).textContent = item.api_key;
-            row.insertCell(1).textContent = item.endpoint;
-            row.insertCell(2).textContent = new Date(item.timestamp).toLocaleString();
-            row.insertCell(3).textContent = (item.response_time * 1000).toFixed(2);
-            row.insertCell(4).textContent = item.status_code;
         });
     }
 
@@ -761,7 +700,13 @@ fetch('/logout', {
         tour.start();
 
 function loadPlugins() {
+    console.log('Loading plugins...');
     const pluginList = document.getElementById('plugin-list');
+    if (!pluginList) {
+        console.error('Plugin list element not found');
+        return;
+    }
+
     pluginList.innerHTML = ''; // Clear existing plugins
 
     const plugins = [
@@ -833,10 +778,16 @@ function setupWebhook() {
 }
 
 function loadTeams() {
+    console.log('Loading teams...');
     fetch('/api/teams')
         .then(response => response.json())
         .then(teams => {
             const teamList = document.getElementById('team-list');
+            if (!teamList) {
+                console.error('Team list element not found');
+                return;
+            }
+
             teamList.innerHTML = '';
             if (teams.length === 0) {
                 teamList.innerHTML = '<li class="py-4 text-gray-500">No teams found. Create a team to get started!</li>';
