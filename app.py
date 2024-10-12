@@ -45,6 +45,7 @@ import shopify
 import woocommerce
 import sqlalchemy
 from collections import defaultdict
+from itsdangerous import URLSafeTimedSerializer
 
 # Import models
 from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember
@@ -1266,6 +1267,76 @@ def generate_test_analytics():
         db.session.add(analytics)
     db.session.commit()
     return "Test analytics data generated"
+
+# Add this near the top of your file, with other imports
+s = URLSafeTimedSerializer(app.config['SECRET_KEY'])
+
+# Add these new routes
+@app.route('/request-password-reset', methods=['POST'])
+def request_password_reset():
+    email = request.json.get('email')
+    user = User.query.filter_by(email=email).first()
+    if not user:
+        return jsonify({"error": "No user found with that email address"}), 404
+
+    # Generate a timed token
+    token = s.dumps(email, salt='password-reset-salt')
+
+    # Send password reset email
+    reset_url = url_for('reset_password', token=token, _external=True)
+    send_password_reset_email(email, reset_url)
+
+    return jsonify({"message": "Password reset link sent to your email"}), 200
+
+@app.route('/reset-password/<token>', methods=['GET', 'POST'])
+def reset_password(token):
+    try:
+        email = s.loads(token, salt='password-reset-salt', max_age=3600)  # Token expires after 1 hour
+    except:
+        return render_template('auth.html', error="The password reset link is invalid or has expired.")
+
+    if request.method == 'POST':
+        new_password = request.form.get('new_password')
+        confirm_password = request.form.get('confirm_password')
+
+        if new_password != confirm_password:
+            return render_template('auth.html', error="Passwords do not match.")
+
+        user = User.query.filter_by(email=email).first()
+        if user:
+            user.password = generate_password_hash(new_password)
+            db.session.commit()
+            return render_template('auth.html', message="Your password has been reset successfully. You can now log in with your new password.")
+        else:
+            return render_template('auth.html', error="User not found.")
+
+    return render_template('reset_password.html', token=token)
+
+# Add this function to send the password reset email
+def send_password_reset_email(email, reset_url):
+    subject = "Password Reset Request"
+    body = f"""
+    Hello,
+
+    You have requested to reset your password. Please click on the link below to reset your password:
+
+    {reset_url}
+
+    If you did not request this, please ignore this email and your password will remain unchanged.
+
+    Best regards,
+    The Chatcat Team
+    """
+
+    message = MIMEMultipart()
+    message["From"] = SMTP_USERNAME
+    message["To"] = email
+    message["Subject"] = subject
+    message.attach(MIMEText(body, "plain"))
+
+    with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
+        server.login(SMTP_USERNAME, SMTP_PASSWORD)
+        server.send_message(message)
 
 if __name__ == "__main__":
     with app.app_context():

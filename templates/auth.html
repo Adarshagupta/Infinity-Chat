@@ -126,6 +126,10 @@
                     </svg>
                     Login with GitHub
                 </button>
+                <!-- Add this inside the loginForm div, after the login button -->
+                <div class="text-center mt-4">
+                    <a href="#" onclick="showForgotPasswordForm()" class="text-purple-600 hover:text-purple-800">Forgot Password?</a>
+                </div>
             </div>
             <div id="registerForm" class="hidden space-y-6">
                 <input type="email" id="registerEmail" placeholder="Email"
@@ -138,6 +142,13 @@
                 </div>
                 <button onclick="register()" id="registerButton"
                     class="w-full bg-purple-900 text-white py-4 rounded-lg font-medium text-lg hover:bg-purple-700 transition duration-300">Register</button>
+            </div>
+            <!-- Add this new form after the registerForm div -->
+            <div id="forgotPasswordForm" class="hidden space-y-6">
+                <input type="email" id="forgotPasswordEmail" placeholder="Email"
+                    class="w-full px-5 py-4 text-lg border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                <button onclick="requestPasswordReset()"
+                    class="w-full bg-purple-500 text-white px-5 py-4 rounded-lg font-medium text-lg hover:bg-purple-600 transition duration-300">Reset Password</button>
             </div>
             <div class="mt-8 text-center text-gray-600 text-base">
                 <a href="#" class="hover:underline">Terms of Use</a> | <a href="#" class="hover:underline">Privacy Policy</a>
@@ -372,6 +383,30 @@
             } catch (error) {
                 console.error('Error:', error);
                 showNotification('An error occurred during GitHub login', 'error');
+            } finally {
+                hideLoader();
+            }
+        }
+
+        function showForgotPasswordForm() {
+            document.getElementById('loginForm').classList.add('hidden');
+            document.getElementById('registerForm').classList.add('hidden');
+            document.getElementById('forgotPasswordForm').classList.remove('hidden');
+        }
+
+        async function requestPasswordReset() {
+            const email = document.getElementById('forgotPasswordEmail').value;
+            if (!email) {
+                showNotification('Please enter your email address', 'error');
+                return;
+            }
+
+            showLoader();
+            try {
+                const response = await axios.post('/request-password-reset', { email });
+                showNotification(response.data.message, 'success');
+            } catch (error) {
+                showNotification(error.response.data.error, 'error');
             } finally {
                 hideLoader();
             }
