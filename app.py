@@ -631,7 +631,6 @@ def process_ecommerce_response(response):
 def get_user_api_keys():
     user = User.query.get(session["user_id"])
     api_keys = [{"id": key.id, "key": key.key, "llm": key.llm} for key in user.api_keys]
-    print("API keys:", api_keys)  # Debug print
     return jsonify({"api_keys": api_keys})
 
 
@@ -774,12 +773,21 @@ def profile():
 @login_required
 def delete_api_key():
     api_key_id = request.json.get('api_key_id')
+    if not api_key_id:
+        return jsonify({"error": "API key ID is required"}), 400
+
     api_key = APIKey.query.get(api_key_id)
-    if api_key and api_key.user_id == session["user_id"]:
+    if not api_key or api_key.user_id != session["user_id"]:
+        return jsonify({"error": "Invalid API key or you don't have permission to delete it"}), 404
+
+    try:
         db.session.delete(api_key)
         db.session.commit()
-        return jsonify({"message": "API key deleted successfully"}), 200
-    return jsonify({"error": "API key not found or you don't have permission to delete it"}), 404
+        return jsonify({"message": "API key and associated conversations deleted successfully"}), 200
+    except Exception as e:
+        db.session.rollback()
+        app.logger.error(f"Error deleting API key: {str(e)}")
+        return jsonify({"error": "An error occurred while deleting the API key"}), 500
 
 
 @app.route("/add_custom_prompt", methods=["POST"])

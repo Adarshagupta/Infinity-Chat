@@ -16,10 +16,11 @@ class User(db.Model):
 
 class APIKey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    key = db.Column(db.String(255), unique=True, nullable=False)
+    key = db.Column(db.String(64), unique=True, nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     llm = db.Column(db.String(50), nullable=False)
-    extracted_text = db.Column(db.Text, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
+    extracted_text = db.Column(db.Text)
+    conversations = db.relationship('Conversation', backref='api_key', cascade='all, delete-orphan')
     fine_tune_jobs = db.relationship('FineTuneJob', backref='api_key', lazy=True)
 
 class CustomPrompt(db.Model):
