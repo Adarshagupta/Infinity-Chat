@@ -217,6 +217,7 @@ def send_otp(email):
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
         server.send_message(message)
 
+
 @app.route('/send-otp', methods=['POST'])
 def send_otp_route():
     email = request.json.get('email')
