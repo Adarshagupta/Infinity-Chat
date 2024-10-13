@@ -1,6 +1,10 @@
 # AI Chatbot Creator Documentation
 The AI Chatbot Creator is a web application designed to empower users to create, deploy, and manage AI-powered chatbots seamlessly. These chatbots are trained on content extracted from user-provided URLs and are capable of delivering real-time, context-aware responses. The application leverages the Together API for advanced AI capabilities, ensuring high-quality interactions.
 
+![Infin8t.tech Dashboard](https://aadarsha.onrender.com/static/uploads/Screenshot_2024-10-13_at_8.43.25_AM.png)
+
+*Infin8t.tech Dashboard: Empowering businesses with AI-driven customer support*
+
 ## Features
 - **User Authentication**: Secure registration, login, and logout functionalities to manage user accounts.
 - **API Key Management**: Users can generate, view, and delete API keys for chatbot integration.
