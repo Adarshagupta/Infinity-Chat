@@ -46,6 +46,8 @@ import woocommerce
 import sqlalchemy
 from collections import defaultdict
 from itsdangerous import URLSafeTimedSerializer
+import httpx
+import base64
 
 # Import models
 from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember
@@ -56,6 +58,8 @@ load_dotenv()
 # Get the API keys from the environment variables
 together_api_key = os.getenv("TOGETHER_API_KEY")
 openai_api_key = os.getenv("OPENAI_API_KEY")
+HUME_API_KEY = os.getenv('HUME_API_KEY')
+HUME_SECRET_KEY = os.getenv('HUME_SECRET_KEY')
 
 if not together_api_key:
     raise ValueError("No Together API key set for TOGETHER_API_KEY")
@@ -1337,6 +1341,81 @@ def send_password_reset_email(email, reset_url):
     with smtplib.SMTP_SSL(SMTP_SERVER, SMTP_PORT) as server:
         server.login(SMTP_USERNAME, SMTP_PASSWORD)
         server.send_message(message)
+
+# Add this new function to get the Hume AI access token
+def get_hume_access_token():
+    auth = f"{HUME_API_KEY}:{HUME_SECRET_KEY}"
+    encoded_auth = base64.b64encode(auth.encode()).decode()
+    resp = httpx.request(
+        method="POST",
+        url="https://api.hume.ai/oauth2-cc/token",
+        headers={"Authorization": f"Basic {encoded_auth}"},
+        data={"grant_type": "client_credentials"},
+    )
+    return resp.json()['access_token']
+
+# Add this new route for the playground page
+@app.route('/playground')
+def playground():
+    try:
+        return render_template('playground.html')
+    except Exception as e:
+        app.logger.error(f"Error rendering playground template: {str(e)}")
+        return f"Error: {str(e)}", 500
+
+# Add this new route for voice chat processing
+@app.route('/voice_chat', methods=['POST'])
+def voice_chat():
+    if 'audio' not in request.files:
+        return jsonify({'error': 'No audio file provided'}), 400
+
+    audio_file = request.files['audio']
+    
+    # Get Hume AI access token
+    access_token = get_hume_access_token()
+
+    # Send audio to Hume AI for processing
+    files = {'file': ('audio.wav', audio_file, 'audio/wav')}
+    headers = {
+        'Authorization': f'Bearer {access_token}',
+    }
+    response = httpx.post(
+        'https://api.hume.ai/v0/batch/jobs',
+        files=files,
+        data={'models': 'prosody'},
+        headers=headers
+    )
+
+    if response.status_code != 200:
+        return jsonify({'error': 'Error processing audio'}), 500
+
+    job_id = response.json()['job_id']
+
+    # Poll for job completion
+    while True:
+        job_status = httpx.get(
+            f'https://api.hume.ai/v0/batch/jobs/{job_id}',
+            headers=headers
+        )
+        if job_status.json()['state'] == 'completed':
+            break
+        time.sleep(1)
+
+    # Get job results
+    results = httpx.get(
+        f'https://api.hume.ai/v0/batch/jobs/{job_id}/results',
+        headers=headers
+    )
+
+    # Process the results and return a response
+    emotions = results.json()[0]['results']['predictions'][0]['prosody']['emotions']
+    top_emotion = max(emotions, key=lambda x: x['score'])
+    
+    return jsonify({'response': f"The dominant emotion detected is {top_emotion['name']} with a score of {top_emotion['score']:.2f}"})
+
+@app.route('/test')
+def test():
+    return render_template('test.html')
 
 if __name__ == "__main__":
     with app.app_context():

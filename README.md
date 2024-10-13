@@ -1,80 +1,101 @@
-# AI Chatbot Creator Documentation
+# Infin8t.tech | Customer Support Infrastructure for Businesses
+![Infin8t.tech Dashboard](https://aadarsha.onrender.com/static/uploads/Screenshot_2024-10-13_at_8.43.25_AM.png)
 
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Features](#features)
-3. [Technologies Used](#technologies-used)
-4. [Installation](#installation)
-5. [API Endpoints](#api-endpoints)
-6. [Frontend Implementation](#frontend-implementation)
-7. [Backend Implementation](#backend-implementation)
-8. [Tutorials](#tutorials)
-9. [Troubleshooting](#troubleshooting)
-10. [Conclusion](#conclusion)
+*Infin8t.tech Dashboard: Empowering businesses with AI-driven customer support*
+
 
 ## Introduction
-The AI Chatbot Creator is a web application designed to empower users to create, deploy, and manage AI-powered chatbots seamlessly. These chatbots are trained on content extracted from user-provided URLs and are capable of delivering real-time, context-aware responses. The application leverages the Together API for advanced AI capabilities, ensuring high-quality interactions.
+Infin8t.tech is a state-of-the-art customer support infrastructure designed for businesses of all sizes. Our platform leverages cutting-edge AI technology to provide seamless, context-aware customer interactions through intelligent chatbots. By allowing businesses to create, deploy, and manage chatbots trained on their specific content, Infin8t.tech ensures personalized and efficient customer support that scales with your business needs.
 
 ## Features
-- **User Authentication**: Secure registration, login, and logout functionalities to manage user accounts.
-- **API Key Management**: Users can generate, view, and delete API keys for chatbot integration.
-- **URL Processing**: Extract text content from any URL to train the chatbot, ensuring it understands the context of the website.
-- **Chatbot Integration**: Generate custom integration code snippets to embed the chatbot on any website.
-- **Real-time Chat**: Engage in real-time conversations with the AI-powered chatbot directly through the web interface.
-- **Rate Limiting**: Protect API endpoints from abuse with configurable rate limits to ensure system stability.
+- **User Authentication**: Secure registration, login, and logout functionalities for business accounts.
+- **API Key Management**: Generate, view, and delete API keys for chatbot integration across multiple platforms.
+- **URL Content Processing**: Extract and process content from business websites to train chatbots with relevant information.
+- **Chatbot Integration**: Easy-to-use integration code snippe`ts for embedding chatbots on any website.
+- **Real-time Chat Interface**: Engage customers with AI-powered chatbots through a user-friendly interface.
+- **Analytics Dashboard**: Track chatbot performance, user interactions, and key metrics.
+- **Multi-model AI Support**: Utilize various AI models including OpenAI GPT and Together AI for diverse capabilities.
+- **Custom Prompts**: Create and manage custom prompts to guide AI responses for specific use cases.
+- **E-commerce Integration**: Connect with popular e-commerce platforms for order and product-related queries.
+- **Team Collaboration**: Manage team access and roles for collaborative chatbot management.
+- **Voice Chat**: Process voice inputs and perform emotion analysis using Hume AI integration.
+- **Multilingual Support**: AI-powered translation for global customer support.
+- **Sentiment Analysis**: Real-time analysis of customer sentiment during interactions.
+- **Customizable Chat Widgets**: Tailor the look and feel of your chatbot to match your brand.
+- **Integration with CRM Systems**: Seamlessly connect with popular CRM platforms for comprehensive customer data management.
+- **Advanced Analytics**: Gain deep insights into customer interactions, frequently asked questions, and support trends.
 
 ## Technologies Used
-- **Flask**: A lightweight WSGI web application framework in Python, used for backend development.
-- **SQLAlchemy**: A SQL toolkit and Object-Relational Mapping (ORM) library for Python, used for database management.
-- **Together API**: An advanced AI model that powers the chatbot's conversational capabilities.
-- **BeautifulSoup**: A Python library used for parsing HTML and extracting text content from web pages.
-- **Flask-Limiter**: A Flask extension for rate limiting API endpoints to prevent abuse.
-- **Flask-CORS**: A Flask extension to handle Cross-Origin Resource Sharing (CORS), making cross-origin AJAX possible.
-- **HTML/CSS/JavaScript**: Standard web technologies for frontend development.
+- **Flask**: Backend web application framework
+- **SQLAlchemy**: Database ORM for efficient data management
+- **Together AI & OpenAI**: Advanced AI models for chatbot intelligence
+- **BeautifulSoup**: Web scraping for content extraction
+- **Flask-Limiter**: API rate limiting for system stability
+- **Flask-CORS**: Cross-Origin Resource Sharing support
+- **Hume AI**: Voice processing and emotion analysis
+- **APScheduler**: Background task scheduling
+- **SQLite/PostgreSQL**: Database options for data storage
+- **HTML/CSS/JavaScript**: Frontend technologies for user interface
+- **Redis**: For caching and improving response times
+- **Celery**: For handling background tasks and scheduled jobs
+- **Docker**: For containerization and easy deployment
+- **Nginx**: As a reverse proxy server
+- **Elasticsearch**: For powerful full-text search capabilities
 
 ## Installation
 ### Prerequisites
 - Python 3.7+
 - pip (Python package installer)
-- Virtualenv (optional but recommended)
+- Virtual environment (recommended)
 
 ### Steps
 1. **Clone the repository**:
-    ```bash
-    git clone https://github.com/your-repo/ai-chatbot-creator.git
-    cd ai-chatbot-creator
-    ```
+   ```bash
+   git clone https://github.com/your-repo/infin8t-tech.git
+   cd infin8t-tech
+   ```
 
 2. **Set up a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows use `venv\Scripts\activate`
-    ```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use `venv\Scripts\activate`
+   ```
 
 3. **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-4. **Set environment variables**:
-    Create a `.env` file in the root directory and add the following:
-    ```
-    SECRET_KEY=your_secret_key
-    DATABASE_URL=sqlite:///users.db
-    TOGETHER_API_KEY=your_together_api_key
-    ```
+4. **Set up environment variables**:
+   Create a `.env` file in the root directory with the following:
+   ```
+   TOGETHER_API_KEY=your_together_api_key
+   OPENAI_API_KEY=your_openai_api_key
+   HUME_API_KEY=your_hume_api_key
+   HUME_SECRET_KEY=your_hume_secret_key
+   DATABASE_URL=your_database_url
+   SECRET_KEY=your_secret_key
+   SMTP_SERVER=your_smtp_server
+   SMTP_PORT=your_smtp_port
+   SMTP_USERNAME=your_smtp_username
+   SMTP_PASSWORD=your_smtp_password
+   GITHUB_CLIENT_ID=your_github_client_id
+   GITHUB_CLIENT_SECRET=your_github_client_secret
+   ```
 
 5. **Initialize the database**:
-    ```bash
-    flask db init
-    flask db migrate
-    flask db upgrade
-    ```
+   ```bash
+   flask db init
+   flask db migrate
+   flask db upgrade
+   ```
 
 6. **Run the application**:
-    ```bash
-    flask run
-    ```
+   ```bash
+   python app.py
+   ```
+
+The application will be accessible at `http://localhost:5410`.
 
 ## API Endpoints
 ### User Authentication
@@ -315,50 +336,102 @@ def chat():
 ```
 
 ## Tutorials
-### How to Register and Log In
-1. **Register**:
-    - Navigate to the registration page.
-    - Enter your email and password.
-    - Click the "Register" button.
+### Setting Up Your Business Account
+1. Register for an Infin8t.tech account using your business email.
+2. Verify your email and complete the business profile setup.
 
-2. **Log In**:
-    - Navigate to the login page.
-    - Enter your email and password.
-    - Click the "Log In" button.
+### Creating Your First AI Chatbot
+1. Log in to your Infin8t.tech dashboard.
+2. Navigate to "Create New Chatbot" and enter your website URL.
+3. Choose the AI model (OpenAI GPT or Together AI) for your chatbot.
+4. Customize the chatbot's appearance and behavior.
+5. Generate and copy the integration code.
 
-### How to Process a URL and Generate an API Key
-1. **Log In**: Ensure you are logged in to your account.
-2. **Process URL**:
-    - Navigate to the URL processing page.
-    - Enter the URL you want to process.
-    - Click the "Process URL" button.
-    - Copy the generated API key and integration code.
+### Integrating the Chatbot on Your Website
+1. Copy the generated integration code from your dashboard.
+2. Paste the code into your website's HTML, preferably just before the closing `</body>` tag.
+3. Test the chatbot on your website to ensure proper functionality.
 
-### How to Integrate the Chatbot on Your Website
-1. **Copy Integration Code**:
-    - From the URL processing page, copy the integration code.
-2. **Embed on Website**:
-    - Paste the integration code into the HTML of your website.
-    - Ensure the script is loaded correctly.
+### Managing Team Access
+1. Go to the "Team Management" section in your dashboard.
+2. Click "Invite Team Member" and enter their email address.
+3. Assign appropriate roles and permissions.
+4. Team members will receive an invitation to join your Infin8t.tech workspace.
 
-### How to Chat with the AI Chatbot
-1. **Open Chatbot**:
-    - On your website, open the chatbot interface.
-2. **Send Messages**:
-    - Type your message in the input field.
-    - Click the "Send" button or press Enter.
-    - View the AI-generated response.
+### Implementing Voice Chat
+1. Navigate to the "Voice Chat" section in your dashboard.
+2. Enable voice chat functionality for your chatbot.
+3. Customize voice recognition settings and emotion analysis thresholds.
+4. Test the voice chat feature using the provided playground.
 
-## Troubleshooting
-### Common Issues
-- **API Key Not Working**: Ensure the API key is correctly copied and used in the integration script.
-- **Chatbot Not Responding**: Check the browser console for errors and ensure the Together API is accessible.
-- **Registration/Login Issues**: Ensure the email and password are correct and the server is running.
+### Setting Up E-commerce Integration
+1. Go to the "Integrations" page in your dashboard.
+2. Select your e-commerce platform (e.g., Shopify, WooCommerce).
+3. Follow the step-by-step guide to connect your store.
+4. Configure product catalog sync and order status integration.
 
-### Debugging Tips
-- **Check Network Requests**: Use browser developer tools to inspect network requests and responses.
-- **Review Server Logs**: Check the server logs for any errors or exceptions.
-- **Test Together API**: Use the `/test_together_api` endpoint to test the connection to the Together API.
+## Advanced Features
+### Custom AI Model Training
+Infin8t.tech offers the ability to fine-tune AI models on your specific business data:
+1. Prepare a dataset of past customer interactions.
+2. Upload the dataset through the "Custom Training" interface.
+3. Configure training parameters and initiate the fine-tuning process.
+4. Monitor training progress and deploy the custom model when ready.
+
+### Webhook Integration
+Set up webhooks to receive real-time notifications:
+1. Go to the "Webhooks" section in your settings.
+2. Add a new webhook endpoint URL.
+3. Select the events you want to be notified about (e.g., new conversations, resolved issues).
+4. Test the webhook to ensure proper configuration.
+
+## Security and Compliance
+Infin8t.tech takes security and data privacy seriously:
+- **Data Encryption**: All data is encrypted in transit and at rest.
+- **GDPR Compliance**: Tools for data management and user consent in accordance with GDPR.
+- **SOC 2 Certification**: Our infrastructure adheres to SOC 2 security standards.
+- **Regular Security Audits**: We conduct frequent penetration testing and security assessments.
+
+## Pricing and Plans
+Infin8t.tech offers flexible pricing to suit businesses of all sizes:
+- **Starter**: Perfect for small businesses, includes basic chatbot functionality.
+- **Professional**: Ideal for growing companies, includes advanced AI features and integrations.
+- **Enterprise**: Customized solutions for large organizations with dedicated support.
+
+Visit our [pricing page](https://infin8t.tech/pricing) for detailed information and to choose the right plan for your business.
+
+## FAQs
+1. **Q: How long does it take to set up a chatbot?**
+   A: Basic setup can be done in minutes, but for a fully customized solution, it may take a few hours to a few days depending on your requirements.
+
+2. **Q: Can I integrate Infin8t.tech with my existing customer support tools?**
+   A: Yes, we offer integrations with many popular CRM and helpdesk systems. Check our integrations page for a full list.
+
+3. **Q: Is my data safe with Infin8t.tech?**
+   A: Absolutely. We employ industry-standard security measures and are fully compliant with data protection regulations.
+
+## Roadmap
+Our upcoming features and improvements:
+- AI-powered customer feedback analysis
+- Enhanced multi-channel support (SMS, social media platforms)
+- Advanced chatbot personality customization
+- Improved self-learning capabilities for chatbots
+
+## Contributing
+We welcome contributions from the community. Please read our [contributing guidelines](CONTRIBUTING.md) before submitting pull requests.
+
+## License
+Infin8t.tech is proprietary software. All rights reserved. See [LICENSE.md](LICENSE.md) for details.
+
+## Contact and Support
+- **Email**: support@infin8t.tech
+- **Phone**: +1 (800) 123-4567
+- **Live Chat**: Available on our website
+- **Documentation**: [https://docs.infin8t.tech](https://docs.infin8t.tech)
+
+For enterprise support, please contact our sales team at sales@infin8t.tech.
 
 ## Conclusion
-The AI Chatbot Creator offers a comprehensive solution for integrating AI-powered chatbots into any website. With its intuitive frontend, robust backend, and advanced AI capabilities, users can create, manage, and deploy chatbots tailored to their specific needs. By following this detailed documentation, you can harness the full potential of the application and enhance your website's user experience.
+Infin8t.tech is more than just a chatbot platform; it's a comprehensive customer support ecosystem designed to elevate your business's customer service capabilities. By harnessing the power of advanced AI, voice processing, and seamless integrations, Infin8t.tech empowers businesses to offer personalized, efficient, and scalable customer support. Whether you're a startup looking to streamline your support processes or an enterprise aiming to enhance customer experiences, Infin8t.tech has the tools, features, and expertise to transform your customer support infrastructure.
+
+Join the future of customer support with Infin8t.tech and experience the difference that intelligent, AI-powered interactions can make for your business and your customers.

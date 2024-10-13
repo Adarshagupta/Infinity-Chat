@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Infin8t Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f3f4f6;
+            height: 100vh;
+            overflow: hidden;
+        }
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            width: 5rem;
+            background-color: hsl(0, 0%, 100%);
+            border-right: none;
+            transition: width 0.3s ease;
+            overflow: hidden;
+            z-index: 1000;
+        }
+        .sidebar:hover {
+            width: 16rem;
+        }
+        .sidebar-item {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1rem;
+            color: #d1d5db;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+            border-radius: 0.5rem;
+            margin: 0.5rem 0.25rem;
+        }
+        .sidebar-item:hover, .sidebar-item.active {
+            background-color: #374151;
+            color: #ffffff;
+        }
+        .sidebar-icon {
+            width: 1.5rem;
+            height: 1.5rem;
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        .sidebar-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            width: 0;
+            overflow: hidden;
+        }
+        .sidebar:hover .sidebar-text {
+            opacity: 1;
+            width: auto;
+            margin-left: 1rem;
+        }
+        .sidebar-tooltip {
+            position: absolute;
+            left: 4.5rem;
+            padding: 0.5rem;
+            background-color: #4b5563;
+            color: white;
+            border-radius: 0.375rem;
+            font-size: 0.75rem;
+            font-weight: bold;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+        }
+        .sidebar:not(:hover) .sidebar-item:hover .sidebar-tooltip {
+            opacity: 1;
+        }
+        .main-content {
+            margin-left: 5rem;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            transition: margin-left 0.3s ease;
+            background-color: #f3f4f6;
+        }
+        .sidebar:hover + .main-content {
+            margin-left: 16rem;
+        }
+        .chat-container {
+            flex-grow: 1;
+            overflow-y: auto;
+            background-color: #ffffff;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .message {
+            max-width: 80%;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        .user-message {
+            background-color: #7c3aed;
+            color: #ffffff;
+            align-self: flex-end;
+        }
+        .bot-message {
+            background-color: #e0e7ff;
+            color: #3730a3;
+            align-self: flex-start;
+        }
+        .profile-section {
+            position: fixed;
+            top: 1rem;
+            right: 1rem;
+            z-index: 1000;
+        }
+        .profile-dropdown {
+            position: absolute;
+            right: 0;
+            top: 100%;
+            background-color: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 0.5rem;
+            display: none;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+        .profile-dropdown.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-900">
+    <aside class="sidebar">
+        <div class="p-4 flex justify-center">
+            <img src="https://ph-files.imgix.net/0b9e56aa-e09b-4e62-9dd6-4c3b149463b5.png?auto=compress&codec=mozjpeg&cs=strip&auto=format&w=72&h=72&fit=crop&dpr=1" alt="Logo" class="w-12 h-12">
+        </div>
+        <nav class="sidebar-menu flex flex-col justify-between h-[calc(100%-5rem)]">
+            <div>
+                <a href="/dashboard" class="sidebar-item">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path>
+                    </svg>
+                    <span class="sidebar-text">Dashboard</span>
+                    <span class="sidebar-tooltip">Dashboard</span>
+                </a>
+                <a href="#" class="sidebar-item active">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z"></path>
+                    </svg>
+                    <span class="sidebar-text">Infin8t Chat</span>
+                    <span class="sidebar-tooltip">Infin8t Chat</span>
+                </a>
+            </div>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="bg-white shadow-sm mb-4 rounded-lg flex-shrink-0">
+            <div class="max-w-7xl mx-auto py-4 px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+                <h1 class="text-2xl font-semibold text-gray-900">Infin8t Playground</h1>
+                <div class="profile-section">
+                    <button id="profile-button" class="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 transition duration-300 shadow-md">Profile</button>
+                    <div id="profile-dropdown" class="profile-dropdown">
+                        <p id="user-email" class="mb-2 text-gray-600"></p>
+                        <button id="logout-button" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition duration-300 shadow-md">Logout</button>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <div class="flex-grow flex flex-col p-4">
+            <div class="flex-grow bg-white shadow-xl rounded-lg overflow-hidden flex flex-col">
+                <div class="chat-container flex-grow flex flex-col p-4 space-y-4" id="chat-messages"></div>
+                <div class="border-t p-4">
+                    <form id="chat-form" class="flex">
+                        <input type="text" id="user-input" class="flex-1 border border-gray-300 rounded-l-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Type your message...">
+                        <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded-r-lg hover:bg-purple-700 transition duration-300 shadow-md">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        const chatMessages = document.getElementById('chat-messages');
+        const chatForm = document.getElementById('chat-form');
+        const userInput = document.getElementById('user-input');
+        const profileButton = document.getElementById('profile-button');
+        const profileDropdown = document.getElementById('profile-dropdown');
+        const userEmail = document.getElementById('user-email');
+        const logoutButton = document.getElementById('logout-button');
+
+        let isLoggedIn = false;
+        let conversationId = null;
+
+        // Check login status
+        fetch('/api/check_login')
+            .then(response => response.json())
+            .then(data => {
+                isLoggedIn = data.logged_in;
+                if (isLoggedIn) {
+                    userEmail.textContent = data.email;
+                    loadConversationHistory();
+                } else {
+                    window.location.href = '/login?next=' + encodeURIComponent(window.location.pathname);
+                }
+            });
+
+        profileButton.addEventListener('click', () => {
+            profileDropdown.classList.toggle('show');
+        });
+
+        logoutButton.addEventListener('click', () => {
+            fetch('/logout', { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.redirect) {
+                        window.location.href = data.redirect;
+                    }
+                });
+        });
+
+        chatForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const message = userInput.value.trim();
+            if (message && isLoggedIn) {
+                addMessage('user', message);
+                userInput.value = '';
+                await getAIResponse(message);
+            }
+        });
+
+        function addMessage(sender, content) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            messageDiv.textContent = content;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        async function getAIResponse(message) {
+            try {
+                const response = await fetch('/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ message: message, conversation_id: conversationId }),
+                });
+                const data = await response.json();
+                addMessage('bot', data.response);
+                conversationId = data.conversation_id;
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('bot', 'Sorry, I encountered an error. Please try again.');
+            }
+        }
+
+        async function loadConversationHistory() {
+            try {
+                const response = await fetch('/api/conversation_history');
+                const data = await response.json();
+                conversationId = data.conversation_id;
+                data.messages.forEach(message => {
+                    addMessage(message.role, message.content);
+                });
+            } catch (error) {
+                console.error('Error loading conversation history:', error);
+            }
+        }
+
+        // Add an initial greeting message
+        addMessage('bot', 'Hello! How can I assist you today?');
+    </script>
+</body>
+</html>
