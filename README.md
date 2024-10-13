@@ -1,18 +1,4 @@
 # AI Chatbot Creator Documentation
-
-## Table of Contents
-1. [Introduction](#introduction)
-2. [Features](#features)
-3. [Technologies Used](#technologies-used)
-4. [Installation](#installation)
-5. [API Endpoints](#api-endpoints)
-6. [Frontend Implementation](#frontend-implementation)
-7. [Backend Implementation](#backend-implementation)
-8. [Tutorials](#tutorials)
-9. [Troubleshooting](#troubleshooting)
-10. [Conclusion](#conclusion)
-
-## Introduction
 The AI Chatbot Creator is a web application designed to empower users to create, deploy, and manage AI-powered chatbots seamlessly. These chatbots are trained on content extracted from user-provided URLs and are capable of delivering real-time, context-aware responses. The application leverages the Together API for advanced AI capabilities, ensuring high-quality interactions.
 
 ## Features
