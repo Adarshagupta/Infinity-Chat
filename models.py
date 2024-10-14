@@ -123,4 +123,5 @@ class FAQ(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     question = db.Column(db.String(255), nullable=False)
     answer = db.Column(db.Text, nullable=False)
-    user = db.relationship('User', backref=db.backref('faqs', lazy=True))
+    order = db.Column(db.Integer, default=0)
+    user = db.relationship('User', backref=db.backref('faqs', lazy=True, order_by='FAQ.order'))

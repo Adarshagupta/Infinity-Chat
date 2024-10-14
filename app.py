@@ -710,7 +710,7 @@ def test_apis():
             model="gpt-3.5-turbo",
             messages=[{"role": "user", "content": "Hello"}],
             max_tokens=5,
-        )
+        ) 
         openai_result = "Success"
     except Exception as e:
         logger.error(f"OpenAI API connection error: {str(e)}")
@@ -751,7 +751,7 @@ def dashboard_section(section=None):
     user = User.query.get(session["user_id"])
     custom_prompts = CustomPrompt.query.filter_by(user_id=user.id).all()
     website_info = WebsiteInfo.query.filter_by(user_id=user.id).first()
-    faq_items = FAQ.query.filter_by(user_id=user.id).all()
+    faq_items = FAQ.query.filter_by(user_id=user.id).order_by(FAQ.order).all()
     return render_template("dashboard.html", user=user, active_section=section or "home", custom_prompts=custom_prompts, website_info=website_info, faq_items=faq_items)
 
 @app.route('/subscription')
@@ -1452,7 +1452,7 @@ def get_faq():
         return jsonify({"error": "Invalid API key"}), 400
 
     user = User.query.get(api_key_data.user_id)
-    faq_items = FAQ.query.filter_by(user_id=user.id).all()
+    faq_items = FAQ.query.filter_by(user_id=user.id).order_by(FAQ.order).all()
 
     return jsonify({
         "faq": [{"question": item.question, "answer": item.answer} for item in faq_items]
@@ -1470,7 +1470,7 @@ def manage_faq():
         flash("FAQ item added successfully", "success")
         return redirect(url_for("dashboard_section", section="faq-management"))
 
-    faq_items = FAQ.query.filter_by(user_id=session["user_id"]).all()
+    faq_items = FAQ.query.filter_by(user_id=session["user_id"]).order_by(FAQ.order).all()
     return render_template("dashboard.html", active_section="faq-management", faq_items=faq_items)
 
 @app.route("/dashboard/website-info", methods=["GET", "POST"])
@@ -1496,6 +1496,30 @@ def manage_website_info():
         return redirect(url_for("dashboard_section", section="website-info"))
 
     return render_template("dashboard.html", active_section="website-info", website_info=website_info)
+
+@app.route("/delete_faq", methods=["POST"])
+@login_required
+def delete_faq():
+    faq_id = request.json.get('faq_id')
+    faq = FAQ.query.get(faq_id)
+    if faq and faq.user_id == session["user_id"]:
+        db.session.delete(faq)
+        db.session.commit()
+        return jsonify({"success": True})
+    return jsonify({"success": False}), 400
+
+@app.route("/update_faq_order", methods=["POST"])
+@login_required
+def update_faq_order():
+    faq_order = request.json.get('faq_order')
+    if faq_order:
+        for index, faq_id in enumerate(faq_order):
+            faq = FAQ.query.get(faq_id)
+            if faq and faq.user_id == session["user_id"]:
+                faq.order = index
+        db.session.commit()
+        return jsonify({"success": True})
+    return jsonify({"success": False}), 400
 
 if __name__ == "__main__":
     with app.app_context():

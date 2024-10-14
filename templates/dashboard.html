@@ -788,12 +788,28 @@
 
                 <div class="bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-2xl font-semibold mb-4 text-gray-800">Existing FAQs</h3>
-                    {% for faq in faq_items %}
-                    <div class="mb-4 p-4 border border-gray-200 rounded-lg">
-                        <h4 class="font-semibold text-lg mb-2">{{ faq.question }}</h4>
-                        <p class="text-gray-600">{{ faq.answer }}</p>
-                    </div>
-                    {% endfor %}
+                    <ul id="faq-list" class="space-y-4">
+                        {% for faq in faq_items %}
+                        <li class="faq-item mb-4 p-4 border border-gray-200 rounded-lg bg-white shadow-sm" data-id="{{ faq.id }}">
+                            <div class="flex justify-between items-center mb-2">
+                                <h4 class="font-semibold text-lg">{{ faq.question }}</h4>
+                                <div>
+                                    <button class="text-gray-500 hover:text-gray-700 mr-2 drag-handle cursor-move">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                                        </svg>
+                                    </button>
+                                    <button class="text-red-500 hover:text-red-700 delete-faq" data-id="{{ faq.id }}">
+                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+                            <p class="text-gray-600">{{ faq.answer }}</p>
+                        </li>
+                        {% endfor %}
+                    </ul>
                 </div>
             </section>
 
