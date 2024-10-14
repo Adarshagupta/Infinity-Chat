@@ -870,7 +870,54 @@
         </div>
     </div>
 </div>
-
+<!-- Add this just after the opening <body> tag -->
+    <div id="featuresPopup" class="fixed inset-0 bg-gray-800 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-xl p-10 max-w-2xl shadow-2xl transform transition-all duration-300 ease-in-out">
+            <h2 class="text-3xl font-extrabold mb-6 text-purple-600">Welcome to Your AI Dashboard!</h2>
+            <p class="mb-6 text-gray-600">Explore these powerful features:</p>
+            <ul class="space-y-4 mb-8">
+                <li class="flex items-start">
+                    <svg class="w-6 h-6 mr-2 text-green-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span><strong class="text-gray-700">Chatbot Creator:</strong> Build and customize AI chatbots with ease.</span>
+                </li>
+                <li class="flex items-start">
+                    <svg class="w-6 h-6 mr-2 text-blue-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                    <span><strong class="text-gray-700">API Analytics:</strong> Track usage and performance metrics.</span>
+                </li>
+                <li class="flex items-start">
+                    <svg class="w-6 h-6 mr-2 text-yellow-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                    <span><strong class="text-gray-700">Custom Prompts:</strong> Create and manage AI prompts.</span>
+                </li>
+                <li class="flex items-start">
+                    <svg class="w-6 h-6 mr-2 text-purple-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                    <span><strong class="text-gray-700">Integrations:</strong> Connect with popular platforms and services.</span>
+                </li>
+                <li class="flex items-start">
+                    <svg class="w-6 h-6 mr-2 text-red-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    <span><strong class="text-gray-700">Fine-tuning:</strong> Customize AI models for your specific needs.</span>
+                </li>
+            </ul>
+            <button id="closeFeaturePopup" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white px-6 py-3 rounded-lg font-bold hover:from-purple-600 hover:to-indigo-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-opacity-50">Let's Get Started!</button>
+        </div>
+    </div>
+    
+    <!-- Add this script just before the closing </body> tag -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const featuresPopup = document.getElementById('featuresPopup');
+            const closeFeaturePopup = document.getElementById('closeFeaturePopup');
+    
+            // Check if the popup has been shown before
+            if (!localStorage.getItem('featuresPopupShown')) {
+                featuresPopup.classList.remove('hidden');
+                localStorage.setItem('featuresPopupShown', 'true');
+            }
+    
+            closeFeaturePopup.addEventListener('click', function() {
+                featuresPopup.classList.add('hidden');
+            });
+        });
+    </script>
 <script>
 function toggleAiChat() {
     const chatWindow = document.getElementById('ai-chat-window');
