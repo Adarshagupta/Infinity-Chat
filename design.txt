@@ -29,7 +29,6 @@
                 </div>
                 <div id="chat-input" class="chat-input">
                     <input type="text" id="user-input" placeholder="Type your message...">
-                    <button id="emoji-button">😊</button>
                     <button id="send-button">
                         <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                             <line x1="22" y1="2" x2="11" y2="13"></line>
@@ -236,7 +235,6 @@
                 padding: 18px;
                 background-color: #F8F8F8;
                 border-top: 1px solid #E0E0E0;
-                align-items: center;
             }
 
             #user-input {
@@ -247,21 +245,6 @@
                 font-size: 16px;
                 background: white;
                 box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-                margin-right: 10px;
-            }
-
-            #emoji-button {
-                background: none;
-                border: none;
-                cursor: pointer;
-                font-size: 24px;
-                padding: 0;
-                margin-right: 10px;
-                transition: transform 0.2s ease;
-            }
-
-            #emoji-button:hover {
-                transform: scale(1.1);
             }
 
             #send-button {
@@ -271,6 +254,7 @@
                 border-radius: 50%;
                 width: 50px;
                 height: 50px;
+                margin-left: 12px;
                 cursor: pointer;
                 display: flex;
                 justify-content: center;
@@ -350,28 +334,63 @@
             }
 
             @media (max-width: 480px) {
-                .chatbot-container {
+                #ai-chatbot .chatbot-container {
                     width: 100%;
                     height: 100%;
                     border-radius: 0;
                     bottom: 0;
                     right: 0;
+                    position: fixed;
                 }
-            }
 
-            .emoji-picker {
-                position: absolute;
-                bottom: 80px;
-                right: 20px;
-                background: white;
-                border-radius: 10px;
-                box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-                display: none;
-                z-index: 1000;
-            }
+                #ai-chatbot .chatbot-popup-button {
+                    width: 60px;
+                    height: 60px;
+                    bottom: 20px;
+                    right: 20px;
+                }
 
-            .emoji-picker.show {
-                display: block;
+                #ai-chatbot .chatbot-popup-button svg {
+                    width: 30px;
+                    height: 30px;
+                }
+
+                #ai-chatbot .chatbot-content {
+                    height: calc(100% - 120px); /* Adjust for header and input area */
+                }
+
+                #ai-chatbot .chat-input {
+                    padding: 12px;
+                }
+
+                #ai-chatbot #user-input {
+                    padding: 10px 15px;
+                    font-size: 14px;
+                }
+
+                #ai-chatbot #send-button {
+                    width: 40px;
+                    height: 40px;
+                }
+
+                #ai-chatbot #send-button svg {
+                    width: 18px;
+                    height: 18px;
+                }
+
+                #ai-chatbot .chatbot-menu {
+                    padding: 8px;
+                }
+
+                #ai-chatbot .menu-item {
+                    width: 35px;
+                    height: 35px;
+                }
+
+                #ai-chatbot .menu-item svg {
+                    width: 18px;
+                    height: 18px;
+                }
             }
         `;
         document.head.appendChild(style);
@@ -636,50 +655,6 @@
         // Load initial content
         loadHomeContent('{api_key}');
         loadFAQContent('{api_key}');
-
-        // Add emoji picker container
-        const emojiPickerContainer = document.createElement('div');
-        emojiPickerContainer.className = 'emoji-picker';
-        chatbotDiv.appendChild(emojiPickerContainer);
-
-        // Initialize emoji picker (you'll need to implement or use a library for this)
-        function initEmojiPicker() {
-            // This is a placeholder. You should implement or use a library for the actual emoji picker.
-            emojiPickerContainer.innerHTML = `
-                <div style="padding: 10px;">
-                    <span class="emoji" data-emoji="😊">😊</span>
-                    <span class="emoji" data-emoji="👍">👍</span>
-                    <span class="emoji" data-emoji="❤️">❤️</span>
-                    <span class="emoji" data-emoji="🎉">🎉</span>
-                    <!-- Add more emojis as needed -->
-                </div>
-            `;
-        }
-
-        initEmojiPicker();
-
-        // Toggle emoji picker
-        document.getElementById('emoji-button').addEventListener('click', function() {
-            emojiPickerContainer.classList.toggle('show');
-        });
-
-        // Handle emoji selection
-        emojiPickerContainer.addEventListener('click', function(e) {
-            if (e.target.classList.contains('emoji')) {
-                const emoji = e.target.getAttribute('data-emoji');
-                const userInput = document.getElementById('user-input');
-                userInput.value += emoji;
-                emojiPickerContainer.classList.remove('show');
-                userInput.focus();
-            }
-        });
-
-        // Close emoji picker when clicking outside
-        document.addEventListener('click', function(e) {
-            if (!e.target.closest('#emoji-button') && !e.target.closest('.emoji-picker')) {
-                emojiPickerContainer.classList.remove('show');
-            }
-        });
     }
 
     // Load chatbot when the page is fully loaded
