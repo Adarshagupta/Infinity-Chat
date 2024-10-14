@@ -600,31 +600,73 @@
             container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
         };
 
-        // Add event listener for the send button
-        document.getElementById('send-button').addEventListener('click', sendMessage);
+        window.loadHomeContent = function(apiKey) {
+            const homeContent = document.getElementById('home-content');
+            fetch(`https://infin8t.tech/api/website-info?api_key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    homeContent.innerHTML = `
+                        <h2>${data.website_name}</h2>
+                        <p>${data.description}</p>
+                        <ul>
+                            ${data.features.map(feature => `<li>${feature}</li>`).join('')}
+                        </ul>
+                    `;
+                })
+                .catch(error => {
+                    console.error('Error loading home content:', error);
+                    homeContent.innerHTML = '<p>Error loading website information.</p>';
+                });
+        };
 
-        // Add event listener for the Enter key in the input field
+        window.loadFAQContent = function(apiKey) {
+            const helpContent = document.getElementById('help-content');
+            fetch(`https://infin8t.tech/api/faq?api_key=${apiKey}`)
+                .then(response => response.json())
+                .then(data => {
+                    helpContent.innerHTML = data.faq.map(item => `
+                        <div class="faq-item">
+                            <h3>${item.question}</h3>
+                            <p>${item.answer}</p>
+                        </div>
+                    `).join('');
+                })
+                .catch(error => {
+                    console.error('Error loading FAQ content:', error);
+                    helpContent.innerHTML = '<p>Error loading FAQ information.</p>';
+                });
+        };
+
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.chat-section').forEach(section => section.classList.remove('active'));
+                document.getElementById(this.dataset.target).classList.add('active');
+            });
+        });
+
+        document.getElementById('send-button').addEventListener('click', sendMessage);
         document.getElementById('user-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
 
-        // Add toggle functionality
         document.getElementById('chatbot-popup-button').addEventListener('click', function() {
             var container = document.getElementById('chatbot-container');
             if (container.style.display === 'none') {
                 container.style.display = 'flex';
                 setTimeout(() => {
                     container.classList.add('show');
-                }, 10); // Small delay to ensure the display change has taken effect
+                }, 10);
                 document.getElementById('user-input').focus();
                 playSound('toggle-sound');
             } else {
                 container.classList.remove('show');
                 setTimeout(() => {
                     container.style.display = 'none';
-                }, 300); // Wait for the animation to complete before hiding
+                }, 300);
                 playSound('toggle-sound');
             }
         });
@@ -681,10 +723,9 @@
             document.getElementById('chatbot-popup-button').style.transform = 'translateY(0)';
         }, 500);
 
-        window.loadHomeContent = function(apiKey) {
-            const homeContent = document.getElementById('home-content');
-            fetch(`https://infin8t.tech/api/website-info?api_key=${apiKey}`)
-        };
+        // Load initial content
+        loadHomeContent('{api_key}');
+        loadFAQContent('{api_key}');
     }
 
     // Load chatbot when the page is fully loaded
