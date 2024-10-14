@@ -109,3 +109,18 @@ class TeamMember(db.Model):
     joined_at = db.Column(db.DateTime, default=datetime.utcnow)
     team = db.relationship('Team', back_populates='members')
     user = db.relationship('User', back_populates='team_memberships')
+
+class WebsiteInfo(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    name = db.Column(db.String(100), nullable=False)
+    description = db.Column(db.Text, nullable=False)
+    features = db.Column(db.Text, nullable=False)
+    user = db.relationship('User', backref=db.backref('website_info', uselist=False))
+
+class FAQ(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    question = db.Column(db.String(255), nullable=False)
+    answer = db.Column(db.Text, nullable=False)
+    user = db.relationship('User', backref=db.backref('faqs', lazy=True))

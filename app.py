@@ -50,7 +50,7 @@ import httpx
 import base64
 
 # Import models
-from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember
+from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember, WebsiteInfo, FAQ
 
 # Load environment variables from .env file
 load_dotenv()
@@ -750,7 +750,9 @@ def update_profile():
 def dashboard_section(section=None):
     user = User.query.get(session["user_id"])
     custom_prompts = CustomPrompt.query.filter_by(user_id=user.id).all()
-    return render_template("dashboard.html", user=user, active_section=section or "home", custom_prompts=custom_prompts)
+    website_info = WebsiteInfo.query.filter_by(user_id=user.id).first()
+    faq_items = FAQ.query.filter_by(user_id=user.id).all()
+    return render_template("dashboard.html", user=user, active_section=section or "home", custom_prompts=custom_prompts, website_info=website_info, faq_items=faq_items)
 
 @app.route('/subscription')
 def subscription_page():
@@ -1416,6 +1418,84 @@ def voice_chat():
 @app.route('/test')
 def test():
     return render_template('test.html')
+
+@app.route("/api/website-info")
+def get_website_info():
+    api_key = request.args.get("api_key")
+    if not api_key:
+        return jsonify({"error": "API key is required"}), 400
+
+    api_key_data = APIKey.query.filter_by(key=api_key).first()
+    if not api_key_data:
+        return jsonify({"error": "Invalid API key"}), 400
+
+    user = User.query.get(api_key_data.user_id)
+    website_info = WebsiteInfo.query.filter_by(user_id=user.id).first()
+
+    if not website_info:
+        return jsonify({"error": "Website information not found"}), 404
+
+    return jsonify({
+        "website_name": website_info.name,
+        "description": website_info.description,
+        "features": website_info.features.split(',')
+    })
+
+@app.route("/api/faq")
+def get_faq():
+    api_key = request.args.get("api_key")
+    if not api_key:
+        return jsonify({"error": "API key is required"}), 400
+
+    api_key_data = APIKey.query.filter_by(key=api_key).first()
+    if not api_key_data:
+        return jsonify({"error": "Invalid API key"}), 400
+
+    user = User.query.get(api_key_data.user_id)
+    faq_items = FAQ.query.filter_by(user_id=user.id).all()
+
+    return jsonify({
+        "faq": [{"question": item.question, "answer": item.answer} for item in faq_items]
+    })
+
+@app.route("/dashboard/faq", methods=["GET", "POST"])
+@login_required
+def manage_faq():
+    if request.method == "POST":
+        question = request.form.get("question")
+        answer = request.form.get("answer")
+        new_faq = FAQ(user_id=session["user_id"], question=question, answer=answer)
+        db.session.add(new_faq)
+        db.session.commit()
+        flash("FAQ item added successfully", "success")
+        return redirect(url_for("dashboard_section", section="faq-management"))
+
+    faq_items = FAQ.query.filter_by(user_id=session["user_id"]).all()
+    return render_template("dashboard.html", active_section="faq-management", faq_items=faq_items)
+
+@app.route("/dashboard/website-info", methods=["GET", "POST"])
+@login_required
+def manage_website_info():
+    website_info = WebsiteInfo.query.filter_by(user_id=session["user_id"]).first()
+
+    if request.method == "POST":
+        name = request.form.get("name")
+        description = request.form.get("description")
+        features = request.form.get("features")
+
+        if website_info:
+            website_info.name = name
+            website_info.description = description
+            website_info.features = features
+        else:
+            new_info = WebsiteInfo(user_id=session["user_id"], name=name, description=description, features=features)
+            db.session.add(new_info)
+
+        db.session.commit()
+        flash("Website information updated successfully", "success")
+        return redirect(url_for("dashboard_section", section="website-info"))
+
+    return render_template("dashboard.html", active_section="website-info", website_info=website_info)
 
 if __name__ == "__main__":
     with app.app_context():

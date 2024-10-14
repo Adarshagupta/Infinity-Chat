@@ -17,18 +17,31 @@
                     </svg>
                 </div>
                 <div id="chatbot-content" class="chatbot-content">
-                    <div id="chat-messages" class="chat-messages"></div>
-                    <div id="chat-input" class="chat-input">
-                        <input type="text" id="user-input" placeholder="Type your message...">
-                        <button id="send-button">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                <line x1="22" y1="2" x2="11" y2="13"></line>
-                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-                            </svg>
-                        </button>
+                    <div id="home-content" class="chat-section active">
+                        <!-- Home content will be dynamically populated -->
                     </div>
-                    <p class="powered-by">powered by <a href="#">Infin8t</a></p>               
+                    <div id="chat-messages" class="chat-section">
+                        <!-- Chat messages will be appended here -->
+                    </div>
+                    <div id="help-content" class="chat-section">
+                        <!-- FAQ content will be dynamically populated -->
+                    </div>
                 </div>
+                <div id="chat-input" class="chat-input">
+                    <input type="text" id="user-input" placeholder="Type your message...">
+                    <button id="send-button">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </div>
+                <div class="chatbot-menu">
+                    <button class="menu-item active" data-target="home-content">Home</button>
+                    <button class="menu-item" data-target="chat-messages">Message</button>
+                    <button class="menu-item" data-target="help-content">Help</button>
+                </div>
+                <p class="powered-by">powered by <a href="#">Infin8t</a></p>
             </div>
         `;
         document.body.appendChild(chatbotDiv);
@@ -427,6 +440,39 @@
                     height: 24px;
                 }
             }
+
+            .chatbot-menu {
+                display: flex;
+                justify-content: space-around;
+                padding: 10px;
+                background-color: #f0f0f0;
+                border-top: 1px solid #e0e0e0;
+            }
+
+            .menu-item {
+                padding: 8px 16px;
+                border: none;
+                background-color: transparent;
+                cursor: pointer;
+                font-weight: 500;
+                color: #4a5568;
+                transition: all 0.3s ease;
+            }
+
+            .menu-item.active {
+                color: #3B82F6;
+                border-bottom: 2px solid #3B82F6;
+            }
+
+            .chat-section {
+                display: none;
+                height: calc(100% - 60px);
+                overflow-y: auto;
+            }
+
+            .chat-section.active {
+                display: block;
+            }
         `;
         document.head.appendChild(style);
         
@@ -634,6 +680,11 @@
             document.getElementById('chatbot-popup-button').style.opacity = '1';
             document.getElementById('chatbot-popup-button').style.transform = 'translateY(0)';
         }, 500);
+
+        window.loadHomeContent = function(apiKey) {
+            const homeContent = document.getElementById('home-content');
+            fetch(`https://infin8t.tech/api/website-info?api_key=${apiKey}`)
+        };
     }
 
     // Load chatbot when the page is fully loaded

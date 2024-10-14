@@ -729,7 +729,67 @@
                     </ul>
                 </div>
             </section>
-            <!-- Add this new section after the other sections -->
+            <!-- Add these new sections after your existing sections -->
+
+            <section id="website-info" class="tab-content {% if active_section == 'website-info' %}active{% endif %} dashboard-section bg-gradient-to-r from-purple-100 to-blue-100 p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800">Manage Website Information</h2>
+                <form action="{{ url_for('manage_website_info') }}" method="post" class="bg-white p-6 rounded-lg shadow-md">
+                    <div class="mb-4">
+                        <label for="website-name" class="block text-sm font-medium text-gray-700 mb-1">Website Name</label>
+                        <input type="text" id="website-name" name="name" value="{{ website_info.name if website_info else '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
+                    </div>
+                    <div class="mb-4">
+                        <label for="website-description" class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                        <textarea id="website-description" name="description" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">{{ website_info.description if website_info else '' }}</textarea>
+                    </div>
+                    <div class="mb-4">
+                        <label for="website-features" class="block text-sm font-medium text-gray-700 mb-1">Features (comma-separated)</label>
+                        <input type="text" id="website-features" name="features" value="{{ website_info.features if website_info else '' }}" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition duration-300 shadow-md">Update Website Information</button>
+                </form>
+            </section>
+
+            <section id="faq-management" class="tab-content {% if active_section == 'faq-management' %}active{% endif %} dashboard-section bg-gradient-to-r from-purple-100 to-blue-100 p-8 rounded-xl shadow-lg">
+                <h2 class="text-3xl font-bold mb-6 text-gray-800">Manage FAQs</h2>
+                <form action="{{ url_for('manage_faq') }}" method="post" class="bg-white p-6 rounded-lg shadow-md mb-8">
+                    <div class="mb-4">
+                        <label for="faq-question" class="block text-sm font-medium text-gray-700 mb-1">Question</label>
+                        <input type="text" id="faq-question" name="question" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
+                    </div>
+                    <div class="mb-4">
+                        <label for="faq-answer" class="block text-sm font-medium text-gray-700 mb-1">Answer</label>
+                        <textarea id="faq-answer" name="answer" rows="4" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200"></textarea>
+                    </div>
+                    <button type="submit" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition duration-300 shadow-md">Add FAQ</button>
+                </form>
+
+                <div class="bg-white p-6 rounded-lg shadow-md">
+                    <h3 class="text-2xl font-semibold mb-4 text-gray-800">Existing FAQs</h3>
+                    {% for faq in faq_items %}
+                    <div class="mb-4 p-4 border border-gray-200 rounded-lg">
+                        <h4 class="font-semibold text-lg mb-2">{{ faq.question }}</h4>
+                        <p class="text-gray-600">{{ faq.answer }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <!-- Add these new items to your existing sidebar navigation -->
+            <a href="{{ url_for('dashboard_section', section='website-info') }}" class="sidebar-item" data-tab="website-info">
+                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="sidebar-text">Website Info</span>
+                <span class="sidebar-tooltip">Website Info</span>
+            </a>
+            <a href="{{ url_for('dashboard_section', section='faq-management') }}" class="sidebar-item" data-tab="faq-management">
+                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                </svg>
+                <span class="sidebar-text">FAQ Management</span>
+                <span class="sidebar-tooltip">FAQ Management</span>
+            </a>
             <section id="team-management" class="tab-content">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700 flex items-center">
                     Team Management
