@@ -259,6 +259,22 @@
                     <span class="sidebar-text">API Keys</span>
                     <span class="sidebar-tooltip">API Keys</span>
                 </a>
+                <!-- Add Website Info menu item -->
+                <a href="{{ url_for('dashboard_section', section='website-info') }}" class="sidebar-item" data-tab="website-info">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="sidebar-text">Website Info</span>
+                    <span class="sidebar-tooltip">Website Info</span>
+                </a>
+                <!-- Add FAQ Management menu item -->
+                <a href="{{ url_for('dashboard_section', section='faq-management') }}" class="sidebar-item" data-tab="faq-management">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <span class="sidebar-text">FAQ Management</span>
+                    <span class="sidebar-tooltip">FAQ Management</span>
+                </a>
                 <a href="{{ url_for('dashboard_section', section='fine-tuning') }}" class="sidebar-item" data-tab="fine-tuning">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"></path></svg>
                     <span class="sidebar-text">Fine-tuning</span>
@@ -637,7 +653,13 @@
                 </div>
             </section>
             <section id="chatbot-creator" class="tab-content {% if active_section == 'chatbot-creator' %}active{% endif %} dashboard-section bg-gradient-to-r from-purple-100 to-blue-100 p-8 rounded-xl shadow-lg">
-                <h2 class="text-3xl font-bold mb-6 text-gray-800">Chatbot Creator</h2>
+                <div class="flex justify-between items-center mb-6">
+                    <h2 class="text-3xl font-bold text-gray-800">Chatbot Creator</h2>
+                    <div class="space-x-4">
+                        <a href="{{ url_for('dashboard_section', section='website-info') }}" class="px-4 py-2 border-2 border-purple-500 text-purple-500 rounded-lg hover:bg-purple-100 transition duration-300">Custom Website Info</a>
+                        <a href="{{ url_for('dashboard_section', section='faq-management') }}" class="px-4 py-2 border-2 border-indigo-500 text-indigo-500 rounded-lg hover:bg-indigo-100 transition duration-300">Add FAQs</a>
+                    </div>
+                </div>
                 <div class="mb-8 bg-white p-6 rounded-lg shadow-md">
                     <h3 class="text-2xl font-semibold mb-4 text-gray-800">Create New Chatbot</h3>
                     <div class="space-y-4">
@@ -775,21 +797,7 @@
                 </div>
             </section>
 
-            <!-- Add these new items to your existing sidebar navigation -->
-            <a href="{{ url_for('dashboard_section', section='website-info') }}" class="sidebar-item" data-tab="website-info">
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span class="sidebar-text">Website Info</span>
-                <span class="sidebar-tooltip">Website Info</span>
-            </a>
-            <a href="{{ url_for('dashboard_section', section='faq-management') }}" class="sidebar-item" data-tab="faq-management">
-                <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                </svg>
-                <span class="sidebar-text">FAQ Management</span>
-                <span class="sidebar-tooltip">FAQ Management</span>
-            </a>
+
             <section id="team-management" class="tab-content">
                 <h2 class="text-2xl font-semibold mb-4 text-gray-700 flex items-center">
                     Team Management
