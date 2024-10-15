@@ -55,6 +55,46 @@
 	</style>
 	<script src="https://infin8t.tech/chatbot.js?api_key=user_f5f07a8adf5c465ba3aff225b10ea44a"></script>
 </head>
+<style>
+	.section-logo {
+    text-align: center;
+}
+
+.logo-component {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo-list {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-wrap: wrap;
+    max-width: 100%;
+}
+
+.logo-wrapper {
+    margin: 10px 20px;
+    max-width: 100%;
+}
+
+.logo {
+    max-width: 100%;
+    height: auto;
+}
+
+@media (max-width: 767px) {
+    .logo-wrapper {
+        margin: 10px;
+    }
+    
+    .logo {
+        width: 120px;
+    }
+}
+</style>
 
 <body>
 	<div class="page-wrapper">
@@ -342,9 +382,24 @@
 							</nav>
 						</div>
 					</div>
-					<div class="navbar-menu-right"><a href="/contact"
-							class="button is-secondary is-small w-button">Contact Sales</a><a href="/dashboard/home"
-							class="button is-small w-button">Dashboard</a></div>
+					<div class="navbar-menu-right">
+						<div data-hover="true" data-delay="300" class="navbar-menu-dropdown w-dropdown">
+							<div class="navbar-dropdown-toggle w-dropdown-toggle">
+								<div class="dropdown-icon w-embed">
+									<svg width="100%" height="100%" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+										<path fill-rule="evenodd" clip-rule="evenodd" d="M2.55806 6.29544C2.46043 6.19781 2.46043 6.03952 2.55806 5.94189L3.44195 5.058C3.53958 4.96037 3.69787 4.96037 3.7955 5.058L8.00001 9.26251L12.2045 5.058C12.3021 4.96037 12.4604 4.96037 12.5581 5.058L13.4419 5.94189C13.5396 6.03952 13.5396 6.19781 13.4419 6.29544L8.17678 11.5606C8.07915 11.6582 7.92086 11.6582 7.82323 11.5606L2.55806 6.29544Z" fill="currentColor" />
+									</svg>
+								</div>
+								<div>Plugins</div>
+							</div>
+							<nav class="navbar-dropdown-list w-dropdown-list">
+								<a href="/plugins/wordpress" class="navbar-dropdown-link w-dropdown-link">WordPress Plugin</a>
+								<a href="/plugins/shopify" class="navbar-dropdown-link w-dropdown-link">Shopify Plugin</a>
+							</nav>
+						</div>
+						<a href="/contact" class="button is-secondary is-small w-button">Contact Sales</a>
+						<a href="/dashboard/home" class="button is-small w-button">Dashboard</a>
+					</div>
 				</nav>
 			
 			</div>
@@ -362,7 +417,6 @@
 									class="header-2-content">
 									<div class="margin-bottom margin-small">
 										<h1>Supercharge Your Customer <span class="text-color-blue">Support Efficiency
-											</span>with Infin8t</h1>
 									</div>
 									<p class="text-size-medium">Our goal is to provide you with a tailored solution that
 										addresses your specific challenges. Our chatbots are trained to have human-like
@@ -372,85 +426,64 @@
 										<div class="button-group"><a href="/dashboard/home" class="button w-button">Get started</a><a
 												href="/documentation" class="button is-secondary w-button">Learn more</a></div>
 									</div>
+									
+									<!-- Download Plugin Banner -->
+									<div class="download-plugin-banner" style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #FFF0F5 0%, #E6E6FA 100%); border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(219, 112, 147, 0.1);">
+										<h3 style="margin-bottom: 20px; color: #8E44AD; font-size: 26px; font-weight: 600;">Enhance Your Platform with Our Plugins</h3>
+										<div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap;">
+											<a href="/plugins/wordpress" class="plugin-button" style="display: inline-flex; align-items: center; background-color: #FF69B4; color: white; padding: 15px 25px; border-radius: 50px; transition: all 0.3s ease; text-decoration: none; box-shadow: 0 4px 15px rgba(255, 105, 180, 0.3);">
+												<img src="https://s.w.org/style/images/about/WordPress-logotype-wmark-white.png" alt="WordPress" style="height: 30px; margin-right: 12px;">
+												<span style="font-weight: 500; font-size: 18px;">WordPress Plugin</span>
+											</a>
+											<a href="/plugins/shopify" class="plugin-button" style="display: inline-flex; align-items: center; background-color: #9370DB; color: white; padding: 15px 25px; border-radius: 50px; transition: all 0.3s ease; text-decoration: none; box-shadow: 0 4px 15px rgba(147, 112, 219, 0.3);">
+												<img src="https://cdn.freebiesupply.com/logos/large/2x/shopify-logo-png-transparent.png" alt="Shopify" style="height: 30px; margin-right: 12px;">
+												<span style="font-weight: 500; font-size: 18px;">Shopify Plugin</span>
+											</a>
+										</div>
+									</div>
 								</div>
 								<div data-w-id="8b7c3664-1e11-6f2c-6801-c0d48f85ab7f"
 									style="opacity:0;-webkit-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);-moz-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);-ms-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0)"
-									class="header-2-image-wrapper"><img
-										src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f56e932ee859647d59efba_Chatbot.jpg"
-										loading="eager" width="616"
-										sizes="(max-width: 479px) 100vw, (max-width: 991px) 90vw, 42vw" alt="Frame"
-										srcset="https://assets-global.website-files.com/64f553f85bb72ff5c7080cc2/64f56e932ee859647d59efba_Chatbot-p-500.jpg 500w, https://assets-global.website-files.com/64f553f85bb72ff5c7080cc2/64f56e932ee859647d59efba_Chatbot-p-800.jpg 800w, https://assets-global.website-files.com/64f553f85bb72ff5c7080cc2/64f56e932ee859647d59efba_Chatbot.jpg 1232w"
-										class="header-2-image" /></div>
-							</div>
+									class="header-2-image-wrapper">
+									<div style="background: linear-gradient(135deg, #FFF0F5, #E6E6FA); padding: 30px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);">
+										<div style="background: linear-gradient(135deg, #E6E6FA, #FFC0CB); color: #8A2BE2; text-align: center; padding: 20px; margin-bottom: 25px; border-radius: 15px; font-weight: bold; font-size: 13px; box-shadow: 0 8px 20px rgba(219, 112, 147, 0.2); border: 2px solid #DDA0DD;">
+											<span style="display: inline-block; animation: pulse 2s infinite;">🎉</span> Exciting News: We've partnered with Hume AI for voice-to-voice support! <span style="display: inline-block; animation: pulse 2s infinite;">🎉</span>
+										</div>
+										<img
+											src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f56e932ee859647d59efba_Chatbot.jpg"
+											loading="eager" width="100%"
+											sizes="(max-width: 479px) 100vw, (max-width: 991px) 90vw, 42vw" alt="AI Chatbot Interface"
+											srcset="https://assets-global.website-files.com/64f553f85bb72ff5c7080cc2/64f56e932ee859647d59efba_Chatbot-p-500.jpg 400w, https://assets-global.website-files.com/64f553f85bb72ff5c7080cc2/64f56e932ee859647d59efba_Chatbot-p-800.jpg 800w, https://assets-global.website-files.com/64f553f85bb72ff5c7080cc2/64f56e932ee859647d59efba_Chatbot.jpg 1232w"
+											class="header-2-image" style="border-radius: 15px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15); transition: transform 0.3s ease-in-out;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'" />
+									</div>
+								</div>
 						</div>
 					</div>
 				</div>
 			</header>
-			<section data-w-id="66f01317-de3b-8274-fadd-e09a588bb7c2" class="section-logo">
+			<section class="section-logo">
 				<div class="padding-section-medium">
 					<div class="padding-global">
 						<div class="container-small">
 							<div class="margin-bottom margin-large">
 								<div class="text-align-center">
 									<div class="max-width-large align-center">
-										<h2 class="heading-style-h6">Trusted by Professionals and Teams</h2>
+										<h2 class="heading-style-h6">Invested & Supported by</h2>
 									</div>
 								</div>
 							</div>
 						</div>
 					</div>
 					<div class="logo-component">
-						<div class="logo-list">
-							<div id="w-node-_66f01317-de3b-8274-fadd-e09a588bb7cd-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4af91f67b7db8b3391e_Logo_Galileo.png"
-									loading="lazy" width="167" alt="Logo" class="logo" /></div>
-							<div id="w-node-_66d0a517-ca16-cab8-3eeb-5db722699911-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4adf71ee94c4a5c987d_Logo_FeatherDev.png"
-									loading="lazy" width="170" alt="Logo" class="logo" /></div>
-							<div id="w-node-a70b148b-ae9f-8a65-c63a-252bb2859255-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4c40c42dde192049a51_Logo_Capsule.png"
-									loading="lazy" width="170" alt="Logo" class="logo" /></div>
-							<div id="w-node-_66f01317-de3b-8274-fadd-e09a588bb7d3-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4c42638a92e7476d489_Logo_Lightbox.png"
-									loading="lazy" width="168" alt="Logo" class="logo" /></div>
-							<div id="w-node-_66f01317-de3b-8274-fadd-e09a588bb7d5-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4c44d543d9aa4da3ef1_Logo_Sisyphus.png"
-									loading="lazy" width="169" alt="Logo" class="logo" /></div>
-							<div id="w-node-_6eed356e-4270-118d-f694-2b476bf9b458-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4ae5faca58ffaa4e054_Logo_Acme%20Corp.png"
-									loading="lazy" width="167" alt="Logo" class="logo" /></div>
-							<div id="w-node-_66f01317-de3b-8274-fadd-e09a588bb7d1-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4abd0f286c98c70ddc8_Logo_Layers.png"
-									loading="lazy" width="170" alt="Logo" class="logo" /></div>
-							<div id="w-node-_66f01317-de3b-8274-fadd-e09a588bb7cf-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4abfb80f1bd9d6c8914_Logo_Boltshift.png"
-									loading="lazy" width="170" alt="Logo" class="logo" /></div>
-						</div>
-						<div class="logo-list">
-							<div id="w-node-_1a967f38-0146-9375-c385-502b99d64278-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4af91f67b7db8b3391e_Logo_Galileo.png"
-									loading="lazy" width="167" alt="Logo" class="logo" /></div>
-							<div id="w-node-_1a967f38-0146-9375-c385-502b99d6427a-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4adf71ee94c4a5c987d_Logo_FeatherDev.png"
-									loading="lazy" width="170" alt="Logo" class="logo" /></div>
-							<div id="w-node-_1a967f38-0146-9375-c385-502b99d6427c-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4c40c42dde192049a51_Logo_Capsule.png"
-									loading="lazy" width="170" alt="Logo" class="logo" /></div>
-							<div id="w-node-_1a967f38-0146-9375-c385-502b99d6427e-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4c42638a92e7476d489_Logo_Lightbox.png"
-									loading="lazy" width="168" alt="Logo" class="logo" /></div>
-							<div id="w-node-_1a967f38-0146-9375-c385-502b99d64280-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4c44d543d9aa4da3ef1_Logo_Sisyphus.png"
-									loading="lazy" width="169" alt="Logo" class="logo" /></div>
-							<div id="w-node-_1a967f38-0146-9375-c385-502b99d64282-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4ae5faca58ffaa4e054_Logo_Acme%20Corp.png"
-									loading="lazy" width="167" alt="Logo" class="logo" /></div>
-							<div id="w-node-_1a967f38-0146-9375-c385-502b99d64284-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4abd0f286c98c70ddc8_Logo_Layers.png"
-									loading="lazy" width="170" alt="Logo" class="logo" /></div>
-							<div id="w-node-_1a967f38-0146-9375-c385-502b99d64286-c7080c93" class="logo-wrapper"><img
-									src="https://cdn.prod.website-files.com/64f553f85bb72ff5c7080cc2/64f5d4abfb80f1bd9d6c8914_Logo_Boltshift.png"
-									loading="lazy" width="170" alt="Logo" class="logo" /></div>
+						<div class="logo-list" style="display: flex; justify-content: center; align-items: center;">
+							<div class="logo-wrapper" style="margin: 0 20px;">
+								<img src="https://verint.imgix.net/wp-content/uploads/2024/01/hume-ai-logo.png?fit=max&auto=compress%2Cformat&ixlib=imgixjs-3.6.1"
+									loading="lazy" width="167" alt="Logo" class="logo" style="display: block; margin: 0 auto;" />
+							</div>
+							<div class="logo-wrapper" style="margin: 0 20px;">
+								<img src="https://i.ibb.co/wRyRntV/65d36320026d81d87266e15f-together-color-removebg-preview.png"
+									loading="lazy" width="167" alt="Anthropic Logo" class="logo" style="display: block; margin: 0 auto;" />
+							</div>
 						</div>
 					</div>
 				</div>
@@ -463,7 +496,7 @@
 								<div class="text-align-center">
 									<div class="max-width-large align-center">
 										<h3>Experience the <span class="text-color-blue">Future</span> of Customer
-											Support with ChatGPT </h3>
+											Support with Infin8t </h3>
 									</div>
 								</div>
 							</div>
@@ -1502,6 +1535,11 @@
 			</div>
 		</footer>
 	</div>
+	<!-- New fixed banner -->
+	<div style="position: fixed; bottom: 0; left: 0; width: 100%; background: linear-gradient(to right, #E6E6FA, #FFC0CB); color: #4B0082; text-align: center; padding: 10px 0; z-index: 1000;">
+		<p style="margin: 0; font-size: 14px;">🎉 Special Offer: Get 3 months of unlimited chatbot usage for FREE! <a href="/sign-up" style="color: #8A2BE2; text-decoration: underline; font-weight: bold;">Sign up now</a></p>
+	  </div>
+  
 	<script src="https://d3e54v103j8qbb.cloudfront.net/js/jquery-3.5.1.min.dc5e7f18c8.js?site=64f553f85bb72ff5c7080cc2"
 		type="text/javascript" integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
 		crossorigin="anonymous"></script>
