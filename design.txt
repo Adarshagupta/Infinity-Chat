@@ -516,7 +516,9 @@
             }
             
             chatMessages.appendChild(messageElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // Scroll to the new message
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
         };
 
         window.showReplyingStatus = function() {
@@ -532,7 +534,7 @@
                 </div>
             `;
             chatMessages.appendChild(statusElement);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            statusElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
             return statusElement;
         };
 
@@ -542,6 +544,7 @@
             }
         };
 
+        // Modify the sendMessage function to ensure scrolling after the AI response
         window.sendMessage = async function() {
             const userInput = document.getElementById('user-input');
             const message = userInput.value.trim();
@@ -1009,5 +1012,28 @@
         }
     `;
     document.head.appendChild(askQuestionStyles);
+
+    // Modify the styles to ensure proper scrolling
+    var scrollStyles = document.createElement('style');
+    scrollStyles.textContent = `
+        #ai-chatbot .chatbot-content {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        #ai-chatbot #chat-messages {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding-bottom: 20px;
+            scroll-behavior: smooth;
+        }
+
+        #ai-chatbot .message {
+            margin-bottom: 15px;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+        }
+    `;
+    document.head.appendChild(scrollStyles);
 
 })();
