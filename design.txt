@@ -1,7 +1,18 @@
 (function() {
     function loadChatbot() {
-        var chatbotDiv = document.createElement('div');
+        // Create a container for the Shadow DOM
+        const chatbotContainer = document.createElement('div');
+        chatbotContainer.id = 'ai-chatbot-container';
+        document.body.appendChild(chatbotContainer);
+
+        // Create a Shadow DOM
+        const shadow = chatbotContainer.attachShadow({mode: 'open'});
+
+        // Create the chatbot elements
+        const chatbotDiv = document.createElement('div');
         chatbotDiv.id = 'ai-chatbot';
+        
+        // The rest of your chatbot HTML goes here
         chatbotDiv.innerHTML = `
             <div id="chatbot-popup-button" class="chatbot-popup-button">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -58,19 +69,21 @@
                 </div>
             </div>
         `;
-        document.body.appendChild(chatbotDiv);
-        
-        var style = document.createElement('style');
+
+        // Create a style element for the Shadow DOM
+        const style = document.createElement('style');
         style.textContent = `
-            #ai-chatbot {
+            /* CSS Reset for Shadow DOM */
+            :host {
+                all: initial;
+                display: block;
+            }
+
+            /* Your existing styles go here, but remove the #ai-chatbot prefix */
+            .chatbot-popup-button {
                 position: fixed;
                 bottom: 20px;
                 right: 20px;
-                z-index: 1000;
-                font-family: 'Inter', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            }
-
-            .chatbot-popup-button {
                 width: 70px;
                 height: 70px;
                 border-radius: 50%;
@@ -81,9 +94,6 @@
                 cursor: pointer;
                 box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
                 transition: all 0.3s ease;
-                position: absolute;
-                bottom: 0;
-                right: 0;
             }
 
             .chatbot-popup-button:hover {
@@ -334,7 +344,7 @@
             }
 
             @media (max-width: 480px) {
-                #ai-chatbot .chatbot-container {
+                .chatbot-container {
                     width: 100%;
                     height: 100%;
                     border-radius: 0;
@@ -343,65 +353,68 @@
                     position: fixed;
                 }
 
-                #ai-chatbot .chatbot-popup-button {
+                .chatbot-popup-button {
                     width: 60px;
                     height: 60px;
                     bottom: 20px;
                     right: 20px;
                 }
 
-                #ai-chatbot .chatbot-popup-button svg {
+                .chatbot-popup-button svg {
                     width: 30px;
                     height: 30px;
                 }
 
-                #ai-chatbot .chatbot-content {
+                .chatbot-content {
                     height: calc(100% - 120px); /* Adjust for header and input area */
                 }
 
-                #ai-chatbot .chat-input {
+                .chat-input {
                     padding: 12px;
                 }
 
-                #ai-chatbot #user-input {
+                #user-input {
                     padding: 10px 15px;
                     font-size: 14px;
                 }
 
-                #ai-chatbot #send-button {
+                #send-button {
                     width: 40px;
                     height: 40px;
                 }
 
-                #ai-chatbot #send-button svg {
+                #send-button svg {
                     width: 18px;
                     height: 18px;
                 }
 
-                #ai-chatbot .chatbot-menu {
+                .chatbot-menu {
                     padding: 8px;
                 }
 
-                #ai-chatbot .menu-item {
+                .menu-item {
                     width: 35px;
                     height: 35px;
                 }
 
-                #ai-chatbot .menu-item svg {
+                .menu-item svg {
                     width: 18px;
                     height: 18px;
                 }
             }
         `;
-        document.head.appendChild(style);
-        
+
+        // Append the style and chatbot elements to the Shadow DOM
+        shadow.appendChild(style);
+        shadow.appendChild(chatbotDiv);
+
         chatbotDiv.innerHTML += `
             <audio id="message-received-sound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
             <audio id="toggle-sound" src="https://assets.mixkit.co/active_storage/sfx/2356/2356-preview.mp3"></audio>
         `;
 
         function playSound(soundId) {
-            const sound = document.getElementById(soundId);
+            const sound = shadow.getElementById(soundId);
             sound.play();
         }
 
@@ -426,7 +439,8 @@
         };
 
         window.addMessage = function(sender, message) {
-            const chatMessages = document.getElementById('chat-messages');
+            const shadow = document.getElementById('ai-chatbot-container').shadowRoot;
+            const chatMessages = shadow.getElementById('chat-messages');
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
             
@@ -477,7 +491,8 @@
         };
 
         window.showReplyingStatus = function() {
-            const chatMessages = document.getElementById('chat-messages');
+            const shadow = document.getElementById('ai-chatbot-container').shadowRoot;
+            const chatMessages = shadow.getElementById('chat-messages');
             const statusElement = document.createElement('div');
             statusElement.className = 'replying-status';
             statusElement.innerHTML = `
@@ -500,7 +515,8 @@
         };
 
         window.sendMessage = async function() {
-            const userInput = document.getElementById('user-input');
+            const shadow = document.getElementById('ai-chatbot-container').shadowRoot;
+            const userInput = shadow.getElementById('user-input');
             const message = userInput.value.trim();
             if (message) {
                 addMessage('You', message);
@@ -514,13 +530,15 @@
         };
 
         window.scrollCarousel = function(direction) {
-            const container = document.querySelector('.product-container');
+            const shadow = document.getElementById('ai-chatbot-container').shadowRoot;
+            const container = shadow.querySelector('.product-container');
             const scrollAmount = 220; // Adjust this value based on your card width + margin
             container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
         };
 
         window.loadHomeContent = function(apiKey) {
-            const homeContent = document.getElementById('home-content');
+            const shadow = document.getElementById('ai-chatbot-container').shadowRoot;
+            const homeContent = shadow.getElementById('home-content');
             fetch(`https://infin8t.tech/api/website-info?api_key=${apiKey}`)
                 .then(response => response.json())
                 .then(data => {
@@ -544,7 +562,8 @@
         };
 
         window.loadFAQContent = function(apiKey) {
-            const helpContent = document.getElementById('help-content');
+            const shadow = document.getElementById('ai-chatbot-container').shadowRoot;
+            const helpContent = shadow.getElementById('help-content');
             fetch(`https://infin8t.tech/api/faq?api_key=${apiKey}`)
                 .then(response => response.json())
                 .then(data => {
@@ -561,32 +580,32 @@
                 });
         };
 
-        document.querySelectorAll('.menu-item').forEach(item => {
+        shadow.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', function() {
-                document.querySelectorAll('.menu-item').forEach(btn => btn.classList.remove('active'));
+                shadow.querySelectorAll('.menu-item').forEach(btn => btn.classList.remove('active'));
                 this.classList.add('active');
-                document.querySelectorAll('.chat-section').forEach(section => section.classList.remove('active'));
-                document.getElementById(this.dataset.target).classList.add('active');
+                shadow.querySelectorAll('.chat-section').forEach(section => section.classList.remove('active'));
+                shadow.getElementById(this.dataset.target).classList.add('active');
             });
         });
 
-        document.getElementById('send-button').addEventListener('click', sendMessage);
-        document.getElementById('user-input').addEventListener('keypress', function(e) {
+        shadow.getElementById('send-button').addEventListener('click', sendMessage);
+        shadow.getElementById('user-input').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 sendMessage();
             }
         });
 
-        document.getElementById('chatbot-popup-button').addEventListener('click', function() {
-            var container = document.getElementById('chatbot-container');
-            var button = document.getElementById('chatbot-popup-button');
+        shadow.getElementById('chatbot-popup-button').addEventListener('click', function() {
+            var container = shadow.getElementById('chatbot-container');
+            var button = shadow.getElementById('chatbot-popup-button');
             if (container.style.display === 'none') {
                 container.style.display = 'flex';
                 setTimeout(() => {
                     container.classList.add('show');
                     button.style.display = 'none';
                 }, 10);
-                document.getElementById('user-input').focus();
+                shadow.getElementById('user-input').focus();
                 playSound('toggle-sound');
             } else {
                 container.classList.remove('show');
@@ -598,9 +617,9 @@
             }
         });
 
-        document.getElementById('chatbot-close').addEventListener('click', function() {
-            var container = document.getElementById('chatbot-container');
-            var button = document.getElementById('chatbot-popup-button');
+        shadow.getElementById('chatbot-close').addEventListener('click', function() {
+            var container = shadow.getElementById('chatbot-container');
+            var button = shadow.getElementById('chatbot-popup-button');
             container.classList.remove('show');
             setTimeout(() => {
                 container.style.display = 'none';
@@ -612,44 +631,44 @@
         // Modify the styles for the popup button and container
         var additionalStyles = document.createElement('style');
         additionalStyles.textContent = `
-            #ai-chatbot .chatbot-popup-button {
+            .chatbot-popup-button {
                 opacity: 1;
                 transform: translateY(0);
                 transition: transform 0.3s ease;
             }
 
-            #ai-chatbot .chatbot-container {
+            .chatbot-container {
                 transform: translateY(20px);
                 opacity: 0;
                 transition: transform 0.3s ease, opacity 0.3s ease;
                 pointer-events: none;
             }
 
-            #ai-chatbot .chatbot-container.show {
+            .chatbot-container.show {
                 transform: translateY(0);
                 opacity: 1;
                 pointer-events: all;
             }
 
-            #ai-chatbot .chatbot-popup-button:hover {
+            .chatbot-popup-button:hover {
                 transform: scale(1.1);
             }
 
             @media (max-width: 480px) {
-                #ai-chatbot .chatbot-container.show {
+                .chatbot-container.show {
                     transform: translateY(0);
                 }
             }
         `;
-        document.head.appendChild(additionalStyles);
+        shadow.appendChild(additionalStyles);
 
         // Initialize chat
         addMessage('AI', 'Hello! How can I assist you today?');
 
         // Add a subtle entrance animation
         setTimeout(() => {
-            document.getElementById('chatbot-popup-button').style.opacity = '1';
-            document.getElementById('chatbot-popup-button').style.transform = 'translateY(0)';
+            shadow.getElementById('chatbot-popup-button').style.opacity = '1';
+            shadow.getElementById('chatbot-popup-button').style.transform = 'translateY(0)';
         }, 500);
 
         // Load initial content
@@ -668,35 +687,35 @@
     var additionalStyles = document.createElement('style');
     additionalStyles.textContent = `
         @media (max-width: 480px) {
-            #ai-chatbot .chatbot-container {
+            .chatbot-container {
                 width: 100%;
                 height: 100%;
                 bottom: 0;
                 right: 0;
             }
-            #ai-chatbot .chatbot-content {
+            .chatbot-content {
                 height: calc(100% - 60px);
             }
         }
 
-        #ai-chatbot .chatbot-popup-button {
+        .chatbot-popup-button {
             opacity: 0;
             transform: translateY(20px);
             transition: opacity 0.3s ease, transform 0.3s ease;
         }
 
-        #ai-chatbot .chatbot-container {
+        .chatbot-container {
             transform: translateY(20px);
             opacity: 0;
             transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
-        #ai-chatbot .chatbot-container.show {
+        .chatbot-container.show {
             transform: translateY(0);
             opacity: 1;
         }
 
-        #ai-chatbot .message {
+        .message {
             opacity: 0;
             transform: translateY(10px);
             animation: messageAppear 0.3s forwards;
