@@ -673,6 +673,31 @@
         // Load initial content
         loadHomeContent('{api_key}');
         loadFAQContent('{api_key}');
+
+        // Add this function to handle visibility of chat input
+        function updateChatInputVisibility() {
+            const chatInput = document.getElementById('chat-input');
+            const activeSection = document.querySelector('.chat-section.active');
+            if (activeSection.id === 'chat-messages') {
+                chatInput.style.display = 'flex';
+            } else {
+                chatInput.style.display = 'none';
+            }
+        }
+
+        // Modify the event listener for menu items
+        document.querySelectorAll('.menu-item').forEach(item => {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.menu-item').forEach(btn => btn.classList.remove('active'));
+                this.classList.add('active');
+                document.querySelectorAll('.chat-section').forEach(section => section.classList.remove('active'));
+                document.getElementById(this.dataset.target).classList.add('active');
+                updateChatInputVisibility();
+            });
+        });
+
+        // Call this function initially to set the correct state
+        updateChatInputVisibility();
     }
 
     // Load chatbot when the page is fully loaded
