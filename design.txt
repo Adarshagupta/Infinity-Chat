@@ -798,6 +798,60 @@
             }
         `;
         document.head.appendChild(suggestedQueriesStyle);
+
+        // Add or modify these styles to make fonts smaller
+        var chatFontStyles = document.createElement('style');
+        chatFontStyles.textContent = `
+            #ai-chatbot .chatbot-header {
+                font-size: 18px; // Reduced from 20px
+            }
+
+            #ai-chatbot #chat-messages .message {
+                font-size: 14px; // Reduced from default
+                line-height: 1.4; // Adjusted for better readability
+            }
+
+            #ai-chatbot #user-input {
+                font-size: 14px; // Reduced from 16px
+            }
+
+            #ai-chatbot #home-content h2 {
+                font-size: 24px; // Reduced from 28px
+            }
+
+            #ai-chatbot #home-content p {
+                font-size: 14px; // Reduced from 16px
+            }
+
+            #ai-chatbot .ask-question-banner h3 {
+                font-size: 20px; // Reduced from 24px
+            }
+
+            #ai-chatbot .ask-question-banner p {
+                font-size: 14px; // Reduced from 16px
+            }
+
+            #ai-chatbot .ask-question-button {
+                font-size: 14px; // Reduced from 16px
+            }
+
+            #ai-chatbot .feature-text {
+                font-size: 14px; // Reduced from 16px
+            }
+
+            #ai-chatbot #help-content h3 {
+                font-size: 16px; // Reduced if it was larger before
+            }
+
+            #ai-chatbot #help-content p {
+                font-size: 14px; // Reduced if it was larger before
+            }
+
+            #ai-chatbot .suggested-query-button {
+                font-size: 12px; // Reduced from 14px
+            }
+        `;
+        document.head.appendChild(chatFontStyles);
     }
 
     // Load chatbot when the page is fully loaded
