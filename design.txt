@@ -72,7 +72,7 @@
                 #ai-chatbot .chatbot-header {
                     background: linear-gradient(135deg, #6e8efb, #a777e3);
                     color: white;
-                    padding: 22px;
+                    padding: 12px;
                     font-weight: 600;
                     font-size: 20px;
                     display: flex;
@@ -182,7 +182,7 @@
 
                 #ai-chatbot .chat-input {
                     display: flex;
-                    padding: 18px;
+                    padding: 12px;
                     background-color: #F8F8F8;
                     border-top: 1px solid #E0E0E0;
                 }
@@ -222,6 +222,7 @@
                     display: flex;
                     justify-content: space-around;
                     padding: 12px;
+                    padding-bottom: 0px;
                     background-color: #F8F8F8;
                     border-top: 1px solid #E0E0E0;
                 }
@@ -258,9 +259,8 @@
                     text-align: center;
                     font-size: 12px;
                     color: #999;
-                    padding: 10px;
+                    padding: 1px;
                     background-color: #F8F8F8;
-                    border-top: 1px solid #E0E0E0;
                 }
 
                 #ai-chatbot .powered-by a {
@@ -406,6 +406,9 @@
                             <line x1="12" y1="17" x2="12.01" y2="17"></line>
                         </svg>
                     </button>
+                </div>
+                <div class="powered-by">
+                    Powered by <a href="https://infin8t.tech" target="_blank">Infin8t</a>
                 </div>
             </div>
         `;
@@ -782,5 +785,27 @@
         }
     `;
     document.head.appendChild(homeStyles);
+
+    // Add these new styles for the powered-by section
+    var poweredByStyles = document.createElement('style');
+    poweredByStyles.textContent = `
+        #ai-chatbot .powered-by {
+            text-align: center;
+            font-size: 10px;
+            color: #999;
+            padding: 5px;
+            background-color: #F8F8F8;
+        }
+
+        #ai-chatbot .powered-by a {
+            color: #4A90E2;
+            text-decoration: none;
+        }
+
+        #ai-chatbot .powered-by a:hover {
+            text-decoration: underline;
+        }
+    `;
+    document.head.appendChild(poweredByStyles);
 
 })();
