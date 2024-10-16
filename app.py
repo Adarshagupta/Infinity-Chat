@@ -48,6 +48,8 @@ from collections import defaultdict
 from itsdangerous import URLSafeTimedSerializer
 import httpx
 import base64
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 # Import models
 from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember, WebsiteInfo, FAQ
@@ -337,7 +339,43 @@ def process_ecommerce_response(response):
         # If no product information is found, return the response as is
         return {"response": response}
 
-# Modify the chat route to improve memory handling
+def generate_suggested_queries(context, conversation_history, num_suggestions=3):
+    # Combine the context and conversation history
+    full_text = context + ' ' + ' '.join([msg['content'] for msg in conversation_history])
+    
+    # Create a list of potential queries (you can expand this list)
+    potential_queries = [
+        "What are the main features?",
+        "How does pricing work?",
+        "Is there a free trial available?",
+        "What kind of support do you offer?",
+        "How secure is the platform?",
+        "Can you explain the refund policy?",
+        "What integrations are supported?",
+        "How do I get started?",
+        "What makes your product unique?",
+        "Are there any case studies or testimonials?",
+        "What's the typical onboarding process?",
+        "How often do you release updates?",
+        "What's your uptime guarantee?",
+        "Do you offer custom solutions?",
+        "What industries do you primarily serve?",
+    ]
+
+    # Vectorize the text and potential queries
+    vectorizer = TfidfVectorizer().fit(potential_queries + [full_text])
+    text_vector = vectorizer.transform([full_text])
+    query_vectors = vectorizer.transform(potential_queries)
+
+    # Calculate similarity scores
+    similarities = cosine_similarity(text_vector, query_vectors)
+
+    # Get indices of top similar queries
+    top_indices = similarities.argsort()[0][-num_suggestions:][::-1]
+
+    # Return the top suggested queries
+    return [potential_queries[i] for i in top_indices]
+
 @app.route("/chat", methods=["POST", "OPTIONS"])
 @limiter.limit("50 per minute")
 def chat():
@@ -419,10 +457,17 @@ If you need more information to answer accurately, ask the user a clarifying que
 
         ai_response = get_ai_response(api_key_data.llm, messages)
 
-        logger.info(f"Received response from AI service: {ai_response}")
+        # Generate suggested queries based on context and conversation
+        suggested_queries = generate_suggested_queries(context, conversation.messages)
+
+        # Add suggested queries to the response
+        response_with_suggestions = {
+            "response": ai_response,
+            "suggested_queries": suggested_queries
+        }
 
         # Append AI response to conversation history
-        conversation.messages.append({"role": "assistant", "content": json.dumps(ai_response)})
+        conversation.messages.append({"role": "assistant", "content": json.dumps(response_with_suggestions)})
         conversation.updated_at = datetime.utcnow()
         db.session.commit()
 
@@ -438,7 +483,7 @@ If you need more information to answer accurately, ask the user a clarifying que
         db.session.commit()
         app.logger.info(f"Analytics recorded for user_id: {api_key_data.user_id}, api_key: {api_key}")
 
-        return jsonify(ai_response)
+        return jsonify(response_with_suggestions)
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
 
@@ -786,6 +831,7 @@ def profile():
         flash("Profile updated successfully", "success")
         return redirect(url_for("profile"))
 
+    return render_template("profile.html", user=user)
 
 
 @app.route("/dashboard/home/delete_api_key", methods=["POST"])
@@ -1520,6 +1566,9 @@ def update_faq_order():
         db.session.commit()
         return jsonify({"success": True})
     return jsonify({"success": False}), 400
+
+# Add this import at the top of the file
+import random
 
 if __name__ == "__main__":
     with app.app_context():

@@ -444,21 +444,45 @@
             }
         };
 
+        // Add this function to handle suggested query clicks
+        window.handleSuggestedQuery = function(query) {
+            const userInput = document.getElementById('user-input');
+            userInput.value = query;
+            sendMessage();
+        };
+
+        // Modify the addMessage function to include suggested queries
         window.addMessage = function(sender, message) {
             const chatMessages = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
             
-            if (typeof message === 'object' && message.introduction) {
-                // This is our new structured response
-                let html = `<p>${message.introduction}</p><ol>`;
-                message.steps.forEach(step => {
-                    html += `<li>${step}</li>`;
-                });
-                html += `</ol>`;
-                if (message.conclusion) {
-                    html += `<p>${message.conclusion}</p>`;
+            if (typeof message === 'object' && message.response) {
+                // This is our new structured response with suggested queries
+                let html = `<p>${message.response.introduction || ''}</p>`;
+                if (message.response.steps) {
+                    html += '<ol>';
+                    message.response.steps.forEach(step => {
+                        html += `<li>${step}</li>`;
+                    });
+                    html += '</ol>';
                 }
+                if (message.response.conclusion) {
+                    html += `<p>${message.response.conclusion}</p>`;
+                }
+                
+                // Add suggested queries
+                if (message.suggested_queries && message.suggested_queries.length > 0) {
+                    html += '<div class="suggested-queries">';
+                    html += '<p>You might also want to ask:</p>';
+                    html += '<ul>';
+                    message.suggested_queries.forEach(query => {
+                        html += `<li><a href="#" onclick="handleSuggestedQuery('${query}'); return false;">${query}</a></li>`;
+                    });
+                    html += '</ul>';
+                    html += '</div>';
+                }
+                
                 messageElement.innerHTML = html;
             } else if (typeof message === 'object') {
                 // Handle other types of structured responses (like product data)
@@ -741,6 +765,36 @@
 
         // Call this function initially to set the correct state
         updateChatInputVisibility();
+
+        // Add some CSS for the suggested queries
+        var suggestedQueriesStyle = document.createElement('style');
+        suggestedQueriesStyle.textContent = `
+            .suggested-queries {
+                margin-top: 10px;
+                padding: 10px;
+                background-color: #f0f0f0;
+                border-radius: 5px;
+            }
+            .suggested-queries p {
+                font-weight: bold;
+                margin-bottom: 5px;
+            }
+            .suggested-queries ul {
+                list-style-type: none;
+                padding: 0;
+            }
+            .suggested-queries li {
+                margin-bottom: 5px;
+            }
+            .suggested-queries a {
+                color: #4A90E2;
+                text-decoration: none;
+            }
+            .suggested-queries a:hover {
+                text-decoration: underline;
+            }
+        `;
+        document.head.appendChild(suggestedQueriesStyle);
     }
 
     // Load chatbot when the page is fully loaded
