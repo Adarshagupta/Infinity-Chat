@@ -1044,4 +1044,83 @@ function handleGitHubLogin() {
 // Make sure you have a button or link in your HTML that calls this function
 // For example:
 // <button onclick="handleGitHubLogin()">Login with GitHub</button>
+
+// Add this at the end of the existing script
+function addMessage(sender, message) {
+    const chatContainer = document.getElementById('ai-chat-container');
+    const messageElement = document.createElement('div');
+    messageElement.classList.add('mb-4', sender === 'user' ? 'text-right' : 'text-left');
+    
+    const messageBubble = document.createElement('div');
+    messageBubble.classList.add('inline-block', 'p-2', 'rounded-lg', 
+        sender === 'user' ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800');
+    
+    if (sender === 'ai') {
+        // Add typing animation for AI messages
+        messageBubble.innerHTML = '<span class="typing-animation">...</span>';
+        messageElement.appendChild(messageBubble);
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+        
+        // Simulate typing effect
+        typeMessage(messageBubble, message);
+    } else {
+        messageBubble.textContent = message;
+        messageElement.appendChild(messageBubble);
+        chatContainer.appendChild(messageElement);
+        chatContainer.scrollTop = chatContainer.scrollHeight;
+    }
+}
+
+function typeMessage(element, message, index = 0) {
+    if (index < message.length) {
+        element.innerHTML = message.substring(0, index + 1) + '<span class="typing-animation">...</span>';
+        setTimeout(() => typeMessage(element, message, index + 1), 20 + Math.random() * 30);
+    } else {
+        element.innerHTML = message;
+    }
+}
+
+// Add this CSS to the <style> section in dashboard.html or in a separate CSS file
+const style = document.createElement('style');
+style.textContent = `
+    .typing-animation {
+        display: inline-block;
+        overflow: hidden;
+        animation: typing 1s steps(5, end) infinite;
+    }
+
+    @keyframes typing {
+        0% { width: 0 }
+        50% { width: 1.2em }
+        100% { width: 0 }
+    }
+`;
+document.head.appendChild(style);
+
+// Update the sendAiChatMessage function to use the new addMessage function
+function sendAiChatMessage() {
+    const input = document.getElementById('ai-chat-input');
+    const message = input.value.trim();
+    if (message) {
+        addMessage('user', message);
+        input.value = '';
+        
+        fetch('/ai_chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            addMessage('ai', data.response);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            addMessage('ai', 'Sorry, there was an error processing your request.');
+        });
+    }
+}
 </script>

@@ -144,7 +144,7 @@
 
                 #ai-chatbot #chat-messages .message {
                     margin-bottom: 15px;
-                    padding: 12px 18px;
+                    padding: 6px 12px;
                     border-radius: 18px;
                     max-width: 80%;
                     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
@@ -545,6 +545,11 @@
                     homeContent.innerHTML = `
                         <h2>${data.website_name}</h2>
                         <p>${data.description}</p>
+                        <div class="ask-question-banner">
+                            <h3>Ask a Question</h3>
+                            <p>AI agent and team can help</p>
+                            <button class="ask-question-button">Ask Now</button>
+                        </div>
                         <div class="feature-grid">
                             ${data.features.map(feature => `
                                 <div class="feature-item">
@@ -554,6 +559,13 @@
                             `).join('')}
                         </div>
                     `;
+
+                    // Add event listener to the "Ask Now" button
+                    const askButton = homeContent.querySelector('.ask-question-button');
+                    askButton.addEventListener('click', function() {
+                        // Switch to chat section
+                        document.querySelector('.menu-item[data-target="chat-messages"]').click();
+                    });
                 })
                 .catch(error => {
                     console.error('Error loading home content:', error);
@@ -595,6 +607,7 @@
             }
         });
 
+        // Modify the click event listener for the popup button
         document.getElementById('chatbot-popup-button').addEventListener('click', function() {
             var container = document.getElementById('chatbot-container');
             var button = document.getElementById('chatbot-popup-button');
@@ -602,27 +615,29 @@
                 container.style.display = 'flex';
                 setTimeout(() => {
                     container.classList.add('show');
-                    button.style.display = 'none';
+                    button.classList.add('open');
                 }, 10);
                 document.getElementById('user-input').focus();
                 playSound('toggle-sound');
+                updateChatInputVisibility();
             } else {
                 container.classList.remove('show');
+                button.classList.remove('open');
                 setTimeout(() => {
                     container.style.display = 'none';
-                    button.style.display = 'flex';
                 }, 300);
                 playSound('toggle-sound');
             }
         });
 
+        // Modify the click event listener for the close button
         document.getElementById('chatbot-close').addEventListener('click', function() {
             var container = document.getElementById('chatbot-container');
             var button = document.getElementById('chatbot-popup-button');
             container.classList.remove('show');
+            button.classList.remove('open');
             setTimeout(() => {
                 container.style.display = 'none';
-                button.style.display = 'flex';
             }, 300);
             playSound('toggle-sound');
         });
@@ -633,7 +648,17 @@
             #ai-chatbot .chatbot-popup-button {
                 opacity: 1;
                 transform: translateY(0);
-                transition: transform 0.3s ease;
+                transition: all 0.3s ease;
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 2147483647;
+            }
+
+            #ai-chatbot .chatbot-popup-button.open {
+                bottom: 10px;
+                right: 10px;
+                transform: scale(0.9);
             }
 
             #ai-chatbot .chatbot-container {
@@ -641,6 +666,10 @@
                 opacity: 0;
                 transition: transform 0.3s ease, opacity 0.3s ease;
                 pointer-events: none;
+                position: fixed;
+                bottom: 90px;
+                right: 20px;
+                z-index: 2147483646;
             }
 
             #ai-chatbot .chatbot-container.show {
@@ -653,9 +682,22 @@
                 transform: scale(1.1);
             }
 
+            #ai-chatbot .chatbot-popup-button.open:hover {
+                transform: scale(0.9);
+            }
+
             @media (max-width: 480px) {
                 #ai-chatbot .chatbot-container.show {
                     transform: translateY(0);
+                    bottom: 0;
+                    right: 0;
+                    width: 100%;
+                    height: 100%;
+                }
+
+                #ai-chatbot .chatbot-popup-button.open {
+                    bottom: 10px;
+                    right: 10px;
                 }
             }
         `;
@@ -779,6 +821,44 @@
             font-size: 16px;
         }
 
+        .ask-question-banner {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .ask-question-banner h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .ask-question-banner p {
+            font-size: 16px;
+            margin-bottom: 20px;
+            color: white;
+        }
+
+        .ask-question-button {
+            background-color: white;
+            color: #6e8efb;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ask-question-button:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
         .feature-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -832,5 +912,47 @@
         }
     `;
     document.head.appendChild(poweredByStyles);
+
+    // Add these new styles for the ask question banner
+    var askQuestionStyles = document.createElement('style');
+    askQuestionStyles.textContent = `
+        .ask-question-banner {
+            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .ask-question-banner h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+
+        .ask-question-banner p {
+            font-size: 16px;
+            margin-bottom: 20px;
+        }
+
+        .ask-question-button {
+            background-color: white;
+            color: #6e8efb;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .ask-question-button:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-2px);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+    `;
+    document.head.appendChild(askQuestionStyles);
 
 })();
