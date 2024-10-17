@@ -9,6 +9,7 @@ from flask import (
     url_for,
     flash,
     send_from_directory,
+    stream_with_context,
 )
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -344,18 +345,16 @@ def process_ecommerce_response(response):
         return {"response": response}
 
 def generate_suggested_queries(context, conversation_history, num_suggestions=3):
-    # Combine the context and conversation history
     full_text = context + ' ' + ' '.join([msg['content'] for msg in conversation_history])
     
-    # Prepare the prompt for OpenAI
-    prompt = f"""Based on the following context and conversation history, generate {num_suggestions} relevant follow-up questions that a user might ask:
+    prompt = f"""Based on the following context and conversation history, generate {num_suggestions} short, one-line follow-up questions a user might ask:
 
 Context: {context}
 
 Conversation History:
 {' '.join([f"{msg['role']}: {msg['content']}" for msg in conversation_history])}
 
-Generate {num_suggestions} questions:
+Generate {num_suggestions} short questions:
 1."""
 
     try:
@@ -368,17 +367,16 @@ Generate {num_suggestions} questions:
             temperature=0.7,
         )
 
-        # Extract the generated questions from the response
         generated_text = response.choices[0].message.content.strip()
         questions = generated_text.split('\n')
         
-        # Remove numbering and any empty questions
-        questions = [q.split('. ', 1)[-1].strip() for q in questions if q.strip()]
+        # Remove numbering, ensure questions are short, and remove any empty questions
+        questions = [q.split('. ', 1)[-1].strip()[:50] for q in questions if q.strip()]
         
-        return questions[:num_suggestions]  # Ensure we return only the requested number of suggestions
+        return questions[:num_suggestions]
     except Exception as e:
         app.logger.error(f"Error generating suggested queries: {str(e)}")
-        return []  # Return an empty list if there's an error
+        return []
 
 @app.route("/chat", methods=["POST", "OPTIONS"])
 @limiter.limit("50 per minute")
@@ -418,147 +416,104 @@ def chat():
         messages = [
             {
                 "role": "system",
-                "content": f"""You are an AI assistant specialized for this website. Use the following content as your knowledge base: {context}
+                "content": f"""You are a highly knowledgeable human assistant for this website. Your expertise comes from years of experience working with the company. Use the following content as your knowledge base: {context}
 
 Key guidelines:
-1. Provide concise, accurate answers based on the website's content.
-2. Use a professional yet friendly tone aligned with the brand voice.
-3. Highlight key products, services, and unique selling points.
-4. Offer relevant recommendations and cross-sell when appropriate.
-5. Address common customer queries and concerns proactively.
-6. Use industry-specific terminology when suitable.
-7. Limit responses to 50 words unless more detail is requested.
-8. End with a relevant follow-up question or call-to-action.
-9. Remember and refer to previous parts of the conversation when relevant.
+1. Provide friendly, personalized responses based on your deep understanding of the website and company.
+2. Use a conversational tone that reflects the brand's personality.
+3. Enthusiastically share details about products, services, and what makes the company unique.
+4. Suggest complementary items or services when it would benefit the customer.
+5. Anticipate and address potential questions or concerns proactively.
+6. Incorporate industry terms naturally, as an expert would.
+7. Keep responses concise but informative. Elaborate if the customer seems interested.
+8. Engage customers by asking relevant follow-up questions or suggesting next steps.
+9. Draw on the context of the entire conversation to provide cohesive assistance.
 
-For e-commerce queries:
-- Handle order status inquiries by providing the current status of the order.
-- Provide product information including name, price, and stock availability.
-- Inform about current processing times for orders.
-- If you can't find specific e-commerce information, apologize and offer to connect the user with customer support.
+For e-commerce inquiries:
+- Access the order tracking system to provide real-time order status updates.
+- Consult the product database for accurate information on names, pricing, and inventory.
+- Share current processing times based on the latest operations reports.
+- If specific e-commerce details are unavailable, offer to personally look into it and get back to the customer.
 
-Custom prompts:
+Custom information:
 {' '.join([f'- {prompt.prompt}: {prompt.response}' for prompt in custom_prompts])}
 
-If you need more information to answer accurately, ask the user a clarifying question.""",
+If you need clarification to provide the best assistance, don't hesitate to ask the customer for more details.""",
             }
         ] + conversation.messages[-5:]  # Include last 5 messages for context
 
         logger.info(f"Sending request to AI service with input: {user_input}")
 
-        ai_response = get_ai_response(api_key_data.llm, messages)
+        def generate_ai_response():
+            try:
+                for chunk in get_ai_response_stream(api_key_data.llm, messages):
+                    yield f"data: {json.dumps(chunk)}\n\n"
 
-        # Generate suggested queries based on context and conversation
-        suggested_queries = generate_suggested_queries(context, conversation.messages)
+                # Generate suggested queries based on context and conversation
+                suggested_queries = generate_suggested_queries(context, conversation.messages)
 
-        # Add suggested queries to the response
-        response_with_suggestions = {
-            "response": ai_response,
-            "suggested_queries": suggested_queries
-        }
+                # Add suggested queries to the response
+                final_response = {
+                    "response": chunk,
+                    "suggested_queries": suggested_queries
+                }
 
-        # Append AI response to conversation history
-        conversation.messages.append({"role": "assistant", "content": json.dumps(response_with_suggestions)})
-        conversation.updated_at = datetime.utcnow()
-        flag_modified(conversation, "messages")
-        db.session.commit()
+                yield f"data: {json.dumps(final_response)}\n\n"
 
-        # Record analytics
-        analytics = Analytics(
-            user_id=api_key_data.user_id,
-            api_key=api_key,
-            endpoint="/chat",
-            response_time=time.time() - start_time,
-            status_code=200,
-        )
-        db.session.add(analytics)
-        db.session.commit()
-        app.logger.info(f"Analytics recorded for user_id: {api_key_data.user_id}, api_key: {api_key}")
+                # Append AI response to conversation history
+                conversation.messages.append({"role": "assistant", "content": json.dumps(final_response)})
+                conversation.updated_at = datetime.utcnow()
+                flag_modified(conversation, "messages")
+                db.session.commit()
 
-        return jsonify(response_with_suggestions)
+                # Record analytics
+                analytics = Analytics(
+                    user_id=api_key_data.user_id,
+                    api_key=api_key,
+                    endpoint="/chat",
+                    response_time=time.time() - start_time,
+                    status_code=200,
+                )
+                db.session.add(analytics)
+                db.session.commit()
+                app.logger.info(f"Analytics recorded for user_id: {api_key_data.user_id}, api_key: {api_key}")
+
+            except Exception as e:
+                app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
+                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+
+                # Record analytics for error case
+                analytics = Analytics(
+                    user_id=api_key_data.user_id,
+                    api_key=api_key,
+                    endpoint="/chat",
+                    response_time=time.time() - start_time,
+                    status_code=500,
+                )
+                db.session.add(analytics)
+                db.session.commit()
+
+        return Response(stream_with_context(generate_ai_response()), content_type='text/event-stream')
+
     except Exception as e:
         app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
-
-        # Record analytics for error case
-        analytics = Analytics(
-            user_id=api_key_data.user_id if "api_key_data" in locals() else None,
-            api_key=api_key if "api_key" in locals() else None,
-            endpoint="/chat",
-            response_time=time.time() - start_time,
-            status_code=500,
-        )
-        db.session.add(analytics)
-        db.session.commit()
-
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
-# Add this new function to delete old conversations
-def delete_old_conversations():
-    with app.app_context():
-        cutoff_time = datetime.utcnow() - timedelta(hours=24)
-        old_conversations = Conversation.query.filter(Conversation.updated_at < cutoff_time).all()
-        for conversation in old_conversations:
-            db.session.delete(conversation)
-        db.session.commit()
-        app.logger.info(f"Deleted {len(old_conversations)} old conversations")
+def get_ai_response_stream(llm_type, messages):
+    # Use OpenAI's GPT-4 for all requests with streaming
+    response = openai_client.chat.completions.create(
+        model="gpt-4",
+        messages=messages,
+        max_tokens=100,
+        temperature=0.7,
+        stream=True
+    )
 
-# Add this to your main block
-
-# New route for feedback
-@app.route("/feedback", methods=["POST"])
-def feedback():
-    interaction_id = request.json.get("interaction_id")
-    is_helpful = request.json.get("is_helpful")
-
-    interaction = ChatInteraction.query.get(interaction_id)
-    if interaction:
-        interaction.feedback = is_helpful
-        db.session.commit()
-        return jsonify({"message": "Feedback recorded successfully"}), 200
-    else:
-        return jsonify({"error": "Interaction not found"}), 404
-
-# New function for contextual learning
-def train_contextual_model(user_id):
-    interactions = ChatInteraction.query.filter_by(user_id=user_id, feedback=True).all()
-    
-    if len(interactions) < 10:  # Require at least 10 positive interactions for training
-        return None
-
-    inputs = [interaction.user_input for interaction in interactions]
-    responses = [interaction.ai_response for interaction in interactions]
-
-    vectorizer = TfidfVectorizer(max_features=1000)
-    X = vectorizer.fit_transform(inputs)
-    y = np.array(responses)
-
-    model = MultinomialNB()
-    model.fit(X, y)
-
-    return (vectorizer, model)
-
-
-
-
-# Update the clear_chat_history route
-@app.route("/clear_chat_history", methods=["POST"])
-def clear_chat_history():
-    api_key = request.json.get("api_key")
-    if not api_key:
-        return jsonify({"error": "API key is required"}), 400
-
-    api_key_data = APIKey.query.filter_by(key=api_key).first()
-    if not api_key_data:
-        return jsonify({"error": "Invalid API key"}), 400
-
-    session.pop(f"conversation_history_{api_key}", None)
-    session.modified = True
-
-    return jsonify({"message": "Chat history cleared successfully"}), 200
-
-
-# The rest of your code remains the same
-
+    accumulated_message = ""
+    for chunk in response:
+        if chunk.choices[0].delta.content is not None:
+            accumulated_message += chunk.choices[0].delta.content
+            yield {"response": accumulated_message}
 
 def get_ai_response(llm_type, messages):
     user_id = session.get("user_id")
@@ -590,7 +545,7 @@ def get_ai_response(llm_type, messages):
     response = openai_client.chat.completions.create(
         model="gpt-4",
         messages=messages,
-        max_tokens=150,
+        max_tokens=100,
         temperature=0.7
     )
     raw_response = response.choices[0].message.content
