@@ -600,7 +600,7 @@ def get_ai_response(llm_type, messages):
 
     if llm_type == "together":
         response = together_client.chat.completions.create(
-            model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
+            model="meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
             messages=messages,
             max_tokens=100,
             temperature=2,
@@ -758,7 +758,7 @@ def test_apis():
 
     try:
         response = together_client.chat.completions.create(
-            model="meta-llama/Llama-3.2-90B-Vision-Instruct-Turbo",
+            model="meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
             messages=[{"role": "user", "content": "Hello"}],
             max_tokens=5,
         )
