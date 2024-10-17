@@ -51,6 +51,9 @@ import base64
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from woocommerce import API
+from flask_caching import Cache
+from werkzeug.utils import secure_filename
+import stripe
 
 # Import models
 from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember, WebsiteInfo, FAQ

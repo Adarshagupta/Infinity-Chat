@@ -36,9 +36,14 @@ jQuery(document).ready(function($) {
                 },
                 success: function(response) {
                     if (response.success) {
-                        $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> ' + response.data + '</p>');
+                        if (response.data.includes("change the shipping address") || 
+                            response.data.includes("add an item to your order") || 
+                            response.data.includes("remove an item from your order")) {
+                            handleOrderModification(response.data);
+                        } else {
+                            $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> ' + response.data + '</p>');
+                        }
                         
-                        // Check if the response contains order information
                         if (response.data.includes("Order #")) {
                             suggestOrderQueries();
                         }
@@ -55,13 +60,36 @@ jQuery(document).ready(function($) {
         }
     }
 
+    function displayProductCards(data) {
+        var productCardsHtml = '<div class="product-cards">';
+        productCardsHtml += '<p><strong>Chatbot:</strong> ' + data.message + '</p>';
+        
+        data.products.forEach(function(product) {
+            productCardsHtml += `
+                <div class="product-card">
+                    <img src="${product.image}" alt="${product.name}" class="product-image">
+                    <h3>${product.name}</h3>
+                    <p class="price">${product.price}</p>
+                    <p class="sku">SKU: ${product.sku}</p>
+                    <p class="stock">${product.stock}</p>
+                    <p class="description">${product.description}</p>
+                    <a href="${product.url}" class="shop-button" target="_blank">Shop Now</a>
+                </div>
+            `;
+        });
+        
+        productCardsHtml += '</div>';
+        $('#wcbi-chat-messages').append(productCardsHtml);
+    }
+
     // Function to suggest common order-related queries
     function suggestOrderQueries() {
         if (wcbi_ajax.is_user_logged_in) {
             var suggestions = [
                 'Check order status',
                 'Cancel my order',
-                'List my recent orders'
+                'List my recent orders',
+                'Modify my order'
             ];
 
             var suggestionHtml = '<div class="order-suggestions">';
@@ -100,4 +128,20 @@ jQuery(document).ready(function($) {
         // or redirect to the order page
         alert('View order details functionality to be implemented');
     });
+
+    function handleOrderModification(response) {
+        if (response.includes("change the shipping address")) {
+            $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> ' + response + '</p>');
+            $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> Please enter the new address below:</p>');
+            $('#wcbi-chat-input').attr('placeholder', 'New address: [Full Address]');
+        } else if (response.includes("add an item to your order")) {
+            $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> ' + response + '</p>');
+            $('#wcbi-chat-input').attr('placeholder', 'Add: [Product Name/ID], [Quantity]');
+        } else if (response.includes("remove an item from your order")) {
+            $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> ' + response + '</p>');
+            $('#wcbi-chat-input').attr('placeholder', 'Remove: [Product Name/ID]');
+        } else {
+            $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> ' + response + '</p>');
+        }
+    }
 });
