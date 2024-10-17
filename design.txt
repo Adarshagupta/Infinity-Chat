@@ -738,6 +738,7 @@
                     const reader = response.body.getReader();
                     const decoder = new TextDecoder();
                     let accumulatedResponse = '';
+                    let isFirstChunk = true;
 
                     while (true) {
                         const { done, value } = await reader.read();
@@ -752,7 +753,12 @@
                                 try {
                                     const data = JSON.parse(jsonData);
                                     if (data.response) {
-                                        accumulatedResponse = data.response;
+                                        if (isFirstChunk) {
+                                            accumulatedResponse = data.response;
+                                            isFirstChunk = false;
+                                        } else {
+                                            accumulatedResponse += data.response;
+                                        }
                                         realTimeMessage.innerHTML = accumulatedResponse;
                                         aiMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
                                     } else if (data.suggested_queries) {
@@ -761,7 +767,6 @@
                                             response: accumulatedResponse,
                                             suggested_queries: data.suggested_queries
                                         };
-                                        // Instead of creating a new message, update the existing one
                                         updateAIMessage(aiMessageElement, finalResponse);
                                         playSound('message-received-sound');
                                         return;
@@ -1111,6 +1116,102 @@
             }
         `;
         document.head.appendChild(chatFontStyles);
+
+        // Add these functions at the beginning of the script
+
+        function saveConversation(conversation) {
+            localStorage.setItem('aiChatbotConversation', JSON.stringify(conversation));
+        }
+
+        function loadConversation() {
+            const savedConversation = localStorage.getItem('aiChatbotConversation');
+            return savedConversation ? JSON.parse(savedConversation) : [];
+        }
+
+        // Modify the loadChatbot function to include conversation loading
+        function loadChatbot() {
+            // ... (existing code)
+
+            // Load saved conversation
+            const savedConversation = loadConversation();
+            const chatMessages = document.getElementById('chat-messages');
+            savedConversation.forEach(msg => {
+                addMessage(msg.sender, msg.message);
+            });
+
+            // ... (rest of the existing code)
+        }
+
+        // Modify the addMessage function to save the conversation
+        window.addMessage = function(sender, message, isRealTime = false) {
+            // ... (existing code)
+
+            if (!isRealTime) {
+                const conversation = loadConversation();
+                conversation.push({ sender, message });
+                saveConversation(conversation);
+            }
+
+            // ... (rest of the existing code)
+        };
+
+        // Modify the sendMessage function to update the saved conversation after AI response
+        window.sendMessage = async function() {
+            // ... (existing code)
+
+            try {
+                // ... (existing code)
+
+                // If we reach here, there was no final response with suggested queries
+                updateAIMessage(aiMessageElement, { response: accumulatedResponse });
+                playSound('message-received-sound');
+
+                // Save the AI response to the conversation
+                const conversation = loadConversation();
+                conversation.push({ sender: 'AI', message: { response: accumulatedResponse } });
+                saveConversation(conversation);
+
+            } catch (error) {
+                // ... (existing error handling code)
+            }
+        };
+
+        // Add a function to clear the conversation history
+        window.clearConversation = function() {
+            localStorage.removeItem('aiChatbotConversation');
+            document.getElementById('chat-messages').innerHTML = '';
+        };
+
+        // Add a clear conversation button to the chatbot header
+        chatbotDiv.querySelector('.chatbot-header').innerHTML += `
+            <button id="clear-conversation" title="Clear Conversation">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 6h18"></path>
+                    <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
+                    <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
+                </svg>
+            </button>
+        `;
+
+        // Add event listener for the clear conversation button
+        document.getElementById('clear-conversation').addEventListener('click', clearConversation);
+
+        // Add some CSS for the clear conversation button
+        var clearButtonStyle = document.createElement('style');
+        clearButtonStyle.textContent = `
+            #ai-chatbot #clear-conversation {
+                background: none;
+                border: none;
+                color: white;
+                cursor: pointer;
+                padding: 5px;
+                margin-left: 10px;
+            }
+            #ai-chatbot #clear-conversation:hover {
+                opacity: 0.8;
+            }
+        `;
+        document.head.appendChild(clearButtonStyle);
     }
 
     // Load chatbot when the page is fully loaded
