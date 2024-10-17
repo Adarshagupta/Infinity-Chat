@@ -446,7 +446,9 @@ If you need clarification to provide the best assistance, don't hesitate to ask 
 
         def generate_ai_response():
             try:
+                accumulated_message = ""
                 for chunk in get_ai_response_stream(api_key_data.llm, messages):
+                    accumulated_message = json.loads(chunk)["response"]
                     yield f"data: {chunk}"
 
                 # Generate suggested queries based on context and conversation
@@ -514,6 +516,9 @@ def get_ai_response_stream(llm_type, messages):
         if chunk.choices[0].delta.content is not None:
             accumulated_message += chunk.choices[0].delta.content
             yield json.dumps({"response": accumulated_message}) + "\n\n"
+    
+    # Return the accumulated message after the stream is complete
+    return accumulated_message
 
 def get_ai_response(llm_type, messages):
     user_id = session.get("user_id")
