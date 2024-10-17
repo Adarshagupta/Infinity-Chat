@@ -359,7 +359,7 @@ Generate {num_suggestions} short questions:
 
     try:
         response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
             max_tokens=100,
             n=1,
@@ -504,7 +504,7 @@ If you need clarification to provide the best assistance, don't hesitate to ask 
 def get_ai_response_stream(llm_type, messages):
     # Use OpenAI's GPT-4 for all requests with streaming
     response = openai_client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         messages=messages,
         max_tokens=100,
         temperature=0.7,
@@ -548,7 +548,7 @@ def get_ai_response(llm_type, messages):
 
     # Use OpenAI's GPT-4 for all requests
     response = openai_client.chat.completions.create(
-        model="gpt-4",
+        model="gpt-4o-mini",
         messages=messages,
         max_tokens=100,
         temperature=0.7
@@ -694,7 +694,7 @@ def test_apis():
 
     try:
         response = openai_client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-4o-mini",
             messages=[{"role": "user", "content": "Hello"}],
             max_tokens=5,
         )
