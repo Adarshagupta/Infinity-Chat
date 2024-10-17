@@ -57,30 +57,15 @@ class WC_Chatbot {
     public function enqueue_scripts() {
         $api_key = get_option('wc_chatbot_api_key');
         wp_enqueue_script('infin8t-chatbot', "https://infin8t.tech/chatbot.js?api_key={$api_key}", array(), null, true);
-        wp_enqueue_script('wc-chatbot', WC_CHATBOT_PLUGIN_URL . 'assets/js/chatbot.js', array('jquery', 'infin8t-chatbot'), WC_CHATBOT_VERSION, true);
-        wp_localize_script('wc-chatbot', 'wcbi_ajax', array(
+        wp_localize_script('infin8t-chatbot', 'wcbi_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
-            'nonce' => wp_create_nonce('wcbi-nonce')
+            'nonce' => wp_create_nonce('wcbi-nonce'),
+            'is_user_logged_in' => is_user_logged_in()
         ));
-
-        // Add this line to enqueue the CSS
-        wp_enqueue_style('wc-chatbot', WC_CHATBOT_PLUGIN_URL . 'assets/css/chatbot.css', array(), WC_CHATBOT_VERSION);
     }
 
     public function chatbot_html() {
-        echo '<div id="wcbi-chatbot" class="wcbi-chatbot-container">
-            <div class="wcbi-chatbot-header">
-                <h3>Chat with us</h3>
-                <button id="wcbi-chatbot-toggle">Toggle</button>
-            </div>
-            <div class="wcbi-chatbot-body">
-                <div id="wcbi-chat-messages"></div>
-                <div class="wcbi-chatbot-input">
-                    <input type="text" id="wcbi-chat-input" placeholder="Type your message...">
-                    <button id="wcbi-chat-send">Send</button>
-                </div>
-            </div>
-        </div>';
+        // The chatbot HTML is now handled by the design.txt script
     }
 
     public function process_message() {
@@ -96,9 +81,17 @@ class WC_Chatbot {
     }
 
     private function generate_response($message, $user_id) {
-        // Implement your chatbot logic here
-        // This is where you'd integrate with your Flask API
-        $api_url = 'https://your-flask-api.com/wc_chat';
+        if ($user_id === 0) {
+            return "Please log in to manage your orders.";
+        }
+
+        // Check if the message is order-related
+        if (stripos($message, 'order') !== false || stripos($message, 'cancel') !== false) {
+            return $this->handle_order_query($message, $user_id);
+        }
+
+        // If not order-related, use the default API response
+        $api_url = 'https://infin8t.tech/wp_chat';
         $api_key = get_option('wc_chatbot_api_key');
 
         $response = wp_remote_post($api_url, array(
@@ -118,5 +111,83 @@ class WC_Chatbot {
         $data = json_decode($body, true);
 
         return $data['response'];
+    }
+
+    private function handle_order_query($message, $user_id) {
+        if (stripos($message, 'cancel') !== false) {
+            return $this->cancel_order($message, $user_id);
+        } elseif (stripos($message, 'status') !== false || stripos($message, 'show') !== false) {
+            return $this->get_order_status($message, $user_id);
+        } elseif (stripos($message, 'list') !== false || stripos($message, 'my orders') !== false) {
+            return $this->list_orders($user_id);
+        }
+
+        return "I'm sorry, I couldn't understand your order-related query. You can ask about order status, cancellation, or list your recent orders.";
+    }
+
+    private function cancel_order($message, $user_id) {
+        preg_match('/\d+/', $message, $matches);
+        if (empty($matches)) {
+            return "I couldn't find an order number in your message. Please provide the order number you want to cancel.";
+        }
+
+        $order_id = $matches[0];
+        $order = wc_get_order($order_id);
+
+        if (!$order) {
+            return "I'm sorry, I couldn't find an order with the number $order_id.";
+        }
+
+        if ($order->get_customer_id() != $user_id) {
+            return "I'm sorry, but it seems that order #$order_id doesn't belong to you.";
+        }
+
+        if ($order->get_status() == 'cancelled') {
+            return "Order #$order_id is already cancelled.";
+        }
+
+        $order->update_status('cancelled', 'Order cancelled by customer via chatbot.');
+        return "Order #$order_id has been successfully cancelled. If you need any further assistance or have questions about refunds, please let me know.";
+    }
+
+    private function get_order_status($message, $user_id) {
+        preg_match('/\d+/', $message, $matches);
+        if (empty($matches)) {
+            return $this->list_orders($user_id);
+        }
+
+        $order_id = $matches[0];
+        $order = wc_get_order($order_id);
+
+        if (!$order) {
+            return "I'm sorry, I couldn't find an order with the number $order_id.";
+        }
+
+        if ($order->get_customer_id() != $user_id) {
+            return "I'm sorry, but it seems that order #$order_id doesn't belong to you.";
+        }
+
+        $status = wc_get_order_status_name($order->get_status());
+        return "The status of order #$order_id is: $status.";
+    }
+
+    private function list_orders($user_id) {
+        $orders = wc_get_orders(array(
+            'customer_id' => $user_id,
+            'limit' => 5,
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ));
+
+        if (empty($orders)) {
+            return "You don't have any recent orders.";
+        }
+
+        $order_list = "Here are your 5 most recent orders:\n";
+        foreach ($orders as $order) {
+            $order_list .= "Order #{$order->get_id()}: " . wc_get_order_status_name($order->get_status()) . " - " . wc_price($order->get_total()) . "\n";
+        }
+
+        return $order_list;
     }
 }

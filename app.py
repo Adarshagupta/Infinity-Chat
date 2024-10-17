@@ -1778,6 +1778,70 @@ def extract_order_id(message):
     match = re.search(r'order (\d+)', message, re.IGNORECASE)
     return match.group(1) if match else None
 
+@app.route('/wp_chat', methods=['POST'])
+def wp_chat():
+    data = request.json
+    message = data.get('message')
+    user_id = data.get('user_id')
+    api_key = data.get('api_key')
+
+    # Validate API key
+    api_key_obj = APIKey.query.filter_by(key=api_key).first()
+    if not api_key_obj:
+        return jsonify({'error': 'Invalid API key'}), 401
+
+    # Process the message
+    response = process_wp_chatbot_message(message, user_id)
+
+    return jsonify({'response': response})
+
+def process_wp_chatbot_message(message, user_id):
+    # Implement chatbot logic for WordPress/WooCommerce
+    if 'order status' in message.lower():
+        return get_wp_order_status(user_id)
+    elif 'cancel order' in message.lower():
+        return cancel_wp_order(user_id, message)
+    elif 'list orders' in message.lower():
+        return list_wp_orders(user_id)
+    else:
+        return generate_wp_response(message, user_id)
+
+def get_wp_order_status(user_id):
+    # This function would typically interact with WooCommerce API
+    # For demonstration, we'll return a mock response
+    return "Your most recent order (#1234) is Processing."
+
+def cancel_wp_order(user_id, message):
+    # Extract order number from message
+    order_number = extract_order_number(message)
+    if not order_number:
+        return "I couldn't find an order number in your message. Please provide the order number you want to cancel."
+    
+    # This function would typically interact with WooCommerce API to cancel the order
+    # For demonstration, we'll return a mock response
+    return f"Order #{order_number} has been successfully cancelled. If you need any further assistance or have questions about refunds, please let me know."
+
+def list_wp_orders(user_id):
+    # This function would typically interact with WooCommerce API to fetch recent orders
+    # For demonstration, we'll return a mock response
+    return """Here are your 5 most recent orders:
+    Order #1234: Processing - $50.00
+    Order #1233: Completed - $75.50
+    Order #1232: On Hold - $120.00
+    Order #1231: Refunded - $30.00
+    Order #1230: Completed - $200.00"""
+
+def generate_wp_response(message, user_id):
+    # This function would generate a response for non-order related queries
+    # You can implement more sophisticated logic here, possibly using AI models
+    return f"I understand you're asking about '{message}'. How can I assist you further with your WordPress site or WooCommerce store?"
+
+def extract_order_number(message):
+    # Implement logic to extract order number from the message
+    import re
+    match = re.search(r'order (\d+)', message, re.IGNORECASE)
+    return match.group(1) if match else None
+
 if __name__ == "__main__":
     with app.app_context():
         db.create_all()
