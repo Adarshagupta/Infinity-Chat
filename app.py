@@ -55,6 +55,7 @@ from werkzeug.utils import secure_filename
 import stripe
 from extensions import db
 from wp import wp_blueprint
+from sqlalchemy.orm.attributes import flag_modified
 
 # Import models
 from models import User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember, WebsiteInfo, FAQ
@@ -413,19 +414,6 @@ def chat():
         # Fetch custom prompts for the user
         custom_prompts = CustomPrompt.query.filter_by(user_id=api_key_data.user_id).all()
 
-        # Check if the query is related to e-commerce
-        ecommerce_query_types = ['order_status', 'product_info', 'processing_time']
-        query_type = next((qt for qt in ecommerce_query_types if qt in user_input.lower()), None)
-
-        if query_type:
-            # Extract the query parameter (e.g., order number or product ID)
-            query_param = re.search(r'\d+', user_input)
-            if query_param:
-                query_param = query_param.group()
-                ecommerce_data = get_ecommerce_data(api_key_data.user_id, query_type, query_param)
-                if ecommerce_data:
-                    return jsonify({"response": ecommerce_data})
-
         # Prepare messages for AI, including conversation history and custom prompts
         messages = [
             {
@@ -472,6 +460,7 @@ If you need more information to answer accurately, ask the user a clarifying que
         # Append AI response to conversation history
         conversation.messages.append({"role": "assistant", "content": json.dumps(response_with_suggestions)})
         conversation.updated_at = datetime.utcnow()
+        flag_modified(conversation, "messages")
         db.session.commit()
 
         # Record analytics
