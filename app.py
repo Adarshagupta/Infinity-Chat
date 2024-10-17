@@ -347,31 +347,29 @@ def process_ecommerce_response(response):
 def generate_suggested_queries(context, conversation_history, num_suggestions=3):
     full_text = context + ' ' + ' '.join([msg['content'] for msg in conversation_history])
     
-    prompt = f"""Based on the following context and conversation history, generate {num_suggestions} short, one-line follow-up questions a user might ask:
+    prompt = f"""Based on the following context and recent conversation, generate {num_suggestions} very short follow-up questions:
 
-Context: {context}
+Context: {context[:100]}...  # Truncate context for brevity
 
 Conversation History:
 {' '.join([f"{msg['role']}: {msg['content']}" for msg in conversation_history])}
 
-Generate {num_suggestions} short questions:
-1."""
+Generate {num_suggestions} short questions:"""
 
     try:
         response = openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[{"role": "user", "content": prompt}],
-            max_tokens=100,
+            max_tokens=50,  # Reduce token count for faster response
             n=1,
-            stop=None,
             temperature=0.7,
         )
 
         generated_text = response.choices[0].message.content.strip()
         questions = generated_text.split('\n')
         
-        # Remove numbering, ensure questions are short, and remove any empty questions
-        questions = [q.split('. ', 1)[-1].strip()[:50] for q in questions if q.strip()]
+        # Ensure questions are very short
+        questions = [q.split('. ', 1)[-1].strip()[:30] for q in questions if q.strip()]
         
         return questions[:num_suggestions]
     except Exception as e:
@@ -416,7 +414,7 @@ def chat():
         messages = [
             {
                 "role": "system",
-                "content": f"""You are a highly knowledgeable human assistant for this website. Your expertise comes from years of experience working with the company. Use the following content as your knowledge base: {context}
+                "content": f"""You are a concise AI assistant for this website. Provide brief, relevant responses. Context: {context[:200]}...
 
 Key guidelines:
 1. Provide friendly, personalized responses based on your deep understanding of the website and company.
@@ -435,10 +433,17 @@ For e-commerce inquiries:
 - Share current processing times based on the latest operations reports.
 - If specific e-commerce details are unavailable, offer to personally look into it and get back to the customer.
 
+Key points:
+1. Be friendly and personalized.
+2. Use conversational tone.
+3. Be enthusiastic about products/services.
+4. Keep responses under 50 words.
+5. If unsure, ask for clarification.
+
 Custom information:
 {' '.join([f'- {prompt.prompt}: {prompt.response}' for prompt in custom_prompts])}
 
-If you need clarification to provide the best assistance, don't hesitate to ask the customer for more details.""",
+Custom info: {' '.join([f'{prompt.prompt}: {prompt.response[:20]}...' for prompt in custom_prompts[:3]])}"""
             }
         ] + conversation.messages[-5:]  # Include last 5 messages for context
 
@@ -502,11 +507,10 @@ If you need clarification to provide the best assistance, don't hesitate to ask 
         return jsonify({"error": f"Unexpected error: {str(e)}"}), 500
 
 def get_ai_response_stream(llm_type, messages):
-    # Use OpenAI's GPT-4 for all requests with streaming
     response = openai_client.chat.completions.create(
-        model="gpt-4o-mini",
+        model="gpt-3.5-turbo",  # Use a faster model
         messages=messages,
-        max_tokens=100,
+        max_tokens=50,  # Reduce token count for faster, more concise responses
         temperature=0.7,
         stream=True
     )
@@ -517,7 +521,6 @@ def get_ai_response_stream(llm_type, messages):
             accumulated_message += chunk.choices[0].delta.content
             yield json.dumps({"response": accumulated_message}) + "\n\n"
     
-    # Return the accumulated message after the stream is complete
     return accumulated_message
 
 def get_ai_response(llm_type, messages):

@@ -593,7 +593,7 @@
         `;
 
         chatbotDiv.innerHTML += `
-            <audio id="message-received-sound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
+            <audio id="message-received-sound" src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
             <audio id="toggle-sound" src="https://assets.mixkit.co/active_storage/sfx/2356/2356-preview.mp3"></audio>
         `;
 
