@@ -1794,56 +1794,193 @@ def wp_chat():
         return jsonify({'error': 'Invalid API key'}), 401
 
     # Process the message
-    response = process_wp_chatbot_message(message, user_id)
+    response = process_wp_chatbot_message(message, user_id, api_key)
 
     return jsonify({'response': response})
 
-def process_wp_chatbot_message(message, user_id):
-    # Implement chatbot logic for WordPress/WooCommerce
-    if 'order status' in message.lower():
-        return get_wp_order_status(user_id)
-    elif 'cancel order' in message.lower():
-        return cancel_wp_order(user_id, message)
-    elif 'list orders' in message.lower():
-        return list_wp_orders(user_id)
-    else:
-        return generate_wp_response(message, user_id)
-
-def get_wp_order_status(user_id):
-    # This function would typically interact with WooCommerce API
-    # For demonstration, we'll return a mock response
-    return "Your most recent order (#1234) is Processing."
-
-def cancel_wp_order(user_id, message):
-    # Extract order number from message
-    order_number = extract_order_number(message)
-    if not order_number:
-        return "I couldn't find an order number in your message. Please provide the order number you want to cancel."
+def process_wp_chatbot_message(message, user_id, api_key):
+    # Load WordPress and WooCommerce specific context
+    wp_context = load_wp_context(user_id)
     
-    # This function would typically interact with WooCommerce API to cancel the order
-    # For demonstration, we'll return a mock response
-    return f"Order #{order_number} has been successfully cancelled. If you need any further assistance or have questions about refunds, please let me know."
+    # Determine intent
+    intent = determine_wp_intent(message)
+    
+    if intent == 'woocommerce_query':
+        return handle_woocommerce_query(message, user_id, wp_context)
+    elif intent == 'wordpress_query':
+        return handle_wordpress_query(message, user_id, wp_context)
+    else:
+        return generate_wp_ai_response(message, wp_context, api_key)
 
-def list_wp_orders(user_id):
-    # This function would typically interact with WooCommerce API to fetch recent orders
-    # For demonstration, we'll return a mock response
-    return """Here are your 5 most recent orders:
-    Order #1234: Processing - $50.00
-    Order #1233: Completed - $75.50
-    Order #1232: On Hold - $120.00
-    Order #1231: Refunded - $30.00
-    Order #1230: Completed - $200.00"""
+def load_wp_context(user_id):
+    # Load user-specific WordPress and WooCommerce context
+    user = User.query.get(user_id)
+    website_info = WebsiteInfo.query.filter_by(user_id=user_id).first()
+    faq_items = FAQ.query.filter_by(user_id=user_id).order_by(FAQ.order).all()
+    
+    context = {
+        "website_name": website_info.name if website_info else "",
+        "website_description": website_info.description if website_info else "",
+        "website_features": website_info.features.split(',') if website_info and website_info.features else [],
+        "faq": [{"question": faq.question, "answer": faq.answer} for faq in faq_items],
+        "woocommerce_enabled": check_woocommerce_enabled(user_id),
+    }
+    
+    return context
 
-def generate_wp_response(message, user_id):
-    # This function would generate a response for non-order related queries
-    # You can implement more sophisticated logic here, possibly using AI models
-    return f"I understand you're asking about '{message}'. How can I assist you further with your WordPress site or WooCommerce store?"
+def determine_wp_intent(message):
+    # Implement intent determination logic for WordPress and WooCommerce
+    woocommerce_keywords = ['product', 'order', 'cart', 'checkout', 'payment', 'shipping']
+    wordpress_keywords = ['post', 'page', 'theme', 'plugin', 'user', 'comment']
+    
+    message = message.lower()
+    
+    if any(keyword in message for keyword in woocommerce_keywords):
+        return 'woocommerce_query'
+    elif any(keyword in message for keyword in wordpress_keywords):
+        return 'wordpress_query'
+    else:
+        return 'general_query'
 
-def extract_order_number(message):
-    # Implement logic to extract order number from the message
-    import re
-    match = re.search(r'order (\d+)', message, re.IGNORECASE)
-    return match.group(1) if match else None
+def handle_woocommerce_query(message, user_id, context):
+    # Implement WooCommerce-specific query handling
+    if 'order status' in message.lower():
+        return get_order_status(user_id, message)
+    elif 'product' in message.lower():
+        return get_product_info(user_id, message)
+    elif 'cart' in message.lower():
+        return get_cart_info(user_id)
+    else:
+        return "I understand you're asking about WooCommerce. Can you please provide more details about your query?"
+
+def handle_wordpress_query(message, user_id, context):
+    # Implement WordPress-specific query handling
+    if 'post' in message.lower():
+        return get_post_info(user_id, message)
+    elif 'page' in message.lower():
+        return get_page_info(user_id, message)
+    elif 'plugin' in message.lower():
+        return get_plugin_info(user_id, message)
+    else:
+        return "I understand you're asking about WordPress. Can you please provide more details about your query?"
+
+def generate_wp_ai_response(message, context, api_key):
+    # Use AI model to generate a response based on WordPress and WooCommerce context
+    prompt = f"""
+    WordPress site: {context['website_name']}
+    Description: {context['website_description']}
+    Features: {', '.join(context['website_features'])}
+    WooCommerce: {'enabled' if context['woocommerce_enabled'] else 'not enabled'}
+    FAQ: {' '.join([f"Q: {faq['question']} A: {faq['answer']}" for faq in context['faq']])}
+    Query: {message}
+    Provide a concise, helpful response:
+    """
+    
+    # Use your AI model (e.g., GPT-3) to generate a response
+    response = generate_ai_response(prompt, api_key)
+    
+    return response
+
+# Implement these functions based on your WooCommerce integration
+def get_order_status(user_id, message):
+    # Extract order number and fetch status from WooCommerce
+    pass
+
+def get_product_info(user_id, message):
+    # Extract product name/ID and fetch info from WooCommerce
+    pass
+
+def get_cart_info(user_id):
+    # Fetch current cart info for the user
+    pass
+
+# Implement these functions based on your WordPress integration
+def get_post_info(user_id, message):
+    # Extract post title/ID and fetch info from WordPress
+    pass
+
+def get_page_info(user_id, message):
+    # Extract page title/ID and fetch info from WordPress
+    pass
+
+def get_plugin_info(user_id, message):
+    # Extract plugin name and fetch info from WordPress
+    pass
+
+def check_woocommerce_enabled(user_id):
+    # Check if WooCommerce is enabled for the user's WordPress site
+    pass
+
+wp_woo_finetuning_data = [
+    {"input": "How do I track my order?", "output": "To track your order, go to My Account > Orders. Click on your order number and look for tracking information. If not available, please contact us with your order number."},
+    {"input": "I need to return an item", "output": "For returns, please visit our Returns page. You'll need your order number and reason for return. Unopened items can be returned within 30 days of purchase."},
+    {"input": "My discount code isn't working", "output": "Sorry for the trouble. Please check: 1) Code hasn't expired, 2) Minimum purchase met, 3) Code applies to your items. If issues persist, contact us with the code details."},
+    {"input": "How long will shipping take?", "output": "Shipping times vary: Standard (3-5 business days), Express (1-2 business days). International orders may take longer. Check your order confirmation for estimated delivery date."},
+    {"input": "Can I change my order?", "output": "Order changes are possible only if not yet shipped. Contact us immediately with your order number and requested changes. We'll do our best to accommodate."},
+    {"input": "I haven't received my order", "output": "I'm sorry to hear that. Please check your tracking info in My Account > Orders. If it shows delivered but you haven't received it, contact us with your order number for assistance."},
+    {"input": "Do you offer international shipping?", "output": "Yes, we ship internationally to most countries. Shipping costs and times vary. Enter your address at checkout to see available options and costs for your location."},
+    {"input": "How do I reset my password?", "output": "To reset your password, click 'Lost your password?' on the login page. Enter your email and follow the instructions sent to you. Contact us if you need further assistance."},
+    {"input": "Can I cancel my subscription?", "output": "Yes, you can cancel your subscription anytime. Go to My Account > Subscriptions, find the subscription you want to cancel, and click 'Cancel'. Contact us if you need help."},
+    {"input": "Product is out of stock", "output": "I'm sorry the product is out of stock. You can sign up for email notifications on the product page to be alerted when it's back. For alternatives, please contact our support team."},
+    {"input": "How do I apply a coupon?", "output": "To apply a coupon, add items to your cart, go to checkout, and enter your coupon code in the 'Coupon code' field. Click 'Apply coupon'. The discount will be reflected in your total."},
+    {"input": "I received a damaged item", "output": "We're sorry about that. Please take a photo of the damaged item and contact us with your order number and the photo. We'll arrange a replacement or refund as soon as possible."},
+    {"input": "How do I check order status?", "output": "To check your order status, log into My Account > Orders. Click on the order number to see detailed status. If you need more info, please contact us with your order number."},
+    {"input": "Can I change my shipping address?", "output": "Address changes are possible only if the order hasn't shipped. Contact us immediately with your order number and new address. We'll try our best to update it."},
+    {"input": "Do you offer gift wrapping?", "output": "Yes, we offer gift wrapping for a small fee. Select the gift wrap option during checkout. You can also add a personalized message for free."},
+    {"input": "How do I create an account?", "output": "To create an account, click 'My Account' and choose 'Register'. Enter your email and create a password. You can also create an account during checkout."},
+    {"input": "What payment methods do you accept?", "output": "We accept credit/debit cards (Visa, MasterCard, American Express), PayPal, and Apple Pay. You can see all available payment options at checkout."},
+    {"input": "How can I contact customer support?", "output": "You can reach our customer support team via email at support@ourstore.com, by phone at 1-800-123-4567 (Mon-Fri, 9am-5pm EST), or through the contact form on our website."},
+    {"input": "Do you have a size guide?", "output": "Yes, we have a size guide for our products. You can find it on each product page or in our FAQ section. If you need help with sizing, please contact our support team."},
+    {"input": "Can I change the email on my account?", "output": "Yes, you can change your email. Go to My Account > Account Details. Update your email and save changes. For security, you might need to confirm the change via a link sent to your new email."}
+]
+
+def fine_tune_wp_woo_model(api_key):
+    # This function would use the wp_woo_finetuning_data to fine-tune your AI model
+    # The implementation depends on your specific AI model and fine-tuning process
+    # Here's a placeholder implementation:
+    
+    model = load_base_model(api_key)
+    
+    for item in wp_woo_finetuning_data:
+        model.train(input=item['input'], expected_output=item['output'])
+    
+    save_fine_tuned_model(model, api_key)
+    
+    return "Model fine-tuned successfully for WordPress and WooCommerce customer support queries."
+
+def generate_wp_ai_response(message, context, api_key):
+    # Load the fine-tuned model for this user/API key
+    model = load_fine_tuned_model(api_key)
+    
+    # Prepare the prompt with context
+    prompt = f"""
+    WordPress site: {context['website_name']}
+    Description: {context['website_description']}
+    Features: {', '.join(context['website_features'])}
+    WooCommerce: {'enabled' if context['woocommerce_enabled'] else 'not enabled'}
+    FAQ: {' '.join([f"Q: {faq['question']} A: {faq['answer']}" for faq in context['faq']])}
+    Query: {message}
+    Provide a concise, helpful response:
+    """
+    
+    # Generate response using the fine-tuned model
+    response = model.generate(prompt)
+    
+    return response
+
+# ... (keep other existing functions)
+
+@app.route('/fine_tune_wp_woo', methods=['POST'])
+def fine_tune_wp_woo():
+    data = request.json
+    api_key = data.get('api_key')
+    
+    if not api_key:
+        return jsonify({'error': 'API key is required'}), 400
+    
+    result = fine_tune_wp_woo_model(api_key)
+    
+    return jsonify({'message': result}), 200
 
 if __name__ == "__main__":
     with app.app_context():
