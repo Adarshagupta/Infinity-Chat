@@ -50,6 +50,7 @@ import httpx
 import base64
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from woocommerce import API
 
 # Import models
 from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember, WebsiteInfo, FAQ
@@ -1581,6 +1582,201 @@ def update_faq_order():
 
 # Add this import at the top of the file
 import random
+
+@app.route('/api/integrate_woocommerce', methods=['POST'])
+@login_required
+def integrate_woocommerce():
+    data = request.json
+    store_url = data.get('store_url')
+    consumer_key = data.get('consumer_key')
+    consumer_secret = data.get('consumer_secret')
+
+    if not all([store_url, consumer_key, consumer_secret]):
+        return jsonify({'error': 'Missing required fields'}), 400
+
+    try:
+        wcapi = API(
+            url=store_url,
+            consumer_key=consumer_key,
+            consumer_secret=consumer_secret,
+            version="wc/v3"
+        )
+
+        # Test the connection
+        response = wcapi.get("products")
+        if response.status_code != 200:
+            return jsonify({'error': 'Failed to connect to WooCommerce'}), 400
+
+        # Save the integration
+        integration = EcommerceIntegration(
+            user_id=current_user.id,
+            platform='woocommerce',
+            api_key=consumer_key,
+            api_secret=consumer_secret,
+            store_url=store_url
+        )
+        db.session.add(integration)
+        db.session.commit()
+
+        return jsonify({'message': 'WooCommerce integration successful'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+def manage_woocommerce_order(integration, action, order_data=None):
+    wcapi = API(
+        url=integration.store_url,
+        consumer_key=integration.api_key,
+        consumer_secret=integration.api_secret,
+        version="wc/v3"
+    )
+
+    if action == 'create':
+        response = wcapi.post("orders", order_data)
+    elif action == 'update':
+        response = wcapi.put(f"orders/{order_data['id']}", order_data)
+    elif action == 'get':
+        response = wcapi.get(f"orders/{order_data['id']}")
+    elif action == 'list':
+        response = wcapi.get("orders")
+    else:
+        raise ValueError("Invalid action")
+
+    return response.json()
+
+@app.route('/api/woocommerce/orders', methods=['GET', 'POST', 'PUT'])
+@login_required
+def woocommerce_orders():
+    integration = EcommerceIntegration.query.filter_by(user_id=current_user.id, platform='woocommerce').first()
+    if not integration:
+        return jsonify({'error': 'WooCommerce integration not found'}), 404
+
+    if request.method == 'GET':
+        order_id = request.args.get('id')
+        if order_id:
+            return jsonify(manage_woocommerce_order(integration, 'get', {'id': order_id}))
+        else:
+            return jsonify(manage_woocommerce_order(integration, 'list'))
+
+    elif request.method == 'POST':
+        order_data = request.json
+        return jsonify(manage_woocommerce_order(integration, 'create', order_data))
+
+    elif request.method == 'PUT':
+        order_data = request.json
+        return jsonify(manage_woocommerce_order(integration, 'update', order_data))
+
+@app.route('/wc_chat', methods=['POST'])
+def wc_chat():
+    data = request.json
+    message = data.get('message')
+    user_id = data.get('user_id')
+    api_key = data.get('api_key')
+
+    # Validate API key
+    api_key_obj = APIKey.query.filter_by(key=api_key).first()
+    if not api_key_obj:
+        return jsonify({'error': 'Invalid API key'}), 401
+
+    # Process the message
+    response = process_chatbot_message(message, user_id)
+
+    return jsonify({'response': response})
+
+def process_chatbot_message(message, user_id):
+    # Implement your chatbot logic here
+    # This is where you'd handle order-related queries and actions
+    
+    if 'order status' in message.lower():
+        # Fetch order status
+        return get_order_status(user_id)
+    elif 'create order' in message.lower():
+        # Create a new order
+        return create_order(user_id, message)
+    elif 'update order' in message.lower():
+        # Update an existing order
+        return update_order(user_id, message)
+    else:
+        return "I'm sorry, I didn't understand that. Can you please rephrase your question?"
+
+def get_order_status(user_id):
+    integration = EcommerceIntegration.query.filter_by(user_id=user_id, platform='woocommerce').first()
+    if not integration:
+        return "Sorry, you don't have a WooCommerce integration set up."
+
+    # Fetch recent orders
+    orders = manage_woocommerce_order(integration, 'list')
+    if orders:
+        recent_order = orders[0]
+        return f"Your most recent order (#{recent_order['id']}) is {recent_order['status']}."
+    else:
+        return "You don't have any recent orders."
+
+def create_order(user_id, message):
+    # This is a simplified example. In a real-world scenario, you'd need to parse the message
+    # to extract order details like products, quantities, etc.
+    integration = EcommerceIntegration.query.filter_by(user_id=user_id, platform='woocommerce').first()
+    if not integration:
+        return "Sorry, you don't have a WooCommerce integration set up."
+
+    order_data = {
+        "payment_method": "bacs",
+        "payment_method_title": "Direct Bank Transfer",
+        "set_paid": True,
+        "billing": {
+            "first_name": "John",
+            "last_name": "Doe",
+            "address_1": "969 Market",
+            "address_2": "",
+            "city": "San Francisco",
+            "state": "CA",
+            "postcode": "94103",
+            "country": "US",
+            "email": "john.doe@example.com",
+            "phone": "(555) 555-5555"
+        },
+        "line_items": [
+            {
+                "product_id": 93,
+                "quantity": 2
+            },
+            {
+                "product_id": 22,
+                "variation_id": 23,
+                "quantity": 1
+            }
+        ]
+    }
+
+    result = manage_woocommerce_order(integration, 'create', order_data)
+    return f"Order created successfully. Your order number is {result['id']}."
+
+def update_order(user_id, message):
+    # Again, this is a simplified example. You'd need to parse the message to extract
+    # the order ID and the details to be updated.
+    integration = EcommerceIntegration.query.filter_by(user_id=user_id, platform='woocommerce').first()
+    if not integration:
+        return "Sorry, you don't have a WooCommerce integration set up."
+
+    # Assuming the message contains the order ID to be updated
+    order_id = extract_order_id(message)
+    if not order_id:
+        return "I couldn't find an order ID in your message. Can you please provide the order number you want to update?"
+
+    update_data = {
+        "id": order_id,
+        "status": "completed"
+    }
+
+    result = manage_woocommerce_order(integration, 'update', update_data)
+    return f"Order #{result['id']} has been updated. The new status is {result['status']}."
+
+def extract_order_id(message):
+    # Implement logic to extract order ID from the message
+    # This is a placeholder implementation
+    import re
+    match = re.search(r'order (\d+)', message, re.IGNORECASE)
+    return match.group(1) if match else None
 
 if __name__ == "__main__":
     with app.app_context():

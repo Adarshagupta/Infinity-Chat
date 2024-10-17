@@ -89,6 +89,7 @@ class EcommerceIntegration(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     platform = db.Column(db.String(50), nullable=False)
     api_key = db.Column(db.String(255), nullable=False)
+    api_secret = db.Column(db.String(255), nullable=False)  # Add this for WooCommerce
     store_url = db.Column(db.String(255), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
