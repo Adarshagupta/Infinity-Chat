@@ -118,19 +118,24 @@ def extract_text_from_url(url):
 def generate_integration_code(api_key):
     return f"""
 <!-- AI Chatbot Integration -->
-<script src="https://infin8t.tech/chatbot.js?api_key={api_key}"></script>
+<script src="https://infin8t.tech/chatbot.js?api_key={api_key}&open=0"></script>
 """
 
 @app.route("/chatbot.js", methods=["GET", "POST"])
 def chatbot_script():
     try:
         api_key = request.args.get("api_key")
+        open_design = request.args.get("open", "0")  # Default to "0" if not provided
+        
         if not api_key:
             app.logger.error("API key not provided in request")
             return jsonify({"error": "API key is required"}), 400
 
-        # Read the script from design.txt
-        script_path = os.path.join(app.root_path, "design.txt")
+        # Determine which design file to use
+        design_file = "design1.txt" if open_design == "1" else "design.txt"
+        
+        # Read the script from the appropriate design file
+        script_path = os.path.join(app.root_path, design_file)
         with open(script_path, "r") as file:
             script = file.read()
 
