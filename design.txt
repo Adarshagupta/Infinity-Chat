@@ -761,8 +761,8 @@
                                             response: accumulatedResponse,
                                             suggested_queries: data.suggested_queries
                                         };
-                                        aiMessageElement.innerHTML = ''; // Clear the real-time message
-                                        addMessage('AI', finalResponse);
+                                        // Instead of creating a new message, update the existing one
+                                        updateAIMessage(aiMessageElement, finalResponse);
                                         playSound('message-received-sound');
                                         return;
                                     }
@@ -774,8 +774,7 @@
                     }
 
                     // If we reach here, there was no final response with suggested queries
-                    aiMessageElement.innerHTML = ''; // Clear the real-time message
-                    addMessage('AI', { response: accumulatedResponse });
+                    updateAIMessage(aiMessageElement, { response: accumulatedResponse });
                     playSound('message-received-sound');
                 } catch (error) {
                     console.error('Error:', error);
@@ -783,6 +782,25 @@
                 }
             }
         };
+
+        // Add this new function to update the AI message
+        function updateAIMessage(messageElement, data) {
+            let html = `<p>${data.response}</p>`;
+            
+            if (data.suggested_queries && data.suggested_queries.length > 0) {
+                html += '<div class="suggested-queries">';
+                html += '<p>You might also want to ask:</p>';
+                html += '<ul>';
+                data.suggested_queries.forEach(query => {
+                    html += `<li><a href="#" onclick="handleSuggestedQuery('${query}'); return false;">${query}</a></li>`;
+                });
+                html += '</ul>';
+                html += '</div>';
+            }
+            
+            messageElement.innerHTML = html;
+            messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
 
         window.scrollCarousel = function(direction) {
             const container = document.querySelector('.product-container');
