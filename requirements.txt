@@ -21,3 +21,4 @@ SQLAlchemy
 alembic
 flask_caching
 stripe
+openai

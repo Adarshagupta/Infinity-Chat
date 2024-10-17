@@ -15,7 +15,6 @@ from flask_migrate import Migrate
 from werkzeug.security import generate_password_hash, check_password_hash
 import requests
 from bs4 import BeautifulSoup
-from together import Together
 from openai import OpenAI
 import os
 import json
@@ -54,26 +53,24 @@ from woocommerce import API
 from flask_caching import Cache
 from werkzeug.utils import secure_filename
 import stripe
+from extensions import db
+from wp import wp_blueprint
 
 # Import models
-from models import db, User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember, WebsiteInfo, FAQ
+from models import User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember, WebsiteInfo, FAQ
 
 # Load environment variables from .env file
 load_dotenv()
 
-# Get the API keys from the environment variables
-together_api_key = os.getenv("TOGETHER_API_KEY")
+# Get the API key from the environment variables
 openai_api_key = os.getenv("OPENAI_API_KEY")
 HUME_API_KEY = os.getenv('HUME_API_KEY')
 HUME_SECRET_KEY = os.getenv('HUME_SECRET_KEY')
 
-if not together_api_key:
-    raise ValueError("No Together API key set for TOGETHER_API_KEY")
 if not openai_api_key:
     raise ValueError("No OpenAI API key set for OPENAI_API_KEY")
 
-together_client = Together(api_key=together_api_key)
-openai_client = OpenAI(api_key=openai_api_key, base_url="https://api.aimlapi.com")
+openai_client = OpenAI(api_key=openai_api_key)
 
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}}, supports_credentials=True)
@@ -99,6 +96,8 @@ app.config["SECRET_KEY"] = os.getenv(
 app.config["SQLALCHEMY_DATABASE_URI"] = os.getenv("DATABASE_URL", "sqlite:///users.db")
 db.init_app(app)
 migrate = Migrate(app, db)
+
+app.register_blueprint(wp_blueprint, url_prefix='/wp')
 
 # Define the login_required decorator
 def login_required(f):
@@ -598,25 +597,14 @@ def get_ai_response(llm_type, messages):
         # Update the system message with website-specific context
         messages[0]['content'] = website_context + messages[0]['content']
 
-    if llm_type == "together":
-        response = together_client.chat.completions.create(
-            model="meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
-            messages=messages,
-            max_tokens=100,
-            temperature=2,
-            top_p=1,
-            top_k=100,
-            repetition_penalty=1,
-            stop=["<|eot_id|>", "<|eom_id|>"],
-        )
-        raw_response = response.choices[0].message.content
-    elif llm_type == "openai":
-        response = openai_client.chat.completions.create(
-            model="gpt-4", messages=messages, max_tokens=128, temperature=0.7
-        )
-        raw_response = response.choices[0].message.content
-    else:
-        raise ValueError("Invalid LLM specified")
+    # Use OpenAI's GPT-4 for all requests
+    response = openai_client.chat.completions.create(
+        model="gpt-4",
+        messages=messages,
+        max_tokens=150,
+        temperature=0.7
+    )
+    raw_response = response.choices[0].message.content
 
     # Ensure raw_response is a string
     if not isinstance(raw_response, str):
@@ -753,30 +741,19 @@ def get_analytics():
 
 @app.route("/test_apis")
 def test_apis():
-    together_result = "Failed"
     openai_result = "Failed"
 
     try:
-        response = together_client.chat.completions.create(
-            model="meta-llama/Llama-3.2-11B-Vision-Instruct-Turbo",
+        response = openai_client.chat.completions.create(
+            model="gpt-4",
             messages=[{"role": "user", "content": "Hello"}],
             max_tokens=5,
         )
-        together_result = "Success"
-    except Exception as e:
-        logger.error(f"Together API connection error: {str(e)}")
-
-    try:
-        response = openai_client.chat.completions.create(
-            model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": "Hello"}],
-            max_tokens=5,
-        ) 
         openai_result = "Success"
     except Exception as e:
         logger.error(f"OpenAI API connection error: {str(e)}")
 
-    return f"Together API: {together_result}, OpenAI API: {openai_result}"
+    return f"OpenAI API: {openai_result}"
 
 
 @app.route("/dashboard/home/api/update_profile", methods=["POST"])
@@ -1780,207 +1757,6 @@ def extract_order_id(message):
     import re
     match = re.search(r'order (\d+)', message, re.IGNORECASE)
     return match.group(1) if match else None
-
-@app.route('/wp_chat', methods=['POST'])
-def wp_chat():
-    data = request.json
-    message = data.get('message')
-    user_id = data.get('user_id')
-    api_key = data.get('api_key')
-
-    # Validate API key
-    api_key_obj = APIKey.query.filter_by(key=api_key).first()
-    if not api_key_obj:
-        return jsonify({'error': 'Invalid API key'}), 401
-
-    # Process the message
-    response = process_wp_chatbot_message(message, user_id, api_key)
-
-    return jsonify({'response': response})
-
-def process_wp_chatbot_message(message, user_id, api_key):
-    # Load WordPress and WooCommerce specific context
-    wp_context = load_wp_context(user_id)
-    
-    # Determine intent
-    intent = determine_wp_intent(message)
-    
-    if intent == 'woocommerce_query':
-        return handle_woocommerce_query(message, user_id, wp_context)
-    elif intent == 'wordpress_query':
-        return handle_wordpress_query(message, user_id, wp_context)
-    else:
-        return generate_wp_ai_response(message, wp_context, api_key)
-
-def load_wp_context(user_id):
-    # Load user-specific WordPress and WooCommerce context
-    user = User.query.get(user_id)
-    website_info = WebsiteInfo.query.filter_by(user_id=user_id).first()
-    faq_items = FAQ.query.filter_by(user_id=user_id).order_by(FAQ.order).all()
-    
-    context = {
-        "website_name": website_info.name if website_info else "",
-        "website_description": website_info.description if website_info else "",
-        "website_features": website_info.features.split(',') if website_info and website_info.features else [],
-        "faq": [{"question": faq.question, "answer": faq.answer} for faq in faq_items],
-        "woocommerce_enabled": check_woocommerce_enabled(user_id),
-    }
-    
-    return context
-
-def determine_wp_intent(message):
-    # Implement intent determination logic for WordPress and WooCommerce
-    woocommerce_keywords = ['product', 'order', 'cart', 'checkout', 'payment', 'shipping']
-    wordpress_keywords = ['post', 'page', 'theme', 'plugin', 'user', 'comment']
-    
-    message = message.lower()
-    
-    if any(keyword in message for keyword in woocommerce_keywords):
-        return 'woocommerce_query'
-    elif any(keyword in message for keyword in wordpress_keywords):
-        return 'wordpress_query'
-    else:
-        return 'general_query'
-
-def handle_woocommerce_query(message, user_id, context):
-    # Implement WooCommerce-specific query handling
-    if 'order status' in message.lower():
-        return get_order_status(user_id, message)
-    elif 'product' in message.lower():
-        return get_product_info(user_id, message)
-    elif 'cart' in message.lower():
-        return get_cart_info(user_id)
-    else:
-        return "I understand you're asking about WooCommerce. Can you please provide more details about your query?"
-
-def handle_wordpress_query(message, user_id, context):
-    # Implement WordPress-specific query handling
-    if 'post' in message.lower():
-        return get_post_info(user_id, message)
-    elif 'page' in message.lower():
-        return get_page_info(user_id, message)
-    elif 'plugin' in message.lower():
-        return get_plugin_info(user_id, message)
-    else:
-        return "I understand you're asking about WordPress. Can you please provide more details about your query?"
-
-def generate_wp_ai_response(message, context, api_key):
-    # Use AI model to generate a response based on WordPress and WooCommerce context
-    prompt = f"""
-    WordPress site: {context['website_name']}
-    Description: {context['website_description']}
-    Features: {', '.join(context['website_features'])}
-    WooCommerce: {'enabled' if context['woocommerce_enabled'] else 'not enabled'}
-    FAQ: {' '.join([f"Q: {faq['question']} A: {faq['answer']}" for faq in context['faq']])}
-    Query: {message}
-    Provide a concise, helpful response:
-    """
-    
-    # Use your AI model (e.g., GPT-3) to generate a response
-    response = generate_ai_response(prompt, api_key)
-    
-    return response
-
-# Implement these functions based on your WooCommerce integration
-def get_order_status(user_id, message):
-    # Extract order number and fetch status from WooCommerce
-    pass
-
-def get_product_info(user_id, message):
-    # Extract product name/ID and fetch info from WooCommerce
-    pass
-
-def get_cart_info(user_id):
-    # Fetch current cart info for the user
-    pass
-
-# Implement these functions based on your WordPress integration
-def get_post_info(user_id, message):
-    # Extract post title/ID and fetch info from WordPress
-    pass
-
-def get_page_info(user_id, message):
-    # Extract page title/ID and fetch info from WordPress
-    pass
-
-def get_plugin_info(user_id, message):
-    # Extract plugin name and fetch info from WordPress
-    pass
-
-def check_woocommerce_enabled(user_id):
-    # Check if WooCommerce is enabled for the user's WordPress site
-    pass
-
-wp_woo_finetuning_data = [
-    {"input": "How do I track my order?", "output": "To track your order, go to My Account > Orders. Click on your order number and look for tracking information. If not available, please contact us with your order number."},
-    {"input": "I need to return an item", "output": "For returns, please visit our Returns page. You'll need your order number and reason for return. Unopened items can be returned within 30 days of purchase."},
-    {"input": "My discount code isn't working", "output": "Sorry for the trouble. Please check: 1) Code hasn't expired, 2) Minimum purchase met, 3) Code applies to your items. If issues persist, contact us with the code details."},
-    {"input": "How long will shipping take?", "output": "Shipping times vary: Standard (3-5 business days), Express (1-2 business days). International orders may take longer. Check your order confirmation for estimated delivery date."},
-    {"input": "Can I change my order?", "output": "Order changes are possible only if not yet shipped. Contact us immediately with your order number and requested changes. We'll do our best to accommodate."},
-    {"input": "I haven't received my order", "output": "I'm sorry to hear that. Please check your tracking info in My Account > Orders. If it shows delivered but you haven't received it, contact us with your order number for assistance."},
-    {"input": "Do you offer international shipping?", "output": "Yes, we ship internationally to most countries. Shipping costs and times vary. Enter your address at checkout to see available options and costs for your location."},
-    {"input": "How do I reset my password?", "output": "To reset your password, click 'Lost your password?' on the login page. Enter your email and follow the instructions sent to you. Contact us if you need further assistance."},
-    {"input": "Can I cancel my subscription?", "output": "Yes, you can cancel your subscription anytime. Go to My Account > Subscriptions, find the subscription you want to cancel, and click 'Cancel'. Contact us if you need help."},
-    {"input": "Product is out of stock", "output": "I'm sorry the product is out of stock. You can sign up for email notifications on the product page to be alerted when it's back. For alternatives, please contact our support team."},
-    {"input": "How do I apply a coupon?", "output": "To apply a coupon, add items to your cart, go to checkout, and enter your coupon code in the 'Coupon code' field. Click 'Apply coupon'. The discount will be reflected in your total."},
-    {"input": "I received a damaged item", "output": "We're sorry about that. Please take a photo of the damaged item and contact us with your order number and the photo. We'll arrange a replacement or refund as soon as possible."},
-    {"input": "How do I check order status?", "output": "To check your order status, log into My Account > Orders. Click on the order number to see detailed status. If you need more info, please contact us with your order number."},
-    {"input": "Can I change my shipping address?", "output": "Address changes are possible only if the order hasn't shipped. Contact us immediately with your order number and new address. We'll try our best to update it."},
-    {"input": "Do you offer gift wrapping?", "output": "Yes, we offer gift wrapping for a small fee. Select the gift wrap option during checkout. You can also add a personalized message for free."},
-    {"input": "How do I create an account?", "output": "To create an account, click 'My Account' and choose 'Register'. Enter your email and create a password. You can also create an account during checkout."},
-    {"input": "What payment methods do you accept?", "output": "We accept credit/debit cards (Visa, MasterCard, American Express), PayPal, and Apple Pay. You can see all available payment options at checkout."},
-    {"input": "How can I contact customer support?", "output": "You can reach our customer support team via email at support@ourstore.com, by phone at 1-800-123-4567 (Mon-Fri, 9am-5pm EST), or through the contact form on our website."},
-    {"input": "Do you have a size guide?", "output": "Yes, we have a size guide for our products. You can find it on each product page or in our FAQ section. If you need help with sizing, please contact our support team."},
-    {"input": "Can I change the email on my account?", "output": "Yes, you can change your email. Go to My Account > Account Details. Update your email and save changes. For security, you might need to confirm the change via a link sent to your new email."}
-]
-
-def fine_tune_wp_woo_model(api_key):
-    # This function would use the wp_woo_finetuning_data to fine-tune your AI model
-    # The implementation depends on your specific AI model and fine-tuning process
-    # Here's a placeholder implementation:
-    
-    model = load_base_model(api_key)
-    
-    for item in wp_woo_finetuning_data:
-        model.train(input=item['input'], expected_output=item['output'])
-    
-    save_fine_tuned_model(model, api_key)
-    
-    return "Model fine-tuned successfully for WordPress and WooCommerce customer support queries."
-
-def generate_wp_ai_response(message, context, api_key):
-    # Load the fine-tuned model for this user/API key
-    model = load_fine_tuned_model(api_key)
-    
-    # Prepare the prompt with context
-    prompt = f"""
-    WordPress site: {context['website_name']}
-    Description: {context['website_description']}
-    Features: {', '.join(context['website_features'])}
-    WooCommerce: {'enabled' if context['woocommerce_enabled'] else 'not enabled'}
-    FAQ: {' '.join([f"Q: {faq['question']} A: {faq['answer']}" for faq in context['faq']])}
-    Query: {message}
-    Provide a concise, helpful response:
-    """
-    
-    # Generate response using the fine-tuned model
-    response = model.generate(prompt)
-    
-    return response
-
-# ... (keep other existing functions)
-
-@app.route('/fine_tune_wp_woo', methods=['POST'])
-def fine_tune_wp_woo():
-    data = request.json
-    api_key = data.get('api_key')
-    
-    if not api_key:
-        return jsonify({'error': 'API key is required'}), 400
-    
-    result = fine_tune_wp_woo_model(api_key)
-    
-    return jsonify({'message': result}), 200
 
 if __name__ == "__main__":
     with app.app_context():
