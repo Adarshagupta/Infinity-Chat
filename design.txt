@@ -49,7 +49,7 @@
 
                 #ai-chatbot .chatbot-container {
                     width: 420px;
-                    height: 680px;
+                    height: 720px; // Increased from 680px
                     background: #FFFFFF;
                     border-radius: 20px;
                     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -108,6 +108,8 @@
                     margin-bottom: 20px;
                     font-size: 24px;
                     text-align: center;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
                 }
 
                 #ai-chatbot #home-content p {
@@ -115,6 +117,122 @@
                     line-height: 1.6;
                     margin-bottom: 25px;
                     text-align: center;
+                }
+
+                #ai-chatbot .ask-question-banner {
+                    background: linear-gradient(135deg, #6e8efb, #a777e3);
+                    color: white;
+                    padding: 25px;
+                    border-radius: 15px;
+                    text-align: center;
+                    margin-bottom: 25px;
+                    box-shadow: 0 10px 20px rgba(110, 142, 251, 0.2);
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                #ai-chatbot .ask-question-banner::before {
+                    content: '';
+                    position: absolute;
+                    top: -50%;
+                    left: -50%;
+                    width: 200%;
+                    height: 200%;
+                    background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 80%);
+                    transform: rotate(30deg);
+                }
+
+                #ai-chatbot .ask-question-banner h3 {
+                    font-size: 22px;
+                    margin-bottom: 12px;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
+                    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+                }
+
+                #ai-chatbot .ask-question-banner p {
+                    font-size: 15px;
+                    margin-bottom: 20px;
+                    opacity: 0.9;
+                    line-height: 1.5;
+                }
+
+                #ai-chatbot .ask-question-button {
+                    background-color: white;
+                    color: #6e8efb;
+                    border: none;
+                    padding: 12px 25px;
+                    border-radius: 25px;
+                    font-size: 15px;
+                    font-weight: 600;
+                    cursor: pointer;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+                    position: relative;
+                    overflow: hidden;
+                }
+
+                #ai-chatbot .ask-question-button::before {
+                    content: '';
+                    position: absolute;
+                    top: 0;
+                    left: -100%;
+                    width: 100%;
+                    height: 100%;
+                    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+                    transition: 0.5s;
+                }
+
+                #ai-chatbot .ask-question-button:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+                }
+
+                #ai-chatbot .ask-question-button:hover::before {
+                    left: 100%;
+                }
+
+                #ai-chatbot .feature-grid {
+                    display: grid;
+                    grid-template-columns: repeat(2, 1fr);
+                    gap: 15px;
+                    margin-top: 25px;
+                }
+
+                #ai-chatbot .feature-item {
+                    background: white;
+                    padding: 15px;
+                    border-radius: 12px;
+                    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+                    text-align: center;
+                    transition: all 0.3s ease;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                }
+
+                #ai-chatbot .feature-item:hover {
+                    transform: translateY(-3px);
+                    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+                }
+
+                #ai-chatbot .feature-icon {
+                    font-size: 28px;
+                    margin-bottom: 10px;
+                    color: #4A90E2;
+                    background: #f0f7ff;
+                    width: 50px;
+                    height: 50px;
+                    border-radius: 50%;
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                }
+
+                #ai-chatbot .feature-text {
+                    font-size: 14px;
+                    color: #333;
+                    font-weight: 500;
                 }
 
                 #ai-chatbot #home-content ul {
@@ -163,22 +281,70 @@
                     color: #333;
                 }
 
-                #ai-chatbot #help-content .faq-item {
-                    margin-bottom: 20px;
-                    background: white;
-                    padding: 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+                #ai-chatbot #help-content {
+                    background: linear-gradient(135deg, #f6f9fe, #edf1f9);
                 }
 
-                #ai-chatbot #help-content h3 {
+                #ai-chatbot #help-content h2 {
                     color: #4A90E2;
-                    margin-bottom: 10px;
+                    font-size: 24px;
+                    text-align: center;
+                    margin-bottom: 20px;
+                    font-weight: 700;
+                    letter-spacing: 0.5px;
                 }
 
-                #ai-chatbot #help-content p {
+                #ai-chatbot #help-content .faq-item {
+                    background: white;
+                    border-bottom: 1px solid #e0e0e0;
+                    transition: all 0.3s ease;
+                }
+
+                #ai-chatbot #help-content .faq-item:last-child {
+                    border-bottom: none;
+                }
+
+                #ai-chatbot #help-content .faq-item:hover {
+                    background-color: #f5f5f5;
+                }
+
+                #ai-chatbot #help-content .faq-question {
+                    font-size: 16px;
+                    font-weight: 600;
+                    color: #4A90E2;
+                    padding: 15px 20px;
+                    display: flex;
+                    align-items: center;
+                    cursor: pointer;
+                }
+
+                #ai-chatbot #help-content .faq-question:before {
+                    content: '▶';
+                    margin-right: 10px;
+                    font-size: 12px;
+                    transition: transform 0.3s ease;
+                }
+
+                #ai-chatbot #help-content .faq-item.active .faq-question:before {
+                    transform: rotate(90deg);
+                }
+
+                #ai-chatbot #help-content .faq-answer {
+                    font-size: 14px;
                     color: #333;
                     line-height: 1.6;
+                    display: none;
+                    padding: 0 20px 15px 45px;
+                }
+
+                #ai-chatbot #help-content .faq-item.active .faq-answer {
+                    display: block;
+                    animation: fadeIn 0.5s ease-out;
+                }
+
+                @keyframes fadeIn {
+                    from { opacity: 0; }
+                    to { opacity: 1; }
                 }
 
                 #ai-chatbot .chat-input {
@@ -280,9 +446,19 @@
                     to { transform: translateY(0); }
                 }
 
-                #ai-chatbot #home-content, #ai-chatbot #help-content {
+                #ai-chatbot #home-content {
                     animation: fadeIn 0.5s ease-out, slideUp 0.5s ease-out;
                 }
+
+                #ai-chatbot .feature-item {
+                    animation: fadeIn 0.5s ease-out;
+                    animation-fill-mode: both;
+                }
+
+                #ai-chatbot .feature-item:nth-child(1) { animation-delay: 0.1s; }
+                #ai-chatbot .feature-item:nth-child(2) { animation-delay: 0.2s; }
+                #ai-chatbot .feature-item:nth-child(3) { animation-delay: 0.3s; }
+                #ai-chatbot .feature-item:nth-child(4) { animation-delay: 0.4s; }
 
                 @media (max-width: 480px) {
                     #ai-chatbot .chatbot-container {
@@ -307,7 +483,7 @@
                     }
 
                     #ai-chatbot .chatbot-content {
-                        height: calc(100% - 120px); /* Adjust for header and input area */
+                        height: calc(100% - 120px); // Adjust for header and input area
                     }
 
                     #ai-chatbot .chat-input {
@@ -574,14 +750,14 @@
                         <h2>${data.website_name}</h2>
                         <p>${data.description}</p>
                         <div class="ask-question-banner">
-                            <h3>Ask a Question</h3>
-                            <p>AI agent and team can help</p>
+                            <h3>Need Help? Ask Our AI</h3>
+                            <p>Get instant answers to your questions</p>
                             <button class="ask-question-button">Ask Now</button>
                         </div>
                         <div class="feature-grid">
-                            ${data.features.map(feature => `
+                            ${data.features.map((feature, index) => `
                                 <div class="feature-item">
-                                    <div class="feature-icon">✨</div>
+                                    <div class="feature-icon">${getFeatureIcon(index)}</div>
                                     <div class="feature-text">${feature}</div>
                                 </div>
                             `).join('')}
@@ -601,17 +777,33 @@
                 });
         };
 
+        function getFeatureIcon(index) {
+            const icons = ['💡', '🚀', '🔍', '🛠️', '📊', '🔒'];
+            return icons[index % icons.length];
+        }
+
         window.loadFAQContent = function(apiKey) {
             const helpContent = document.getElementById('help-content');
             fetch(`https://infin8t.tech/api/faq?api_key=${apiKey}`)
                 .then(response => response.json())
                 .then(data => {
-                    helpContent.innerHTML = data.faq.map(item => `
-                        <div class="faq-item">
-                            <h3>${item.question}</h3>
-                            <p>${item.answer}</p>
-                        </div>
-                    `).join('');
+                    helpContent.innerHTML = `
+                        <h2>Frequently Asked Questions</h2>
+                        ${data.faq.map((item, index) => `
+                            <div class="faq-item" id="faq-${index}">
+                                <div class="faq-question">${item.question}</div>
+                                <div class="faq-answer">${item.answer}</div>
+                            </div>
+                        `).join('')}
+                    `;
+
+                    // Add click event listeners to toggle FAQ answers
+                    document.querySelectorAll('.faq-question').forEach((question, index) => {
+                        question.addEventListener('click', () => {
+                            const faqItem = document.getElementById(`faq-${index}`);
+                            faqItem.classList.toggle('active');
+                        });
+                    });
                 })
                 .catch(error => {
                     console.error('Error loading FAQ content:', error);
@@ -951,7 +1143,6 @@
         .ask-question-banner p {
             font-size: 16px;
             margin-bottom: 20px;
-            color: white;
         }
 
         .ask-question-button {
@@ -1031,38 +1222,74 @@
         .ask-question-banner {
             background: linear-gradient(135deg, #6e8efb, #a777e3);
             color: white;
-            padding: 20px;
-            border-radius: 12px;
+            padding: 25px;
+            border-radius: 15px;
             text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(110, 142, 251, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ask-question-banner::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 80%);
+            transform: rotate(30deg);
         }
 
         .ask-question-banner h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-size: 22px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .ask-question-banner p {
-            font-size: 16px;
+            font-size: 15px;
             margin-bottom: 20px;
+            opacity: 0.9;
+            line-height: 1.5;
         }
 
         .ask-question-button {
             background-color: white;
             color: #6e8efb;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 16px;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 15px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .ask-question-button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: 0.5s;
         }
 
         .ask-question-button:hover {
-            background-color: #f0f0f0;
             transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+        .ask-question-button:hover::before {
+            left: 100%;
         }
     `;
     document.head.appendChild(askQuestionStyles);

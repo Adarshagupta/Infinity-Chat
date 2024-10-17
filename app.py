@@ -572,15 +572,27 @@ def get_ai_response(llm_type, messages):
     user_id = session.get("user_id")
     
     if user_id:
-        contextual_model = train_contextual_model(user_id)
-        if contextual_model:
-            vectorizer, model = contextual_model
-            user_input = messages[-1]["content"]
-            X = vectorizer.transform([user_input])
-            predicted_response = model.predict(X)[0]
-            
-            # Use the predicted response as additional context
-            messages.append({"role": "system", "content": f"Consider this relevant information: {predicted_response}"})
+        # Fetch website-specific information
+        website_info = WebsiteInfo.query.filter_by(user_id=user_id).first()
+        faq_items = FAQ.query.filter_by(user_id=user_id).order_by(FAQ.order).all()
+        
+        # Add website-specific context to the system message
+        website_context = f"""
+        You are an AI assistant for {website_info.name}. 
+        Website description: {website_info.description}
+        Key features: {website_info.features}
+        
+        FAQ:
+        {' '.join([f'Q: {faq.question} A: {faq.answer}' for faq in faq_items])}
+        
+        Always respond as if you are the official assistant for this specific website. 
+        Provide direct and accurate information based on the website details and FAQ.
+        Do not use phrases like 'I don't have information' or 'I can't access specific details'.
+        If you're unsure about a specific detail, refer to the general information provided.
+        """
+        
+        # Update the system message with website-specific context
+        messages[0]['content'] = website_context + messages[0]['content']
 
     if llm_type == "together":
         response = together_client.chat.completions.create(
