@@ -36,13 +36,7 @@ jQuery(document).ready(function($) {
                 },
                 success: function(response) {
                     if (response.success) {
-                        if (response.data.includes("change the shipping address") || 
-                            response.data.includes("add an item to your order") || 
-                            response.data.includes("remove an item from your order")) {
-                            handleOrderModification(response.data);
-                        } else {
-                            $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> ' + response.data + '</p>');
-                        }
+                        $('#wcbi-chat-messages').append('<p><strong>Chatbot:</strong> ' + response.data + '</p>');
                         
                         if (response.data.includes("Order #")) {
                             suggestOrderQueries();

@@ -20,6 +20,7 @@ class WC_Chatbot {
         add_action('wp_ajax_nopriv_wcbi_process_message', array($this, 'process_message'));
         add_action('admin_menu', array($this, 'add_admin_menu'));
         add_action('admin_init', array($this, 'register_settings'));
+        add_action('woocommerce_order_status_changed', array($this, 'update_order_status_cache'), 10, 3);
     }
 
     public function add_admin_menu() {
@@ -85,10 +86,13 @@ class WC_Chatbot {
         }
 
         $intent = $this->determine_intent($message);
+        $context = $this->get_user_context($user_id);
 
         switch ($intent) {
+            case 'greeting':
+                return $this->generate_greeting($context);
             case 'order_status':
-                return $this->get_order_status($message, $user_id);
+                return $this->get_order_status($message, $user_id, $context);
             case 'cancel_order':
                 return $this->cancel_order($message, $user_id);
             case 'list_orders':
@@ -103,14 +107,18 @@ class WC_Chatbot {
                 return $this->get_shipping_info();
             case 'modify_order':
                 return $this->modify_order($message, $user_id);
+            case 'profile_info':
+                return $this->get_profile_info($user_id);
             default:
-                return $this->fallback_response($message);
+                return $this->fallback_response($message, $context);
         }
     }
 
     private function determine_intent($message) {
         $message = strtolower($message);
-        if (strpos($message, 'status') !== false || strpos($message, 'where is my order') !== false) {
+        if (strpos($message, 'hi') !== false || strpos($message, 'hello') !== false) {
+            return 'greeting';
+        } elseif (strpos($message, 'status') !== false || strpos($message, 'where is my order') !== false) {
             return 'order_status';
         } elseif (strpos($message, 'cancel') !== false) {
             return 'cancel_order';
@@ -126,14 +134,44 @@ class WC_Chatbot {
             return 'shipping_info';
         } elseif (strpos($message, 'modify') !== false || strpos($message, 'change') !== false || strpos($message, 'update') !== false) {
             return 'modify_order';
+        } elseif (strpos($message, 'profile') !== false || strpos($message, 'account') !== false) {
+            return 'profile_info';
         }
         return 'unknown';
     }
 
-    private function get_order_status($message, $user_id) {
+    private function get_user_context($user_id) {
+        $context = array();
+        $context['recent_orders'] = $this->get_recent_orders($user_id, 3);
+        $context['total_orders'] = wc_get_customer_order_count($user_id);
+        $context['total_spent'] = wc_get_customer_total_spent($user_id);
+        $context['last_order_status'] = $this->get_last_order_status($user_id);
+        return $context;
+    }
+
+    private function generate_greeting($context) {
+        $greeting = "Hello! Welcome back to our store. ";
+        if (!empty($context['recent_orders'])) {
+            $greeting .= "I see you have a recent order with us. ";
+            if ($context['last_order_status'] == 'processing') {
+                $greeting .= "Your last order is currently being processed. ";
+            } elseif ($context['last_order_status'] == 'completed') {
+                $greeting .= "Your last order has been completed. ";
+            }
+        }
+        $greeting .= "How can I assist you today?";
+        return $greeting;
+    }
+
+    private function get_order_status($message, $user_id, $context) {
         preg_match('/\d+/', $message, $matches);
         if (empty($matches)) {
-            return "I couldn't find an order number in your message. Here are your recent orders:\n" . $this->list_orders($user_id);
+            if (!empty($context['recent_orders'])) {
+                $last_order = reset($context['recent_orders']);
+                return "Your most recent order #{$last_order['id']} is currently {$last_order['status']}. Would you like more details about this order?";
+            } else {
+                return "I couldn't find an order number in your message, and you don't have any recent orders. Would you like to place a new order?";
+            }
         }
 
         $order_id = $matches[0];
@@ -206,24 +244,17 @@ class WC_Chatbot {
             return "I'm sorry, I couldn't find any products matching your query. Can you please try rephrasing or provide more details?";
         }
 
-        $response = array(
-            'message' => "Here are some products that match your query:",
-            'products' => array()
-        );
+        $response = "Here are some products that match your query:\n\n";
 
         foreach ($products as $product) {
-            $response['products'][] = array(
-                'name' => $product->get_name(),
-                'price' => wc_price($product->get_price()),
-                'sku' => $product->get_sku(),
-                'stock' => $product->is_in_stock() ? 'In Stock' : 'Out of Stock',
-                'image' => wp_get_attachment_image_url($product->get_image_id(), 'thumbnail'),
-                'url' => $product->get_permalink(),
-                'description' => wp_trim_words($product->get_short_description(), 20)
-            );
+            $response .= "Name: " . $product->get_name() . "\n";
+            $response .= "Price: " . wc_price($product->get_price()) . "\n";
+            $response .= "SKU: " . $product->get_sku() . "\n";
+            $response .= "Stock: " . ($product->is_in_stock() ? 'In Stock' : 'Out of Stock') . "\n";
+            $response .= "Description: " . wp_trim_words($product->get_short_description(), 20) . "\n\n";
         }
 
-        return json_encode($response);
+        return $response . "Would you like more information about any of these products?";
     }
 
     private function track_order($message, $user_id) {
@@ -276,8 +307,14 @@ class WC_Chatbot {
         return $response . "Do you have any specific questions about shipping or delivery?";
     }
 
-    private function fallback_response($message) {
-        return "I'm sorry, but I'm not sure how to respond to that. Can you please rephrase your question or ask about orders, products, shipping, or returns?";
+    private function fallback_response($message, $context) {
+        $response = "I'm sorry, but I'm not sure how to respond to that. ";
+        if (!empty($context['recent_orders'])) {
+            $response .= "I see you have recent orders with us. Would you like information about your orders, or help with a specific product?";
+        } else {
+            $response .= "Can I help you find a product or provide information about our shipping and return policies?";
+        }
+        return $response;
     }
 
     private function modify_order($message, $user_id) {
@@ -322,6 +359,70 @@ class WC_Chatbot {
             return "To remove an item from your order, please provide the product name or ID in this format: 'Remove: [Product Name/ID]'.";
         } else {
             return "I'm not sure if you want to add or remove items. Please specify 'add' or 'remove' followed by the product details.";
+        }
+    }
+
+    private function get_profile_info($user_id) {
+        $user = get_userdata($user_id);
+        $customer = new WC_Customer($user_id);
+        
+        $response = "Here's a summary of your account:\n";
+        $response .= "Name: " . $user->display_name . "\n";
+        $response .= "Email: " . $user->user_email . "\n";
+        $response .= "Total Orders: " . $customer->get_order_count() . "\n";
+        $response .= "Total Spent: " . wc_price($customer->get_total_spent()) . "\n";
+        
+        $shipping_address = $customer->get_shipping_address();
+        if (!empty($shipping_address)) {
+            $response .= "Default Shipping Address: " . $shipping_address . "\n";
+        }
+        
+        return $response . "\nIs there anything specific about your account you'd like to know or update?";
+    }
+
+    private function get_recent_orders($user_id, $limit = 5) {
+        $orders = wc_get_orders(array(
+            'customer_id' => $user_id,
+            'limit' => $limit,
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ));
+
+        $recent_orders = array();
+        foreach ($orders as $order) {
+            $recent_orders[] = array(
+                'id' => $order->get_id(),
+                'status' => wc_get_order_status_name($order->get_status()),
+                'total' => $order->get_total(),
+                'date' => $order->get_date_created()->format('Y-m-d')
+            );
+        }
+
+        return $recent_orders;
+    }
+
+    private function get_last_order_status($user_id) {
+        $orders = wc_get_orders(array(
+            'customer_id' => $user_id,
+            'limit' => 1,
+            'orderby' => 'date',
+            'order' => 'DESC',
+        ));
+
+        if (!empty($orders)) {
+            $last_order = reset($orders);
+            return $last_order->get_status();
+        }
+
+        return null;
+    }
+
+    public function update_order_status_cache($order_id, $old_status, $new_status) {
+        $order = wc_get_order($order_id);
+        $user_id = $order->get_customer_id();
+        if ($user_id) {
+            $cache_key = 'wcbi_user_context_' . $user_id;
+            wp_cache_delete($cache_key);
         }
     }
 }

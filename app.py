@@ -347,38 +347,38 @@ def generate_suggested_queries(context, conversation_history, num_suggestions=3)
     # Combine the context and conversation history
     full_text = context + ' ' + ' '.join([msg['content'] for msg in conversation_history])
     
-    # Create a list of potential queries (you can expand this list)
-    potential_queries = [
-        "What are the main features?",
-        "How does pricing work?",
-        "Is there a free trial available?",
-        "What kind of support do you offer?",
-        "How secure is the platform?",
-        "Can you explain the refund policy?",
-        "What integrations are supported?",
-        "How do I get started?",
-        "What makes your product unique?",
-        "Are there any case studies or testimonials?",
-        "What's the typical onboarding process?",
-        "How often do you release updates?",
-        "What's your uptime guarantee?",
-        "Do you offer custom solutions?",
-        "What industries do you primarily serve?",
-    ]
+    # Prepare the prompt for OpenAI
+    prompt = f"""Based on the following context and conversation history, generate {num_suggestions} relevant follow-up questions that a user might ask:
 
-    # Vectorize the text and potential queries
-    vectorizer = TfidfVectorizer().fit(potential_queries + [full_text])
-    text_vector = vectorizer.transform([full_text])
-    query_vectors = vectorizer.transform(potential_queries)
+Context: {context}
 
-    # Calculate similarity scores
-    similarities = cosine_similarity(text_vector, query_vectors)
+Conversation History:
+{' '.join([f"{msg['role']}: {msg['content']}" for msg in conversation_history])}
 
-    # Get indices of top similar queries
-    top_indices = similarities.argsort()[0][-num_suggestions:][::-1]
+Generate {num_suggestions} questions:
+1."""
 
-    # Return the top suggested queries
-    return [potential_queries[i] for i in top_indices]
+    try:
+        response = openai_client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[{"role": "user", "content": prompt}],
+            max_tokens=100,
+            n=1,
+            stop=None,
+            temperature=0.7,
+        )
+
+        # Extract the generated questions from the response
+        generated_text = response.choices[0].message.content.strip()
+        questions = generated_text.split('\n')
+        
+        # Remove numbering and any empty questions
+        questions = [q.split('. ', 1)[-1].strip() for q in questions if q.strip()]
+        
+        return questions[:num_suggestions]  # Ensure we return only the requested number of suggestions
+    except Exception as e:
+        app.logger.error(f"Error generating suggested queries: {str(e)}")
+        return []  # Return an empty list if there's an error
 
 @app.route("/chat", methods=["POST", "OPTIONS"])
 @limiter.limit("50 per minute")
