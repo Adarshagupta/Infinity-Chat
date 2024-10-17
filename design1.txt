@@ -48,7 +48,7 @@
                 }
 
                 #ai-chatbot .chatbot-container {
-                    width: 450px;
+                    width: 500px;
                     height: 720px; // Increased from 680px
                     background: #FFFFFF;
                     border-radius: 20px;
@@ -73,7 +73,7 @@
                     background: linear-gradient(135deg, #6e8efb, #a777e3);
                     color: white;
                     padding: 12px;
-                    font-weight: 800;
+                    font-weight: 600;
                     font-size: 20px;
                     display: flex;
                     justify-content: space-between;
