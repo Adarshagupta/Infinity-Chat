@@ -639,17 +639,7 @@
                 messageElement.innerHTML = `<p id="real-time-message"></p>`;
             } else if (typeof message === 'object' && message.response) {
                 // This is our new structured response with suggested queries
-                let html = `<p>${message.response.introduction || ''}</p>`;
-                if (message.response.steps) {
-                    html += '<ol>';
-                    message.response.steps.forEach(step => {
-                        html += `<li>${step}</li>`;
-                    });
-                    html += '</ol>';
-                }
-                if (message.response.conclusion) {
-                    html += `<p>${message.response.conclusion}</p>`;
-                }
+                let html = `<p>${message.response}</p>`;
                 
                 // Add suggested queries
                 if (message.suggested_queries && message.suggested_queries.length > 0) {
@@ -767,8 +757,12 @@
                                         aiMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
                                     } else if (data.suggested_queries) {
                                         // This is the final response with suggested queries
+                                        const finalResponse = {
+                                            response: accumulatedResponse,
+                                            suggested_queries: data.suggested_queries
+                                        };
                                         aiMessageElement.innerHTML = ''; // Clear the real-time message
-                                        addMessage('AI', data);
+                                        addMessage('AI', finalResponse);
                                         playSound('message-received-sound');
                                         return;
                                     }
