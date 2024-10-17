@@ -19,3 +19,4 @@ psycopg2-binary
 gunicorn
 SQLAlchemy
 alembic
+flask_caching
