@@ -48,7 +48,7 @@
                 }
 
                 #ai-chatbot .chatbot-container {
-                    width: 420px;
+                    width: 450px;
                     height: 720px; // Increased from 680px
                     background: #FFFFFF;
                     border-radius: 20px;
@@ -83,7 +83,7 @@
                 #ai-chatbot .chatbot-content {
                     flex-grow: 1;
                     overflow-y: auto;
-                    padding: 25px;
+                    padding: 10px;
                     padding-top: 5px;
                     padding-bottom: 0px;
                     background: #f9f9f9;
@@ -593,7 +593,7 @@
         `;
 
         chatbotDiv.innerHTML += `
-            <audio id="message-received-sound" src="https://assets.mixkit.co/active_storage/sfx/270/270-preview.mp3"></audio>
+            <audio id="message-received-sound" src="https://assets.mixkit.co/active_storage/sfx/2354/2354-preview.mp3"></audio>
             <audio id="toggle-sound" src="https://assets.mixkit.co/active_storage/sfx/2356/2356-preview.mp3"></audio>
         `;
 
