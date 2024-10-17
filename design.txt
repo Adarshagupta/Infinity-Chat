@@ -754,17 +754,34 @@
                         if (done) break;
                         
                         const chunk = decoder.decode(value, { stream: true });
-                        accumulatedResponse += chunk;
+                        const lines = chunk.split('\n\n');
                         
-                        // Update the real-time message
-                        realTimeMessage.innerHTML = accumulatedResponse;
-                        aiMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                        for (const line of lines) {
+                            if (line.startsWith('data: ')) {
+                                const jsonData = line.slice(6);
+                                try {
+                                    const data = JSON.parse(jsonData);
+                                    if (data.response) {
+                                        accumulatedResponse = data.response;
+                                        realTimeMessage.innerHTML = accumulatedResponse;
+                                        aiMessageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
+                                    } else if (data.suggested_queries) {
+                                        // This is the final response with suggested queries
+                                        aiMessageElement.innerHTML = ''; // Clear the real-time message
+                                        addMessage('AI', data);
+                                        playSound('message-received-sound');
+                                        return;
+                                    }
+                                } catch (error) {
+                                    console.error('Error parsing JSON:', error);
+                                }
+                            }
+                        }
                     }
 
-                    // Process the complete response
-                    const data = JSON.parse(accumulatedResponse);
+                    // If we reach here, there was no final response with suggested queries
                     aiMessageElement.innerHTML = ''; // Clear the real-time message
-                    addMessage('AI', data);
+                    addMessage('AI', { response: accumulatedResponse });
                     playSound('message-received-sound');
                 } catch (error) {
                     console.error('Error:', error);

@@ -447,14 +447,14 @@ If you need clarification to provide the best assistance, don't hesitate to ask 
         def generate_ai_response():
             try:
                 for chunk in get_ai_response_stream(api_key_data.llm, messages):
-                    yield f"data: {json.dumps(chunk)}\n\n"
+                    yield f"data: {chunk}"
 
                 # Generate suggested queries based on context and conversation
                 suggested_queries = generate_suggested_queries(context, conversation.messages)
 
                 # Add suggested queries to the response
                 final_response = {
-                    "response": chunk,
+                    "response": accumulated_message,
                     "suggested_queries": suggested_queries
                 }
 
@@ -513,7 +513,7 @@ def get_ai_response_stream(llm_type, messages):
     for chunk in response:
         if chunk.choices[0].delta.content is not None:
             accumulated_message += chunk.choices[0].delta.content
-            yield {"response": accumulated_message}
+            yield json.dumps({"response": accumulated_message}) + "\n\n"
 
 def get_ai_response(llm_type, messages):
     user_id = session.get("user_id")
