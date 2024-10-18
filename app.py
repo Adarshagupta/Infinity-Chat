@@ -10,6 +10,7 @@ from flask import (
     flash,
     send_from_directory,
     stream_with_context,
+    send_file,
 )
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -1714,6 +1715,11 @@ def extract_order_id(message):
     import re
     match = re.search(r'order (\d+)', message, re.IGNORECASE)
     return match.group(1) if match else None
+
+@app.route('/sitemap.xml')
+def sitemap():
+    sitemap_path = os.path.join(app.root_path, 'static', 'sitemap.xml')
+    return send_file(sitemap_path, mimetype='application/xml')
 
 if __name__ == "__main__":
     with app.app_context():
