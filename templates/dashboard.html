@@ -446,7 +446,7 @@
                         </a>
                     </div>
                 </div>
-                <ul id="apiKeysList">
+                <div id="apiKeysList">
                     {% for key in api_keys %}
                     <li class="bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105">
                         <div class="flex items-center">
@@ -458,15 +458,18 @@
                             </button>
                         </div>
                         <div>
+                            <select onchange="changeTheme('{{ key.key }}', this.value)" class="mr-2 p-2 border rounded">
+                                <option value="0" {% if key.theme == '0' %}selected{% endif %}>Default Theme</option>
+                                <option value="1" {% if key.theme == '1' %}selected{% endif %}>Theme 1</option>
+                                <option value="2" {% if key.theme == '2' %}selected{% endif %}>Theme 2</option>
+                                <option value="3" {% if key.theme == '3' %}selected{% endif %}>Theme 3</option>
+                            </select>
                             <button onclick="openApiTestModal('{{ key.key }}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
-                            <form action="{{ url_for('delete_api_key') }}" method="post" class="inline">
-                                <input type="hidden" name="api_key_id" value="{{ key.id }}">
-                                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
-                            </form>
+                            <button onclick="deleteApiKey('{{ key.id }}')" class="bg-red-500 text-white px-4 py-2 rounded-md font-medium hover:bg-red-600 transition duration-300">Delete</button>
                         </div>
                     </li>
                     {% endfor %}
-                </ul>
+                </div>
             </section>
 
             <section id="custom-prompts" class="tab-content {% if active_section == 'custom-prompts' %}active{% endif %}">

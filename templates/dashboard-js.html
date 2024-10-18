@@ -118,6 +118,12 @@
                             </button>
                         </div>
                         <div>
+                            <select onchange="changeTheme('${key.key}', this.value)" class="mr-2 p-2 border rounded">
+                                <option value="0" ${key.theme === '0' ? 'selected' : ''}>Default Theme</option>
+                                <option value="1" ${key.theme === '1' ? 'selected' : ''}>Theme 1</option>
+                                <option value="2" ${key.theme === '2' ? 'selected' : ''}>Theme 2</option>
+                                <option value="3" ${key.theme === '3' ? 'selected' : ''}>Theme 3</option>
+                            </select>
                             <button onclick="openApiTestModal('${key.key}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
                             <button onclick="deleteApiKey('${key.id}')" class="bg-red-500 text-white px-4 py-2 rounded-md font-medium hover:bg-red-600 transition duration-300">Delete</button>
                         </div>
@@ -1122,5 +1128,28 @@ function sendAiChatMessage() {
             addMessage('ai', 'Sorry, there was an error processing your request.');
         });
     }
+}
+
+// Add this function to handle theme changes
+function changeTheme(apiKey, theme) {
+    fetch('/change_theme', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ api_key: apiKey, theme: theme }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('Theme updated successfully');
+        } else {
+            showNotification('Failed to update theme', 'error');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating the theme', 'error');
+    });
 }
 </script>

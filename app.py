@@ -126,21 +126,19 @@ def generate_integration_code(api_key):
 def chatbot_script():
     try:
         api_key = request.args.get("api_key")
-        open_design = request.args.get("open", "0")  # Default to "0" if not provided
         
         if not api_key:
             app.logger.error("API key not provided in request")
             return jsonify({"error": "API key is required"}), 400
 
-        # Determine which design file to use
-        if open_design == "1":
-            design_file = "design1.txt"
-        elif open_design == "2":
-            design_file = "design2.txt"
-        elif open_design == "3":
-            design_file = "design3.txt"
-        else:
-            design_file = "design.txt"
+        api_key_obj = APIKey.query.filter_by(key=api_key).first()
+        if not api_key_obj:
+            return jsonify({"error": "Invalid API key"}), 404
+
+        theme = api_key_obj.theme or '0'  # Default to '0' if theme is not set
+        
+        # Determine which design file to use based on the theme
+        design_file = f"design{theme}.txt" if theme != '0' else "design.txt"
         
         # Read the script from the appropriate design file
         script_path = os.path.join(app.root_path, design_file)
@@ -1728,6 +1726,26 @@ def sitemap():
     sitemap_path = os.path.join(app.root_path, 'static', 'sitemap.xml')
     print(f"Serving sitemap from: {sitemap_path}")  # Add this line
     return send_file(sitemap_path, mimetype='application/xml')
+
+# Add this new route to handle theme changes
+@app.route('/change_theme', methods=['POST'])
+@login_required
+def change_theme():
+    data = request.json
+    api_key = data.get('api_key')
+    theme = data.get('theme')
+
+    if not api_key or theme is None:
+        return jsonify({'success': False, 'error': 'Missing api_key or theme'}), 400
+
+    api_key_obj = APIKey.query.filter_by(key=api_key, user_id=session['user_id']).first()
+    if not api_key_obj:
+        return jsonify({'success': False, 'error': 'Invalid API key'}), 404
+
+    api_key_obj.theme = theme
+    db.session.commit()
+
+    return jsonify({'success': True})
 
 if __name__ == "__main__":
     with app.app_context():
