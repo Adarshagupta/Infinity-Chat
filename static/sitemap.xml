@@ -1,259 +1,178 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
-        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
-        http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
-
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://infin8t.tech/</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI - Advanced AI Solutions for Businesses</heading>
-    <description>Discover cutting-edge AI solutions for your business with Infin8t. Our platform offers customizable chatbots, analytics, and integrations to enhance your customer experience and streamline operations.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/about</loc>
+    <lastmod>2023-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
-    <lastmod>2023-06-10</lastmod>
-    <heading>About Infin8t AI - Our Mission and Team</heading>
-    <description>Learn about Infin8t AI's mission to revolutionize business operations through advanced AI technologies. Meet our team of experts dedicated to innovation and customer success.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/documentation</loc>
+    <lastmod>2023-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <lastmod>2023-06-14</lastmod>
-    <heading>Infin8t AI Documentation - Comprehensive Guide</heading>
-    <description>Explore our detailed documentation to make the most of Infin8t AI's features. Find tutorials, API references, and best practices for implementing AI solutions in your business.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/project</loc>
+    <lastmod>2023-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
-    <lastmod>2023-06-13</lastmod>
-    <heading>Infin8t AI Projects - Case Studies and Success Stories</heading>
-    <description>Discover how businesses across various industries have leveraged Infin8t AI to transform their operations and achieve remarkable results.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/contact</loc>
+    <lastmod>2023-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-12</lastmod>
-    <heading>Contact Infin8t AI - Get in Touch with Our Team</heading>
-    <description>Have questions or ready to start your AI journey? Contact our expert team for personalized support and solutions tailored to your business needs.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/privacy</loc>
+    <lastmod>2023-06-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
-    <lastmod>2023-06-01</lastmod>
-    <heading>Infin8t AI Privacy Policy - Protecting Your Data</heading>
-    <description>Learn about our commitment to data protection and privacy. Our comprehensive privacy policy outlines how we collect, use, and safeguard your information.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/terms</loc>
+    <lastmod>2023-06-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
-    <lastmod>2023-06-01</lastmod>
-    <heading>Infin8t AI Terms of Service - User Agreement</heading>
-    <description>Review our terms of service to understand the guidelines and regulations governing the use of Infin8t AI's platform and services.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/auth</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI Authentication - Secure Access to Your Account</heading>
-    <description>Access your Infin8t AI account securely. Our authentication page ensures the safety of your data and provides a seamless login experience.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/login</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Log in to Your Infin8t AI Account</heading>
-    <description>Securely log in to your Infin8t AI account to access your dashboard, manage your AI solutions, and view analytics.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/register</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Register for Infin8t AI - Start Your AI Journey</heading>
-    <description>Create your Infin8t AI account and begin exploring our powerful AI solutions. Sign up now to transform your business with cutting-edge technology.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/home</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI Dashboard - Your AI Control Center</heading>
-    <description>Access your personalized dashboard to manage your AI solutions, view analytics, and customize your Infin8t AI experience.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/chatbot-creator</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI Chatbot Creator - Build Your Custom AI Assistant</heading>
-    <description>Design and deploy your own AI chatbot with our intuitive creator tool. Customize responses, integrate with your website, and enhance customer interactions.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/api-keys</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Manage Your Infin8t AI API Keys</heading>
-    <description>Generate, view, and manage your API keys to integrate Infin8t AI services into your applications and systems securely.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/website-info</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Customize Your Website Information for AI Integration</heading>
-    <description>Update and manage your website details to ensure seamless integration of Infin8t AI services with your online presence.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/faq-management</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>FAQ Management - Enhance Your AI's Knowledge Base</heading>
-    <description>Create and manage frequently asked questions to improve your AI assistant's responses and provide better customer support.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/fine-tuning</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Fine-tune Your AI Models for Enhanced Performance</heading>
-    <description>Customize and improve your AI models with our fine-tuning tools to better suit your specific business needs and use cases.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/api-analytics</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>API Analytics - Monitor Your AI Performance</heading>
-    <description>Track and analyze your API usage, response times, and other key metrics to optimize your AI solutions and improve efficiency.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/integrations</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI Integrations - Connect Your Tools</heading>
-    <description>Explore and set up integrations with popular platforms and services to extend the capabilities of your Infin8t AI solutions.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/custom-prompts</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Custom Prompts - Tailor Your AI Responses</heading>
-    <description>Create and manage custom prompts to guide your AI's responses and ensure they align with your brand voice and specific use cases.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/plugins</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI Plugins - Extend Your AI Capabilities</heading>
-    <description>Discover and install plugins to add new features and functionalities to your Infin8t AI solutions, enhancing their versatility.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/team-management</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Team Management - Collaborate on AI Projects</heading>
-    <description>Manage your team members, assign roles, and collaborate effectively on your Infin8t AI projects and implementations.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/subscription</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Manage Your Infin8t AI Subscription</heading>
-    <description>View and manage your subscription details, upgrade your plan, and access billing information for your Infin8t AI services.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/dashboard/profile</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Your Infin8t AI Profile - Manage Your Account</heading>
-    <description>Update your personal information, change your password, and manage your account preferences for a personalized Infin8t AI experience.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/wp/plugin-download</loc>
+    <lastmod>2023-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-14</lastmod>
-    <heading>Download Infin8t AI WordPress Plugin</heading>
-    <description>Enhance your WordPress site with our powerful AI plugin. Download now to integrate Infin8t AI's features seamlessly into your website.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/wp/plugin-documentation</loc>
+    <lastmod>2023-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
-    <lastmod>2023-06-14</lastmod>
-    <heading>Infin8t AI WordPress Plugin Documentation</heading>
-    <description>Get comprehensive guidance on installing, configuring, and using the Infin8t AI WordPress plugin. Maximize your website's potential with our step-by-step instructions.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/ai-marketplace</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI Marketplace - Explore AI Models and Solutions</heading>
-    <description>Discover a wide range of AI models and solutions in our marketplace. Find the perfect AI tools to enhance your business operations and customer experiences.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/playground</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI Playground - Test and Experiment with AI</heading>
-    <description>Explore and experiment with various AI models and features in our interactive playground. Get hands-on experience with Infin8t AI capabilities.</description>
   </url>
-
   <url>
     <loc>https://infin8t.tech/test</loc>
+    <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
-    <lastmod>2023-06-15</lastmod>
-    <heading>Infin8t AI Test Environment</heading>
-    <description>Access our test environment to try out new features and ensure compatibility with your systems before deploying to production.</description>
   </url>
-
+  <url>
+    <loc>https://infin8t.tech/dashboard/chatbot-design</loc>
+    <lastmod>2023-06-15</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
+  <!-- Add more URLs following this format -->
 </urlset>

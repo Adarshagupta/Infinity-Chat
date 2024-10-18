@@ -1719,6 +1719,7 @@ def extract_order_id(message):
 @app.route('/sitemap.xml')
 def sitemap():
     sitemap_path = os.path.join(app.root_path, 'static', 'sitemap.xml')
+    print(f"Serving sitemap from: {sitemap_path}")  # Add this line
     return send_file(sitemap_path, mimetype='application/xml')
 
 if __name__ == "__main__":
