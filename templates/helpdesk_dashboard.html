@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Help Desk Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+</head>
+<body class="bg-gray-100">
+    <div class="container mx-auto px-4 py-8">
+        <h1 class="text-3xl font-bold mb-8">Help Desk Dashboard</h1>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+                <h2 class="text-2xl font-semibold mb-4">Active Tickets</h2>
+                <div id="ticket-list" class="space-y-4">
+                    {% for ticket in tickets %}
+                    <div class="bg-white p-4 rounded-lg shadow">
+                        <h3 class="font-semibold">{{ ticket.subject }}</h3>
+                        <p class="text-sm text-gray-600">{{ ticket.message[:100] }}...</p>
+                        <button onclick="openChat({{ ticket.id }})" class="mt-2 bg-blue-500 text-white px-4 py-2 rounded">Chat</button>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            <div>
+                <h2 class="text-2xl font-semibold mb-4">Chat</h2>
+                <div id="chat-container" class="bg-white p-4 rounded-lg shadow h-96 flex flex-col">
+                    <div id="chat-messages" class="flex-grow overflow-y-auto mb-4"></div>
+                    <div class="flex">
+                        <input type="text" id="message-input" class="flex-grow border rounded-l px-4 py-2" placeholder="Type your message...">
+                        <button onclick="sendMessage()" class="bg-blue-500 text-white px-4 py-2 rounded-r">Send</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const socket = io();
+        let currentRoom = null;
+
+        function openChat(ticketId) {
+            if (currentRoom) {
+                socket.emit('leave', {room: currentRoom});
+            }
+            currentRoom = `ticket_${ticketId}`;
+            socket.emit('join', {room: currentRoom});
+            document.getElementById('chat-messages').innerHTML = '';
+        }
+
+        function sendMessage() {
+            const messageInput = document.getElementById('message-input');
+            const message = messageInput.value.trim();
+            if (message && currentRoom) {
+                socket.emit('send_message', {room: currentRoom, message: message, sender: 'Agent'});
+                messageInput.value = '';
+            }
+        }
+
+        socket.on('new_message', function(data) {
+            const chatMessages = document.getElementById('chat-messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = data.sender === 'Agent' ? 'text-right' : 'text-left';
+            messageElement.innerHTML = `<p class="inline-block bg-gray-200 rounded px-4 py-2 my-2"><strong>${data.sender}:</strong> ${data.message}</p>`;
+            chatMessages.appendChild(messageElement);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        });
+    </script>
+</body>
+</html>

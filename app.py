@@ -1719,9 +1719,5 @@ if __name__ == "__main__":
     with app.app_context():
         db.create_all()
     
-    # Schedule the deletion of old conversations every 24 hours
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(func=delete_old_conversations, trigger="interval", hours=24)
-    scheduler.start()
-    
+
     app.run(debug=True, port=5410)

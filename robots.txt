@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow sensitive areas
+Disallow: /dashboard/
+Disallow: /api/
+Disallow: /admin/
+
+# Allow sitemap
+Sitemap: https://infin8t.tech/sitemap.xml
