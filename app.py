@@ -133,7 +133,14 @@ def chatbot_script():
             return jsonify({"error": "API key is required"}), 400
 
         # Determine which design file to use
-        design_file = "design1.txt" if open_design == "1" else "design.txt"
+        if open_design == "1":
+            design_file = "design1.txt"
+        elif open_design == "2":
+            design_file = "design2.txt"
+        elif open_design == "3":
+            design_file = "design3.txt"
+        else:
+            design_file = "design.txt"
         
         # Read the script from the appropriate design file
         script_path = os.path.join(app.root_path, design_file)
