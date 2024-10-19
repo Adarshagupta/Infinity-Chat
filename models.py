@@ -15,9 +15,10 @@ class User(db.Model):
 class APIKey(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     key = db.Column(db.String(64), unique=True, nullable=False)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     llm = db.Column(db.String(50), nullable=False)
     extracted_text = db.Column(db.Text)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    design = db.Column(db.String(10), default="0")
     conversations = db.relationship('Conversation', backref='api_key', cascade='all, delete-orphan')
     fine_tune_jobs = db.relationship('FineTuneJob', backref='api_key', lazy=True)
 

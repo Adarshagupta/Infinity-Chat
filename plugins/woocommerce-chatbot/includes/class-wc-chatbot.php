@@ -57,7 +57,7 @@ class WC_Chatbot {
 
     public function enqueue_scripts() {
         $api_key = get_option('wc_chatbot_api_key');
-        wp_enqueue_script('infin8t-chatbot', "https://infin8t.tech/chatbot.js?api_key={$api_key}", array(), null, true);
+        wp_enqueue_script('infin8t-chatbot', "http://localhost:5410/chatbot.js?api_key={$api_key}", array(), null, true);
         wp_localize_script('infin8t-chatbot', 'wcbi_ajax', array(
             'ajax_url' => admin_url('admin-ajax.php'),
             'nonce' => wp_create_nonce('wcbi-nonce'),

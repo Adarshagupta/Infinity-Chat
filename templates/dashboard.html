@@ -428,7 +428,6 @@
             </section>
 
             <section id="api-keys" class="tab-content {% if active_section == 'api-keys' %}active{% endif %}">
-                
                 <div class="flex justify-between items-center mb-4">
                     <h2 class="text-2xl font-semibold text-gray-700">Your API Keys</h2>
                     <div class="flex space-x-2">
@@ -446,26 +445,8 @@
                         </a>
                     </div>
                 </div>
-                <ul id="apiKeysList">
-                    {% for key in api_keys %}
-                    <li class="bg-gray-100 rounded-md p-4 mb-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105">
-                        <div class="flex items-center">
-                            <span class="mr-2">{{ key.key }}</span>
-                            <button onclick="copyToClipboard('{{ key.key }}')" class="text-gray-500 hover:text-gray-700">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
-                                </svg>
-                            </button>
-                        </div>
-                        <div>
-                            <button onclick="openApiTestModal('{{ key.key }}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
-                            <form action="{{ url_for('delete_api_key') }}" method="post" class="inline">
-                                <input type="hidden" name="api_key_id" value="{{ key.id }}">
-                                <button type="submit" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
-                            </form>
-                        </div>
-                    </li>
-                    {% endfor %}
+                <ul id="apiKeysList" class="space-y-4">
+                    <!-- This section will be populated dynamically -->
                 </ul>
             </section>
 
@@ -672,6 +653,15 @@
                             <select id="llmSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
                                 <option value="together">Together AI</option>
                                 <option value="openai">OpenAI</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="designSelect" class="block text-sm font-medium text-gray-700 mb-1">Select Design</label>
+                            <select id="designSelect" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition duration-200">
+                                <option value="0">Default Design</option>
+                                <option value="1">Design 1</option>
+                                <option value="2">Design 2</option>
+                                <option value="3">Design 3</option>
                             </select>
                         </div>
                         <button onclick="processUrl()" class="w-full bg-gradient-to-r from-purple-500 to-indigo-600 text-white font-bold py-3 px-6 rounded-lg hover:from-purple-600 hover:to-indigo-700 transition duration-300 shadow-md">Process</button>
@@ -1003,51 +993,6 @@
             });
         });
     </script>
-<script>
-function toggleAiChat() {
-    const chatWindow = document.getElementById('ai-chat-window');
-    chatWindow.classList.toggle('translate-y-full');
-    chatWindow.classList.toggle('opacity-0');
-    chatWindow.classList.toggle('invisible');
-}
-
-function sendAiChatMessage() {
-    const input = document.getElementById('ai-chat-input');
-    const message = input.value.trim();
-    if (message) {
-        addMessageToChat('user', message);
-        input.value = '';
-        
-        fetch('/ai_chat', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ message: message }),
-        })
-        .then(response => response.json())
-        .then(data => {
-            addMessageToChat('ai', data.response);
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            addMessageToChat('ai', 'Sorry, there was an error processing your request.');
-        });
-    }
-}
-
-function addMessageToChat(sender, message) {
-    const chatContainer = document.getElementById('ai-chat-container');
-    const messageElement = document.createElement('div');
-    messageElement.classList.add('mb-4', sender === 'user' ? 'text-right' : 'text-left');
-    messageElement.innerHTML = `
-        <div class="inline-block p-2 rounded-lg ${sender === 'user' ? 'bg-purple-100 text-purple-800' : 'bg-pink-100 text-pink-800'}">
-            ${message}
-        </div>
-    `;
-    chatContainer.appendChild(messageElement);
-    chatContainer.scrollTop = chatContainer.scrollHeight;
-}
 </script>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -1111,6 +1056,133 @@ function fallbackCopyTextToClipboard(text) {
 
     document.body.removeChild(textArea);
 }
+function updateApiKeyDesign(apiKeyId, design) {
+    fetch('/update_api_key_design', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ api_key_id: apiKeyId, design: design }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('API key design updated successfully!');
+        } else {
+            showNotification('Failed to update API key design.', 'error');
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating the API key design.', 'error');
+    });
+}
+function refreshApiKeys(initialLoad = false) {
+    fetch('/dashboard/home/user/api_keys')
+        .then(response => response.json())
+        .then(data => {
+            const apiKeysList = document.getElementById('apiKeysList');
+            apiKeysList.innerHTML = ''; // Clear existing list
+            data.api_keys.forEach(key => {
+                const listItem = document.createElement('li');
+                listItem.className = 'bg-gray-100 rounded-md p-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105';
+                listItem.innerHTML = `
+                    <div class="flex items-center">
+                        <span class="mr-2">${key.key}</span>
+                        <button onclick="copyToClipboard('${key.key}')" class="text-gray-500 hover:text-gray-700">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="flex items-center">
+                        <select onchange="updateApiKeyDesign('${key.id}', this.value)" class="mr-2 px-2 py-1 border border-gray-300 rounded-md">
+                            <option value="0" ${key.design === '0' ? 'selected' : ''}>Default Design</option>
+                            <option value="1" ${key.design === '1' ? 'selected' : ''}>Design 1</option>
+                            <option value="2" ${key.design === '2' ? 'selected' : ''}>Design 2</option>
+                            <option value="3" ${key.design === '3' ? 'selected' : ''}>Design 3</option>
+                        </select>
+                        <button onclick="openApiTestModal('${key.key}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
+                        <button onclick="deleteApiKey('${key.id}')" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
+                    </div>
+                `;
+                apiKeysList.appendChild(listItem);
+            });
+            if (initialLoad) {
+                console.log('API keys loaded successfully');
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function updateApiKeyDesign(apiKeyId, design) {
+    fetch('/update_api_key_design', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ api_key_id: apiKeyId, design: design }),
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            showNotification('API key design updated successfully!');
+        } else {
+            showNotification('Failed to update API key design.', 'error');
+        }
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+        showNotification('An error occurred while updating the API key design.', 'error');
+    });
+}
+
+function deleteApiKey(apiKeyId) {
+    if (confirm('Are you sure you want to delete this API key?')) {
+        fetch('/dashboard/home/delete_api_key', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ api_key_id: apiKeyId }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.message) {
+                showNotification(data.message);
+                refreshApiKeys(); // Refresh the list after deletion
+            } else {
+                showNotification(data.error, 'error');
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            showNotification('An error occurred while deleting the API key.', 'error');
+        });
+    }
+}
+
+// Function to load API keys when switching to the API keys tab
+function loadApiKeysTab() {
+    refreshApiKeys(true);
+}
+
+// Add event listeners for tab switching
+document.addEventListener('DOMContentLoaded', function() {
+    const apiKeysTab = document.querySelector('.sidebar-item[data-tab="api-keys"]');
+    if (apiKeysTab) {
+        apiKeysTab.addEventListener('click', loadApiKeysTab);
+    }
+
+    // Check if the API keys tab is active on page load
+    const activeSection = '{{ active_section }}';
+    if (activeSection === 'api-keys') {
+        loadApiKeysTab();
+    }
+});
+
+// Call refreshApiKeys when the page loads
+document.addEventListener('DOMContentLoaded', () => refreshApiKeys(true));
     </script>
 </body>
 

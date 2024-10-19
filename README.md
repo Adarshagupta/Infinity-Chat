@@ -217,7 +217,7 @@ The frontend is developed using HTML, CSS, and JavaScript, providing a user-frie
 ### Example Chatbot Integration Script
 To embed the chatbot on your website, include the following script in your HTML:
 ```html
-<script src="https://infin8t.tech/chatbot.js?api_key=your_api_key"></script>
+<script src="http://localhost:5410/chatbot.js?api_key=your_api_key"></script>
 ```
 
 ### Chatbot Design
@@ -245,7 +245,7 @@ The chatbot interface is designed to be intuitive and visually appealing. The de
     ```javascript
     async function chatWithAI(input) {
         try {
-            const response = await axios.post('https://infin8t.tech/chat', {
+            const response = await axios.post('http://localhost:5410/chat', {
                 input: input,
                 api_key: 'your_api_key'
             });
@@ -398,7 +398,7 @@ Infin8t.tech offers flexible pricing to suit businesses of all sizes:
 - **Professional**: Ideal for growing companies, includes advanced AI features and integrations.
 - **Enterprise**: Customized solutions for large organizations with dedicated support.
 
-Visit our [pricing page](https://infin8t.tech/pricing) for detailed information and to choose the right plan for your business.
+Visit our [pricing page](http://localhost:5410/pricing) for detailed information and to choose the right plan for your business.
 
 ## FAQs
 1. **Q: How long does it take to set up a chatbot?**
