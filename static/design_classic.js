@@ -88,7 +88,7 @@
         if (message) {
             addMessage('You', message);
             input.value = '';
-            fetch('http://localhost:5410/chat', {
+            fetch('https://infin8t.tech/chat', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

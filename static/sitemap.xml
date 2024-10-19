@@ -1,175 +1,175 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>http://localhost:5410/</loc>
+    <loc>https://infin8t.tech/</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/about</loc>
+    <loc>https://infin8t.tech/about</loc>
     <lastmod>2023-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/documentation</loc>
+    <loc>https://infin8t.tech/documentation</loc>
     <lastmod>2023-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/project</loc>
+    <loc>https://infin8t.tech/project</loc>
     <lastmod>2023-06-13</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/contact</loc>
+    <loc>https://infin8t.tech/contact</loc>
     <lastmod>2023-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/privacy</loc>
+    <loc>https://infin8t.tech/privacy</loc>
     <lastmod>2023-06-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/terms</loc>
+    <loc>https://infin8t.tech/terms</loc>
     <lastmod>2023-06-01</lastmod>
     <changefreq>yearly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/auth</loc>
+    <loc>https://infin8t.tech/auth</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/login</loc>
+    <loc>https://infin8t.tech/login</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/register</loc>
+    <loc>https://infin8t.tech/register</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/home</loc>
+    <loc>https://infin8t.tech/dashboard/home</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/chatbot-creator</loc>
+    <loc>https://infin8t.tech/dashboard/chatbot-creator</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/api-keys</loc>
+    <loc>https://infin8t.tech/dashboard/api-keys</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/website-info</loc>
+    <loc>https://infin8t.tech/dashboard/website-info</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/faq-management</loc>
+    <loc>https://infin8t.tech/dashboard/faq-management</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/fine-tuning</loc>
+    <loc>https://infin8t.tech/dashboard/fine-tuning</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/api-analytics</loc>
+    <loc>https://infin8t.tech/dashboard/api-analytics</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/integrations</loc>
+    <loc>https://infin8t.tech/dashboard/integrations</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/custom-prompts</loc>
+    <loc>https://infin8t.tech/dashboard/custom-prompts</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/plugins</loc>
+    <loc>https://infin8t.tech/dashboard/plugins</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/team-management</loc>
+    <loc>https://infin8t.tech/dashboard/team-management</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/subscription</loc>
+    <loc>https://infin8t.tech/dashboard/subscription</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/profile</loc>
+    <loc>https://infin8t.tech/dashboard/profile</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/wp/plugin-download</loc>
+    <loc>https://infin8t.tech/wp/plugin-download</loc>
     <lastmod>2023-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/wp/plugin-documentation</loc>
+    <loc>https://infin8t.tech/wp/plugin-documentation</loc>
     <lastmod>2023-06-14</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/ai-marketplace</loc>
+    <loc>https://infin8t.tech/ai-marketplace</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>daily</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/playground</loc>
+    <loc>https://infin8t.tech/playground</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/test</loc>
+    <loc>https://infin8t.tech/test</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
   </url>
   <url>
-    <loc>http://localhost:5410/dashboard/chatbot-design</loc>
+    <loc>https://infin8t.tech/dashboard/chatbot-design</loc>
     <lastmod>2023-06-15</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>

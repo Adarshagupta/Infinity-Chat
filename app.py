@@ -120,7 +120,7 @@ def extract_text_from_url(url):
 def generate_integration_code(api_key, design):
     return f"""
 <!-- AI Chatbot Integration -->
-<script src="http://localhost:5410/chatbot.js?api_key={api_key}&open={design}"></script>
+<script src="https://infin8t.tech/chatbot.js?api_key={api_key}&open={design}"></script>
 """
 
 @app.route("/chatbot.js", methods=["GET", "POST"])
@@ -873,7 +873,7 @@ def test_api_key():
 
     try:
         response = requests.post(
-            "http://localhost:5410/chat",
+            "https://infin8t.tech/chat",
             json={"input": test_input, "api_key": api_key},
             timeout=10,
         )  # Add a timeout

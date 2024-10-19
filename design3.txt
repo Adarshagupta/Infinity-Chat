@@ -261,7 +261,7 @@
                     </button>
                 </div>
                 <div class="powered-by">
-                    Powered by <a href="http://localhost:5410" target="_blank">Infin8t</a>
+                    Powered by <a href="https://infin8t.tech" target="_blank">Infin8t</a>
                 </div>
             </div>
         `;
@@ -278,7 +278,7 @@
 
         window.chatWithAI = async function(input) {
             try {
-                const response = await fetch('http://localhost:5410/chat', {
+                const response = await fetch('https://infin8t.tech/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -398,7 +398,7 @@
                 const realTimeMessage = aiMessageElement.querySelector('#real-time-message');
                 
                 try {
-                    const response = await fetch('http://localhost:5410/chat', {
+                    const response = await fetch('https://infin8t.tech/chat', {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -484,7 +484,7 @@
 
         window.loadHomeContent = function(apiKey) {
             const homeContent = document.getElementById('home-content');
-            fetch(`http://localhost:5410/api/website-info?api_key=${apiKey}`)
+            fetch(`https://infin8t.tech/api/website-info?api_key=${apiKey}`)
                 .then(response => response.json())
                 .then(data => {
                     homeContent.innerHTML = `
@@ -516,7 +516,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading home content:', error);
-                    homeContent.innerHTML = '<p>Please add website information from <a href="http://localhost:5410/dashboard/website-info" target="_blank">Infin8t Dashboard</a></p>';
+                    homeContent.innerHTML = '<p>Please add website information from <a href="https://infin8t.tech/dashboard/website-info" target="_blank">Infin8t Dashboard</a></p>';
                 });
         };
 
@@ -527,7 +527,7 @@
 
         window.loadFAQContent = function(apiKey) {
             const helpContent = document.getElementById('help-content');
-            fetch(`http://localhost:5410/api/faq?api_key=${apiKey}`)
+            fetch(`https://infin8t.tech/api/faq?api_key=${apiKey}`)
                 .then(response => response.json())
                 .then(data => {
                     helpContent.innerHTML = `
@@ -550,7 +550,7 @@
                 })
                 .catch(error => {
                     console.error('Error loading FAQ content:', error);
-                    helpContent.innerHTML = '<p>Please add FAQs from <a href="http://localhost:5410/dashboard/faq-management" target="_blank">Infin8t Dashboard</a></p>';
+                    helpContent.innerHTML = '<p>Please add FAQs from <a href="https://infin8t.tech/dashboard/faq-management" target="_blank">Infin8t Dashboard</a></p>';
                 });
         };
 
