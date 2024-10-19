@@ -58,6 +58,7 @@ import stripe
 from extensions import db
 from wp import wp_blueprint
 from sqlalchemy.orm.attributes import flag_modified
+import psycopg2
 
 # Import models
 from models import User, APIKey, CustomPrompt, Analytics, AIModel, ModelReview, FineTuneJob, ChatInteraction, Conversation, EcommerceIntegration, Team, TeamMember, WebsiteInfo, FAQ
@@ -116,28 +117,33 @@ def extract_text_from_url(url):
     soup = BeautifulSoup(response.text, "html.parser")
     return " ".join([p.text for p in soup.find_all("p")])
 
-def generate_integration_code(api_key):
+def generate_integration_code(api_key, design):
     return f"""
 <!-- AI Chatbot Integration -->
-<script src="https://infin8t.tech/chatbot.js?api_key={api_key}&open=0"></script>
+<script src="https://infin8t.tech/chatbot.js?api_key={api_key}&open={design}"></script>
 """
 
 @app.route("/chatbot.js", methods=["GET", "POST"])
 def chatbot_script():
     try:
         api_key = request.args.get("api_key")
-        open_design = request.args.get("open", "0")  # Default to "0" if not provided
         
         if not api_key:
             app.logger.error("API key not provided in request")
             return jsonify({"error": "API key is required"}), 400
 
+        api_key_obj = APIKey.query.filter_by(key=api_key).first()
+        if not api_key_obj:
+            return jsonify({"error": "Invalid API key"}), 400
+
+        design = api_key_obj.design or "0"  # Default to "0" if not set
+
         # Determine which design file to use
-        if open_design == "1":
+        if design == "1":
             design_file = "design1.txt"
-        elif open_design == "2":
+        elif design == "2":
             design_file = "design2.txt"
-        elif open_design == "3":
+        elif design == "3":
             design_file = "design3.txt"
         else:
             design_file = "design.txt"
@@ -305,6 +311,8 @@ def process_url():
 
     url = request.json.get("url")
     llm = request.json.get("llm")
+    design = request.json.get("design", "0")
+    name = request.json.get("name")  # Get the name from the request
     if not url or not llm:
         return jsonify({"error": "URL and LLM choice are required"}), 400
 
@@ -312,21 +320,27 @@ def process_url():
         extracted_text = extract_text_from_url(url)
         api_key = f"user_{uuid.uuid4().hex}"
 
+        # Use the provided name or generate a default name if not provided
+        api_name = name if name else f"API for {url[:30]}..."
+
         new_api_key = APIKey(
             key=api_key,
+            name=api_name,
             llm=llm,
             extracted_text=extracted_text,
             user_id=session["user_id"],
+            design=design
         )
         db.session.add(new_api_key)
         db.session.commit()
 
-        integration_code = generate_integration_code(api_key)
+        integration_code = generate_integration_code(api_key, design)
 
         return jsonify(
             {
                 "message": "Processing complete",
                 "api_key": api_key,
+                "name": api_name,
                 "llm": llm,
                 "integration_code": integration_code,
             }
@@ -643,7 +657,7 @@ def process_ecommerce_response(response):
 @login_required
 def get_user_api_keys():
     user = User.query.get(session["user_id"])
-    api_keys = [{"id": key.id, "key": key.key, "llm": key.llm} for key in user.api_keys]
+    api_keys = [{"id": key.id, "key": key.key, "name": key.name, "llm": key.llm, "design": key.design} for key in user.api_keys]
     return jsonify({"api_keys": api_keys})
 
 
@@ -1728,6 +1742,29 @@ def sitemap():
     sitemap_path = os.path.join(app.root_path, 'static', 'sitemap.xml')
     print(f"Serving sitemap from: {sitemap_path}")  # Add this line
     return send_file(sitemap_path, mimetype='application/xml')
+
+@app.route("/update_api_key_design", methods=["POST"])
+@login_required
+def update_api_key_design():
+    data = request.json
+    api_key_id = data.get('api_key_id')
+    design = data.get('design')
+
+    if not api_key_id or design is None:
+        return jsonify({"success": False, "error": "API key ID and design are required"}), 400
+
+    try:
+        api_key = APIKey.query.get(api_key_id)
+        if not api_key or api_key.user_id != session["user_id"]:
+            return jsonify({"success": False, "error": "Invalid API key or permission denied"}), 403
+
+        api_key.design = design
+        db.session.commit()
+
+        return jsonify({"success": True, "message": "API key design updated successfully"})
+    except Exception as e:
+        app.logger.error(f"Error updating API key design: {str(e)}")
+        return jsonify({"success": False, "error": "An error occurred while updating the API key design"}), 500
 
 if __name__ == "__main__":
     with app.app_context():

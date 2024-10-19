@@ -95,7 +95,7 @@ Infin8t.tech is a state-of-the-art customer support infrastructure designed for 
    python app.py
    ```
 
-The application will be accessible at `http://localhost:5410`.
+The application will be accessible at `https://infin8t.tech`.
 
 ## API Endpoints
 ### User Authentication
