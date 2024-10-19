@@ -808,18 +808,33 @@
             container.scrollBy({ left: direction * scrollAmount, behavior: 'smooth' });
         };
 
+        // Modify the loadHomeContent function
         window.loadHomeContent = function(apiKey) {
             const homeContent = document.getElementById('home-content');
             fetch(`https://infin8t.tech/api/website-info?api_key=${apiKey}`)
                 .then(response => response.json())
                 .then(data => {
                     homeContent.innerHTML = `
-                        <h2>${data.website_name}</h2>
-                        <p>${data.description}</p>
+                        <div class="home-header">
+                            <h2>${data.website_name}</h2>
+                            <p>${data.description}</p>
+                        </div>
                         <div class="ask-question-banner">
-                            <h3>Need Help? Ask Our AI</h3>
-                            <p>Get instant answers to your questions</p>
-                            <button class="ask-question-button">Ask Now</button>
+                            <div class="banner-content">
+                                <h3>AI-Powered Assistance</h3>
+                                <p>Get instant, intelligent answers to your questions</p>
+                                <button class="ask-question-button">
+                                    <span>Start Chatting</span>
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="banner-illustration">
+                                <div class="illustration-circle"></div>
+                                <div class="illustration-circle"></div>
+                                <div class="illustration-circle"></div>
+                            </div>
                         </div>
                         <div class="feature-grid">
                             ${data.features.map((feature, index) => `
@@ -831,7 +846,7 @@
                         </div>
                     `;
 
-                    // Add event listener to the "Ask Now" button
+                    // Add event listener to the "Start Chatting" button
                     const askButton = homeContent.querySelector('.ask-question-button');
                     askButton.addEventListener('click', function() {
                         // Switch to chat section
@@ -844,8 +859,14 @@
                 });
         };
 
+        // Replace the getFeatureIcon function with this new version
         function getFeatureIcon(index) {
-            const icons = ['💡', '🚀', '🔍', '🛠️', '📊', '🔒'];
+            const icons = [
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>',
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"></polygon><polyline points="2 17 12 22 22 17"></polyline><polyline points="2 12 12 17 22 12"></polyline></svg>',
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path><polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline><line x1="12" y1="22.08" x2="12" y2="12"></line></svg>',
+                '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"></path><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"></path><line x1="6" y1="1" x2="6" y2="4"></line><line x1="10" y1="1" x2="10" y2="4"></line><line x1="14" y1="1" x2="14" y2="4"></line></svg>'
+            ];
             return icons[index % icons.length];
         }
 
@@ -1167,96 +1188,214 @@
     `;
     document.head.appendChild(additionalStyles);
 
-    // Add these new styles for the home content
+    // Replace the existing homeStyles with this updated version
     var homeStyles = document.createElement('style');
     homeStyles.textContent = `
         #home-content {
-            background: linear-gradient(135deg, #f6f9fe, #edf1f9);
-            padding: 35px;
-            border-radius: 18px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            background: #f0f4f8;
+            padding: 50px;
+            border-radius: 40px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.1);
+        }
+
+        .home-header {
+            text-align: center;
+            margin-bottom: 50px;
         }
 
         #home-content h2 {
-            color: #4A90E2;
-            margin-bottom: 25px;
-            font-size: 28px;
-            text-align: center;
+            color: #2c3e50;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            letter-spacing: -1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
         }
 
         #home-content p {
-            color: #333;
-            line-height: 1.7;
-            margin-bottom: 30px;
-            text-align: center;
-            font-size: 16px;
+            color: #34495e;
+            line-height: 1.8;
+            font-size: 20px;
+            max-width: 800px;
+            margin: 0 auto;
         }
 
         .ask-question-banner {
-            background: linear-gradient(135deg, #6e8efb, #a777e3);
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            padding: 20px;
-            border-radius: 12px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            padding: 50px;
+            border-radius: 40px;
+            margin-bottom: 50px;
+            box-shadow: 0 20px 40px rgba(103, 126, 234, 0.3);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .banner-content {
+            flex: 1;
+            z-index: 1;
+        }
+
+        .banner-illustration {
+            position: absolute;
+            right: -50px;
+            top: -50px;
+            width: 300px;
+            height: 300px;
+        }
+
+        .illustration-circle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .illustration-circle:nth-child(1) {
+            width: 200px;
+            height: 200px;
+            top: 50px;
+            right: 50px;
+        }
+
+        .illustration-circle:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            top: 0;
+            right: 100px;
+        }
+
+        .illustration-circle:nth-child(3) {
+            width: 100px;
+            height: 100px;
+            top: 100px;
+            right: 0;
         }
 
         .ask-question-banner h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
+            font-size: 36px;
+            margin-bottom: 20px;
+            font-weight: 800;
+            letter-spacing: -0.5px;
         }
 
         .ask-question-banner p {
-            font-size: 16px;
-            margin-bottom: 20px;
+            font-size: 20px;
+            margin-bottom: 30px;
+            opacity: 0.9;
+            line-height: 1.6;
+            max-width: 80%;
         }
 
         .ask-question-button {
             background-color: white;
-            color: #6e8efb;
+            color: #667eea;
             border: none;
-            padding: 10px 20px;
-            border-radius: 20px;
-            font-size: 16px;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
         }
 
         .ask-question-button:hover {
-            background-color: #f0f0f0;
-            transform: translateY(-2px);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        .ask-question-button svg {
+            transition: transform 0.3s ease;
+        }
+
+        .ask-question-button:hover svg {
+            transform: translateX(5px) rotate(15deg);
         }
 
         .feature-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 40px;
         }
 
         .feature-item {
             background: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
             text-align: center;
             transition: all 0.3s ease;
         }
 
         .feature-item:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-10px) rotate(2deg);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         .feature-icon {
-            font-size: 28px;
-            margin-bottom: 12px;
+            font-size: 56px;
+            margin-bottom: 25px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
         .feature-text {
-            font-size: 16px;
-            color: #333;
+            font-size: 20px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        @media (max-width: 768px) {
+            #home-content {
+                padding: 30px;
+            }
+
+            #home-content h2 {
+                font-size: 36px;
+            }
+
+            .ask-question-banner {
+                padding: 40px;
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .ask-question-banner h3 {
+                font-size: 28px;
+            }
+
+            .ask-question-banner p {
+                font-size: 18px;
+                max-width: 100%;
+            }
+
+            .banner-illustration {
+                display: none;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .feature-item {
+                padding: 30px;
+            }
+
+            .feature-icon {
+                font-size: 48px;
+            }
+
+            .feature-text {
+                font-size: 18px;
+            }
         }
     `;
     document.head.appendChild(homeStyles);

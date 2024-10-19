@@ -140,13 +140,13 @@ def chatbot_script():
 
         # Determine which design file to use
         if design == "1":
-            design_file = "design1.txt"
+            design_file = "design/design1.txt"
         elif design == "2":
-            design_file = "design2.txt"
+            design_file = "design/design2.txt"
         elif design == "3":
-            design_file = "design3.txt"
+            design_file = "design/design3.txt"
         else:
-            design_file = "design.txt"
+            design_file = "design/design.txt"
         
         # Read the script from the appropriate design file
         script_path = os.path.join(app.root_path, design_file)
