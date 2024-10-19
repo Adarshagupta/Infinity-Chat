@@ -336,7 +336,7 @@
             // GitHub OAuth app client ID
             const clientId = '{{ config.GITHUB_CLIENT_ID }}';
             // Redirect URI (should match the one set in your GitHub OAuth app)
-            const redirectUri = encodeURIComponent('https://infin8t.tech/github-callback');
+            const redirectUri = encodeURIComponent('http://localhost:5410/github-callback');
             // Random state for security
             const state = Math.random().toString(36).substring(7);
             // Store state in localStorage to verify later

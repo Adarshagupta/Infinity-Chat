@@ -138,8 +138,43 @@
     }
 
     // Replace the existing refreshApiKeys function with this:
-    function refreshApiKeys() {
-        loadApiKeys();
+    function refreshApiKeys(initialLoad = false) {
+        fetch('/dashboard/home/user/api_keys')
+            .then(response => response.json())
+            .then(data => {
+                const apiKeysList = document.getElementById('apiKeysList');
+                apiKeysList.innerHTML = ''; // Clear existing list
+                data.api_keys.forEach(key => {
+                    const listItem = document.createElement('li');
+                    listItem.className = 'bg-gray-100 rounded-md p-4 flex justify-between items-center transition-transform duration-200 hover:bg-white hover:scale-105';
+                    listItem.innerHTML = `
+                        <div class="flex items-center">
+                            <span class="mr-2 font-semibold">${key.name}</span>
+                            <span class="mr-2 text-gray-500">${key.key}</span>
+                            <button onclick="copyToClipboard('${key.key}')" class="text-gray-500 hover:text-gray-700">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="flex items-center">
+                            <select onchange="updateApiKeyDesign('${key.id}', this.value)" class="mr-2 px-2 py-1 border border-gray-300 rounded-md">
+                                <option value="0" ${key.design === '0' ? 'selected' : ''}>Default Design</option>
+                                <option value="1" ${key.design === '1' ? 'selected' : ''}>Design 1</option>
+                                <option value="2" ${key.design === '2' ? 'selected' : ''}>Design 2</option>
+                                <option value="3" ${key.design === '3' ? 'selected' : ''}>Design 3</option>
+                            </select>
+                            <button onclick="openApiTestModal('${key.key}')" class="bg-blue-500 text-white px-4 py-2 rounded-md font-medium hover:bg-blue-600 transition duration-300 mr-2">Test</button>
+                            <button onclick="deleteApiKey('${key.id}')" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Delete</button>
+                        </div>
+                    `;
+                    apiKeysList.appendChild(listItem);
+                });
+                if (initialLoad) {
+                    console.log('API keys loaded successfully');
+                }
+            })
+            .catch(error => console.error('Error:', error));
     }
 
     // Add logout functionality
@@ -384,6 +419,8 @@ let currentLLM = null;
 async function processUrl() {
     const url = document.getElementById('urlInput').value;
     const llm = document.getElementById('llmSelect').value;
+    const design = document.getElementById('designSelect').value;
+    const name = document.getElementById('apiNameInput').value;  // Get the API name from the input
     const resultDiv = document.getElementById('result');
     const apiKeyResultDiv = document.getElementById('apiKeyResult');
     const integrationCodeTextarea = document.getElementById('integration-code');
@@ -404,12 +441,13 @@ async function processUrl() {
             await new Promise(resolve => setTimeout(resolve, 5000));
         }
 
-        const response = await axios.post('/dashboard/home/process_url', { url: url, llm: llm });
+        const response = await axios.post('/dashboard/home/process_url', { url: url, llm: llm, design: design, name: name });
         console.log('Full API response:', response.data);
 
         resultDiv.classList.remove('hidden');
         apiKeyResultDiv.innerHTML = `
             <p class="mb-2">Your API Key: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.api_key}</span></p>
+            <p class="mb-2">API Name: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.name}</span></p>
             <p class="mb-2">Selected LLM: <span class="font-mono bg-gray-100 px-2 py-1 rounded">${response.data.llm}</span></p>
         `;
 
@@ -419,7 +457,7 @@ async function processUrl() {
             integrationCodeTextarea.value = 'Integration code not found in response';
         }
 
-        await fetchApiKeys();
+        await refreshApiKeys();
         showNotification('URL processed successfully');
     } catch (error) {
         console.error('Error:', error);

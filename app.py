@@ -311,7 +311,8 @@ def process_url():
 
     url = request.json.get("url")
     llm = request.json.get("llm")
-    design = request.json.get("design", "0")  # Default to "0" if not provided
+    design = request.json.get("design", "0")
+    name = request.json.get("name")  # Get the name from the request
     if not url or not llm:
         return jsonify({"error": "URL and LLM choice are required"}), 400
 
@@ -319,11 +320,16 @@ def process_url():
         extracted_text = extract_text_from_url(url)
         api_key = f"user_{uuid.uuid4().hex}"
 
+        # Use the provided name or generate a default name if not provided
+        api_name = name if name else f"API for {url[:30]}..."
+
         new_api_key = APIKey(
             key=api_key,
+            name=api_name,
             llm=llm,
             extracted_text=extracted_text,
             user_id=session["user_id"],
+            design=design
         )
         db.session.add(new_api_key)
         db.session.commit()
@@ -334,6 +340,7 @@ def process_url():
             {
                 "message": "Processing complete",
                 "api_key": api_key,
+                "name": api_name,
                 "llm": llm,
                 "integration_code": integration_code,
             }
@@ -650,7 +657,7 @@ def process_ecommerce_response(response):
 @login_required
 def get_user_api_keys():
     user = User.query.get(session["user_id"])
-    api_keys = [{"id": key.id, "key": key.key, "llm": key.llm, "design": key.design} for key in user.api_keys]
+    api_keys = [{"id": key.id, "key": key.key, "name": key.name, "llm": key.llm, "design": key.design} for key in user.api_keys]
     return jsonify({"api_keys": api_keys})
 
 
