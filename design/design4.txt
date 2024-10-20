@@ -541,17 +541,10 @@
             <div id="chatbot-container" class="chatbot-container" style="display: none;">
                 <div id="chat-header" class="chatbot-header">
                     <span>AI Assistant</span>
-                    <div class="header-icons">
-                        <svg id="clear-conversation" class="header-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M3 6h18"></path>
-                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"></path>
-                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"></path>
-                        </svg>
-                        <svg id="chatbot-close" class="header-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </div>
+                    <svg id="chatbot-close" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
                 </div>
                 <div id="chatbot-content" class="chatbot-content">
                     <div id="home-content" class="chat-section active">
@@ -637,8 +630,7 @@
         };
 
         // Modify the addMessage function to include suggested queries
-        window.addMessage = function(sender, message, isRealTime = false, isLoadingSaved = false) {
-            console.log('Adding message:', { sender, message, isRealTime, isLoadingSaved });
+        window.addMessage = function(sender, message, isRealTime = false) {
             const chatMessages = document.getElementById('chat-messages');
             const messageElement = document.createElement('div');
             messageElement.className = `message ${sender === 'You' ? 'user-message' : 'ai-message'}`;
@@ -646,8 +638,10 @@
             if (isRealTime) {
                 messageElement.innerHTML = `<p id="real-time-message"></p>`;
             } else if (typeof message === 'object' && message.response) {
+                // This is our new structured response with suggested queries
                 let html = `<p>${message.response}</p>`;
                 
+                // Add suggested queries
                 if (message.suggested_queries && message.suggested_queries.length > 0) {
                     html += '<div class="suggested-queries">';
                     html += '<p>You might also want to ask:</p>';
@@ -693,13 +687,6 @@
             
             chatMessages.appendChild(messageElement);
             messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-
-            if (!isLoadingSaved) {
-                const conversation = loadConversation();
-                conversation.push({ sender, message });
-                saveConversation(conversation);
-            }
-
             return messageElement;
         };
 
@@ -777,12 +764,6 @@
                                         // Instead of creating a new message, update the existing one
                                         updateAIMessage(aiMessageElement, finalResponse);
                                         playSound('message-received-sound');
-
-                                        // Update the stored conversation with the AI's response
-                                        const conversation = loadConversation();
-                                        conversation.push({ sender: 'AI', message: finalResponse });
-                                        saveConversation(conversation);
-
                                         return;
                                     }
                                 } catch (error) {
@@ -819,14 +800,6 @@
             
             messageElement.innerHTML = html;
             messageElement.scrollIntoView({ behavior: 'smooth', block: 'end' });
-
-            // Save the updated AI message
-            const conversation = loadConversation();
-            const lastMessage = conversation[conversation.length - 1];
-            if (lastMessage && lastMessage.sender === 'AI') {
-                lastMessage.message = data;
-                saveConversation(conversation);
-            }
         }
 
         window.scrollCarousel = function(direction) {
@@ -1159,71 +1132,6 @@
             }
         `;
         document.head.appendChild(chatFontStyles);
-
-        // Add these functions for local storage
-        function saveConversation(messages) {
-            try {
-                localStorage.setItem('aiChatbotConversation', JSON.stringify(messages));
-                console.log('Conversation saved:', messages);
-            } catch (error) {
-                console.error('Error saving conversation:', error);
-            }
-        }
-
-        function loadConversation() {
-            try {
-                const savedConversation = localStorage.getItem('aiChatbotConversation');
-                const parsedConversation = savedConversation ? JSON.parse(savedConversation) : [];
-                console.log('Loaded conversation:', parsedConversation);
-                return parsedConversation;
-            } catch (error) {
-                console.error('Error loading conversation:', error);
-                return [];
-            }
-        }
-
-        function loadSavedConversation() {
-            const conversation = loadConversation();
-            const chatMessages = document.getElementById('chat-messages');
-            chatMessages.innerHTML = ''; // Clear existing messages
-            if (conversation.length > 0) {
-                conversation.forEach(msg => {
-                    addMessage(msg.sender, msg.message, false, true);
-                });
-            }
-        }
-
-        function clearConversation() {
-            console.log('Clearing conversation');
-            localStorage.removeItem('aiChatbotConversation');
-            document.getElementById('chat-messages').innerHTML = '';
-            loadSavedConversation(); // This will load an empty conversation
-            console.log('Conversation cleared');
-        }
-
-        // Add CSS for the clear conversation button
-        var clearButtonStyle = document.createElement('style');
-        clearButtonStyle.textContent = `
-            #ai-chatbot .clear-conversation-button {
-                background-color: #f44336;
-                color: white;
-                border: none;
-                padding: 10px 15px;
-                border-radius: 5px;
-                cursor: pointer;
-                font-size: 14px;
-                margin: 10px;
-                transition: background-color 0.3s ease;
-            }
-
-            #ai-chatbot .clear-conversation-button:hover {
-                background-color: #d32f2f;
-            }
-        `;
-        document.head.appendChild(clearButtonStyle);
-
-        // Initialize chat
-        loadSavedConversation();
     }
 
     // Load chatbot when the page is fully loaded
@@ -1423,19 +1331,33 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.05);
             text-align: center;
             transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
 
         .feature-item:hover {
-            transform: translateY(-10px) rotate(2deg);
+            transform: translateY(-10px);
             box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
         }
 
         .feature-icon {
             font-size: 56px;
             margin-bottom: 25px;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             background: linear-gradient(135deg, #667eea, #764ba2);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            border-radius: 50%;
+            color: white;
+        }
+
+        .feature-icon svg {
+            width: 40px;
+            height: 40px;
+            stroke: currentColor;
         }
 
         .feature-text {
@@ -1614,29 +1536,5 @@
         }
     `;
     document.head.appendChild(scrollStyles);
-
-    var headerIconStyles = document.createElement('style');
-    headerIconStyles.textContent = `
-        #ai-chatbot .chatbot-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        #ai-chatbot .header-icons {
-            display: flex;
-            gap: 10px;
-        }
-
-        #ai-chatbot .header-icon {
-            cursor: pointer;
-            transition: transform 0.2s ease;
-        }
-
-        #ai-chatbot .header-icon:hover {
-            transform: scale(1.1);
-        }
-    `;
-    document.head.appendChild(headerIconStyles);
 
 })();

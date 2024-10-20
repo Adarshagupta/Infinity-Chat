@@ -512,6 +512,11 @@ Custom info: {' '.join([f'{prompt.prompt}: {prompt.response[:20]}...' for prompt
                 db.session.commit()
                 app.logger.info(f"Analytics recorded for user_id: {api_key_data.user_id}, api_key: {api_key}")
 
+                # Update the stored conversation with the AI's response
+                conversation = loadConversation()
+                conversation.push({ sender: 'AI', message: final_response })
+                saveConversation(conversation)
+
             except Exception as e:
                 app.logger.error(f"Error in chat route: {str(e)}", exc_info=True)
                 yield f"data: {json.dumps({'error': str(e)})}\n\n"
