@@ -428,9 +428,51 @@
 										conversations using a process known as natural language processing increasing
 										the efficiency of customer support</p>
 									<div class="margin-top margin-medium">
-										<div class="button-group"><a href="/dashboard/home" class="button w-button">Get started</a><a
-												href="/documentation" class="button is-secondary w-button">Learn more</a></div>
+										<div class="button-group">
+											<a href="/dashboard/home" class="button w-button" style="background: linear-gradient(135deg, #4e54c8, #8f94fb); color: white; border: none; padding: 12px 24px; border-radius: 30px; font-weight: 600; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(78, 84, 200, 0.3);">Get started</a>
+											<a href="/documentation" class="button is-secondary w-button" style="background: transparent; color: #4e54c8; border: 2px solid #4e54c8; padding: 12px 24px; border-radius: 30px; font-weight: 600; transition: all 0.3s ease;">Learn more</a>
+										</div>
 									</div>
+									<div class="margin-top margin-medium">
+										<div style="display: flex; justify-content: center; gap: 20px;">
+											<div class="code-snippet-container" style="position: relative; display: inline-block; background: linear-gradient(135deg, #2c3e50, #34495e); border-radius: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);">
+												<pre><code class="language-bash" style="background: transparent; color: #ecf0f1; padding: 20px 50px; font-family: 'Fira Code', monospace; font-size: 18px;">npm install infin8t</code></pre>
+												
+												<button onclick="copyToClipboard('npm')" class="copy-button" style="position: absolute; top: 12px; right: 12px; background: rgba(236, 240, 241, 0); border: none; border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.3s ease;">
+													<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ecf0f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+														<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+														<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+													</svg>
+												</button>
+											</div>
+											<div class="code-snippet-container" style="position: relative; display: inline-block; background: linear-gradient(135deg, #2c3e50, #34495e); border-radius: 15px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);">
+												<pre><code class="language-bash" style="background: transparent; color: #ecf0f1; padding: 20px 50px; font-family: 'Fira Code', monospace; font-size: 18px;">pip install infin8t</code></pre>
+												
+												<button onclick="copyToClipboard('pip')" class="copy-button" style="position: absolute; top: 12px; right: 12px; background: rgba(236, 240, 241, 0); border: none; border-radius: 8px; padding: 8px; cursor: pointer; transition: all 0.3s ease;">
+													<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ecf0f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+														<rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+														<path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+													</svg>
+												</button>
+											</div>
+										</div>
+									</div>
+									<script>
+										function copyToClipboard() {
+											const el = document.createElement('textarea');
+											el.value = 'npm install infin8t';
+											document.body.appendChild(el);
+											el.select();
+											document.execCommand('copy');
+											document.body.removeChild(el);
+											
+											const copyButton = document.querySelector('.copy-button');
+											copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2ecc71" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+											setTimeout(() => {
+												copyButton.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ecf0f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>';
+											}, 2000);
+										}
+									</script>
 									
 									<!-- Download Plugin Banner -->
 									<div class="download-plugin-banner" style="margin-top: 40px; padding: 30px; background: linear-gradient(135deg, #FFF0F5 0%, #E6E6FA 100%); border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(219, 112, 147, 0.1);">

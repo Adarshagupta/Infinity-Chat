@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Developer Documentation</title>
+    <title>Infin8t Documentation</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
@@ -78,7 +78,7 @@
     <!-- Sidebar -->
     <div class="sidebar">
         <div class="p-4 flex justify-center">
-            <img src="https://ph-files.imgix.net/0b9e56aa-e09b-4e62-9dd6-4c3b149463b5.png?auto=compress&codec=mozjpeg&cs=strip&auto=format&w=72&h=72&fit=crop&dpr=1" alt="Logo" class="w-12 h-12">
+            <img src="https://i.ibb.co/QYMcNvj/Screenshot-2024-10-13-at-11-18-16-PM.png" alt="Logo" class="w-12 h-12">
         </div>
         <nav class="sidebar-menu flex flex-col justify-between h-[calc(100%-5rem)]">
             <div>
@@ -91,33 +91,29 @@
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"></path></svg>
                     <span class="sidebar-text">Authentication</span>
                 </a>
-                <a href="#endpoints" class="sidebar-item" data-section="endpoints">
+                <a href="#integration" class="sidebar-item" data-section="integration">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>
-                    <span class="sidebar-text">Endpoints</span>
+                    <span class="sidebar-text">Integration</span>
                 </a>
-                <a href="#error-handling" class="sidebar-item" data-section="error-handling">
+                <a href="#customization" class="sidebar-item" data-section="customization">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span class="sidebar-text">Error Handling</span>
+                    <span class="sidebar-text">Customization</span>
                 </a>
-                <a href="#rate-limiting" class="sidebar-item" data-section="rate-limiting">
+                <a href="#analytics" class="sidebar-item" data-section="analytics">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span class="sidebar-text">Rate Limiting</span>
+                    <span class="sidebar-text">Analytics</span>
                 </a>
-                <a href="#examples" class="sidebar-item" data-section="examples">
+                <a href="#api-reference" class="sidebar-item" data-section="api-reference">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4"></path></svg>
-                    <span class="sidebar-text">Examples</span>
+                    <span class="sidebar-text">API Reference</span>
                 </a>
-                <a href="#sdks" class="sidebar-item" data-section="sdks">
-                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
-                    <span class="sidebar-text">SDKs</span>
-                </a>
-                <a href="#faq" class="sidebar-item" data-section="faq">
-                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    <span class="sidebar-text">FAQ</span>
-                </a>
-                <a href="#changelog" class="sidebar-item" data-section="changelog">
+                <a href="#troubleshooting" class="sidebar-item" data-section="troubleshooting">
                     <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
-                    <span class="sidebar-text">Changelog</span>
+                    <span class="sidebar-text">Troubleshooting</span>
+                </a>
+                <a href="#support" class="sidebar-item" data-section="support">
+                    <svg class="sidebar-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="sidebar-text">Support</span>
                 </a>
             </div>
         </nav>
@@ -126,301 +122,223 @@
     <!-- Main content -->
     <div class="main-content">
         <header class="mb-8 flex justify-between items-center">
-            <h1 class="text-3xl font-bold text-gray-800">Developer Documentation</h1>
-            <a href="/api" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Dashboard</a>
+            <h1 class="text-3xl font-bold text-gray-800">Infin8t Documentation</h1>
+            <a href="/dashboard" class="bg-purple-500 text-white px-4 py-2 rounded-md font-medium hover:bg-purple-600 transition duration-300">Dashboard</a>
         </header>
 
         <div id="content-container">
             <section id="introduction" class="content-section bg-white shadow-md rounded-lg p-6">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">Introduction</h2>
-                <p class="text-gray-600 mb-4">Welcome to our API documentation. This guide will help you integrate our advanced AI-powered chatbot services into your applications. Our API allows you to create, manage, and interact with chatbots, as well as analyze their performance and leverage cutting-edge AI technologies.</p>
+                <p class="text-gray-600 mb-4">Welcome to Infin8t, an advanced AI-powered chatbot platform designed for seamless integration into websites and applications. Our solution offers customizable chatbots trained on your specific content, providing personalized and efficient customer support.</p>
                 <h3 class="text-xl font-semibold text-gray-700 mb-2">Key Features</h3>
                 <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li>Create and manage multiple chatbots with advanced customization options</li>
-                    <li>Utilize state-of-the-art natural language processing models</li>
-                    <li>Seamless integration with popular messaging platforms and voice assistants</li>
+                    <li>Easy integration with a single line of code</li>
+                    <li>Customizable chatbot appearance and behavior</li>
+                    <li>AI-powered responses based on your website content</li>
+                    <li>Multi-language support</li>
                     <li>Real-time analytics and performance insights</li>
-                    <li>Fine-tune AI models for improved accuracy and domain-specific knowledge</li>
-                    <li>Multi-language support with automatic translation</li>
-                    <li>Advanced sentiment analysis and intent recognition</li>
+                    <li>Seamless integration with popular e-commerce platforms</li>
                 </ul>
             </section>
 
             <section id="authentication" class="content-section bg-white shadow-md rounded-lg p-6">
                 <h2 class="text-2xl font-semibold text-gray-800 mb-4">Authentication</h2>
-                <p class="text-gray-600 mb-4">All API requests require authentication using an API key. Include your API key in the Authorization header:</p>
-                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="text-sm">Authorization: Bearer YOUR_API_KEY</code></pre>
-                <h3 class="text-xl font-semibold text-gray-700 mt-4 mb-2">Obtaining an API Key</h3>
-                <p class="text-gray-600 mb-4">To obtain an API key:</p>
+                <p class="text-gray-600 mb-4">Infin8t uses API keys for authentication. Include your API key in the script tag when integrating the chatbot:</p>
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="text-sm">&lt;script src="https://infin8t.tech/chatbot.js?api_key=YOUR_API_KEY"&gt;&lt;/script&gt;</code></pre>
+                <h3 class="text-xl font-semibold text-gray-700 mt-4 mb-2">Generating an API Key</h3>
                 <ol class="list-decimal list-inside text-gray-600 mb-4">
-                    <li>Log in to your account dashboard</li>
+                    <li>Log in to your Infin8t dashboard</li>
                     <li>Navigate to the "API Keys" section</li>
                     <li>Click on "Generate New API Key"</li>
-                    <li>Copy and securely store your new API key</li>
+                    <li>Enter a name for your API key (e.g., "Website Integration")</li>
+                    <li>Click "Generate" and copy your new API key</li>
                 </ol>
-                <div class="bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700 p-4 mb-4" role="alert">
-                    <p class="font-bold">Important:</p>
-                    <p>Never share your API key publicly or commit it to version control systems.</p>
-                </div>
-                <!-- New content: API key rotation -->
-                <h3 class="text-xl font-semibold text-gray-700 mt-4 mb-2">API Key Rotation</h3>
-                <p class="text-gray-600 mb-4">We recommend rotating your API keys periodically for enhanced security. To rotate your key:</p>
-                <ol class="list-decimal list-inside text-gray-600 mb-4">
-                    <li>Generate a new API key</li>
-                    <li>Update your applications to use the new key</li>
-                    <li>Verify that everything works correctly with the new key</li>
-                    <li>Revoke the old API key</li>
-                </ol>
+                <p class="text-gray-600">Remember to keep your API key secure and never share it publicly.</p>
             </section>
 
-            <section id="endpoints" class="content-section bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Endpoints</h2>
-                
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">Chatbots</h3>
-                <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/chatbots</code> - List all chatbots</li>
-                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/chatbots</code> - Create a new chatbot</li>
-                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/chatbots/{id}</code> - Get chatbot details</li>
-                    <li><code class="bg-gray-100 px-1 rounded">PUT /api/v1/chatbots/{id}</code> - Update a chatbot</li>
-                    <li><code class="bg-gray-100 px-1 rounded">DELETE /api/v1/chatbots/{id}</code> - Delete a chatbot</li>
-                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/chatbots/{id}/train</code> - Fine-tune chatbot model</li>
-                </ul>
-
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">Conversations</h3>
-                <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/chatbots/{id}/conversations</code> - Start a new conversation</li>
-                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/conversations/{id}/messages</code> - Send a message in a conversation</li>
-                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/conversations/{id}</code> - Get conversation history</li>
-                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/conversations/{id}/analyze</code> - Perform sentiment analysis</li>
-                </ul>
-
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">Analytics</h3>
-                <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/chatbots/{id}/analytics</code> - Get chatbot analytics</li>
-                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/analytics/usage</code> - Get API usage statistics</li>
-                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/analytics/performance</code> - Get real-time performance metrics</li>
-                </ul>
-            </section>
-
-            <section id="error-handling" class="content-section bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Error Handling</h2>
-                <p class="text-gray-600 mb-4">Our API uses conventional HTTP response codes to indicate success or failure of requests. In general:</p>
-                <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li>2xx: Success</li>
-                    <li>4xx: Client errors</li>
-                    <li>5xx: Server errors</li>
-                </ul>
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">Common Error Codes</h3>
-                <table class="min-w-full bg-white border border-gray-300 mb-4">
-                    <thead>
-                        <tr>
-                            <th class="py-2 px-4 border-b">Code</th>
-                            <th class="py-2 px-4 border-b">Description</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td class="py-2 px-4 border-b">400</td>
-                            <td class="py-2 px-4 border-b">Bad Request - Invalid parameters</td>
-                        </tr>
-                        <tr>
-                            <td class="py-2 px-4 border-b">401</td>
-                            <td class="py-2 px-4 border-b">Unauthorized - Invalid API key</td>
-                        </tr>
-                        <tr>
-                            <td class="py-2 px-4 border-b">404</td>
-                            <td class="py-2 px-4 border-b">Not Found - Resource doesn't exist</td>
-                        </tr>
-                        <tr>
-                            <td class="py-2 px-4 border-b">429</td>
-                            <td class="py-2 px-4 border-b">Too Many Requests - Rate limit exceeded</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </section>
-
-            <section id="rate-limiting" class="content-section bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Rate Limiting</h2>
-                <p class="text-gray-600 mb-4">API requests are limited to ensure fair usage and maintain service stability. The current limits are:</p>
-                <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li>1000 requests per hour per API key</li>
-                    <li>10,000 requests per day per API key</li>
-                </ul>
-                <p class="text-gray-600 mb-4">If you exceed these limits, you'll receive a 429 Too Many Requests response. The response will include the following headers:</p>
-                <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li><code class="bg-gray-100 px-1 rounded">X-RateLimit-Limit</code>: The rate limit period (per hour or per day)</li>
-                    <li><code class="bg-gray-100 px-1 rounded">X-RateLimit-Remaining</code>: The number of requests left for the time window</li>
-                    <li><code class="bg-gray-100 px-1 rounded">X-RateLimit-Reset</code>: The time at which the current rate limit window resets in UTC epoch seconds</li>
-                </ul>
-            </section>
-
-            <section id="examples" class="content-section bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Examples</h2>
-                
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">Python</h3>
+            <section id="integration" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Integration</h2>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Basic HTML Integration</h3>
                 <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code class="text-sm">
-import requests
-
-api_key = "your_api_key_here"
-headers = {"Authorization": f"Bearer {api_key}"}
-base_url = "https://api.example.com/v1"
-
-# Create a new chatbot
-new_chatbot = {
-    "name": "Customer Support Bot",
-    "description": "A chatbot for handling customer inquiries",
-    "language": "en"
-}
-response = requests.post(f"{base_url}/chatbots", json=new_chatbot, headers=headers)
-chatbot = response.json()
-print(f"Created chatbot: {chatbot['id']}")
-
-# Start a conversation
-conversation = requests.post(f"{base_url}/chatbots/{chatbot['id']}/conversations", headers=headers).json()
-conversation_id = conversation['id']
-
-# Send a message
-message = {
-    "content": "Hello, I have a question about my order.",
-    "role": "user"
-}
-response = requests.post(f"{base_url}/conversations/{conversation_id}/messages", json=message, headers=headers)
-bot_response = response.json()
-print(f"Bot response: {bot_response['content']}")
+&lt;script src="https://infin8t.tech/chatbot.js?api_key=YOUR_API_KEY"&gt;&lt;/script&gt;
                 </code></pre>
 
-                <h3 class="text-xl font-semibold text-gray-700 mb-2">JavaScript</h3>
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">React Integration</h3>
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code class="text-sm">
+import React from 'react';
+import Infin8t from 'infin8t';
+
+const App = () => {
+  return (
+    &lt;div&gt;
+      &lt;h1&gt;My React App&lt;/h1&gt;
+      &lt;Infin8t apiKey="YOUR_API_KEY" /&gt;
+    &lt;/div&gt;
+  );
+};
+
+export default App;
+                </code></pre>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Node.js (Express) Integration</h3>
                 <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto"><code class="text-sm">
-const axios = require('axios');
+const express = require('express');
+const Infin8t = require('infin8t');
 
-const apiKey = 'your_api_key_here';
-const baseURL = 'https://api.example.com/v1';
+const app = express();
+const chatbot = new Infin8t('YOUR_API_KEY');
 
-const api = axios.create({
-  baseURL,
-  headers: { Authorization: `Bearer ${apiKey}` }
+app.get('/', (req, res) => {
+  const scriptTag = chatbot.getScriptTag();
+  res.send(`
+    &lt;html&gt;
+      &lt;body&gt;
+        &lt;h1&gt;My Node.js App&lt;/h1&gt;
+        ${scriptTag}
+      &lt;/body&gt;
+    &lt;/html&gt;
+  `);
 });
 
-async function createChatbotAndConverse() {
-  try {
-    // Create a new chatbot
-    const { data: chatbot } = await api.post('/chatbots', {
-      name: 'Customer Support Bot',
-      description: 'A chatbot for handling customer inquiries',
-      language: 'en'
-    });
-    console.log(`Created chatbot: ${chatbot.id}`);
+app.listen(3000, () => console.log('Server running on port 3000'));
+                </code></pre>
 
-    // Start a conversation
-    const { data: conversation } = await api.post(`/chatbots/${chatbot.id}/conversations`);
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Python Integration</h3>
+                <pre class="bg-gray-100 p-4 rounded-lg overflow-x-auto mb-4"><code class="text-sm">
+from infin8t import Infin8t
 
-    // Send a message
-    const { data: botResponse } = await api.post(`/conversations/${conversation.id}/messages`, {
-      content: 'Hello, I have a question about my order.',
-      role: 'user'
-    });
-    console.log(`Bot response: ${botResponse.content}`);
-  } catch (error) {
-    console.error('Error:', error.response ? error.response.data : error.message);
-  }
-}
+# Initialize the chatbot
+chatbot = Infin8t(api_key='YOUR_API_KEY')
 
-createChatbotAndConverse();
+# Send a message to the chatbot
+response = chatbot.send_message('Hello, how can I help you today?')
+print(response)
+
+# Get the script tag for web integration
+script_tag = chatbot.get_script_tag()
+print(script_tag)
+
+# Use the chatbot in a Flask app
+from flask import Flask, render_template
+
+app = Flask(__name__)
+
+@app.route('/')
+def home():
+    script_tag = chatbot.get_script_tag()
+    return render_template('home.html', script_tag=script_tag)
+
+if __name__ == '__main__':
+    app.run(debug=True)
                 </code></pre>
             </section>
 
-            <section id="sdks" class="content-section bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">SDKs</h2>
-                <p class="text-gray-600 mb-4">We provide official SDKs for the following languages:</p>
-                <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li>Python: <code class="bg-gray-100 px-1 rounded">pip install example-chatbot-sdk</code></li>
-                    <li>JavaScript: <code class="bg-gray-100 px-1 rounded">npm install example-chatbot-sdk</code></li>
-                    <li>Ruby: <code class="bg-gray-100 px-1 rounded">gem install example-chatbot-sdk</code></li>
-                    <li>PHP: <code class="bg-gray-100 px-1 rounded">composer require example/chatbot-sdk</code></li>
-                </ul>
-                <p class="text-gray-600 mb-4">For detailed documentation on using our SDKs, please visit the respective GitHub repositories:</p>
-                <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800">Python SDK Documentation</a></li>
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800">JavaScript SDK Documentation</a></li>
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800">Ruby SDK Documentation</a></li>
-                    <li><a href="#" class="text-blue-600 hover:text-blue-800">PHP SDK Documentation</a></li>
-                </ul>
+            <section id="dashboard-tutorials" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Dashboard Tutorials</h2>
+                
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Changing Chatbot Design</h3>
+                <ol class="list-decimal list-inside text-gray-600 mb-4">
+                    <li>Go to the "Chatbot Settings" section in your dashboard</li>
+                    <li>Click on "Appearance"</li>
+                    <li>Choose from predefined themes or customize colors, fonts, and layout</li>
+                    <li>Click "Save Changes" to apply the new design</li>
+                </ol>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Testing Your API</h3>
+                <ol class="list-decimal list-inside text-gray-600 mb-4">
+                    <li>Navigate to the "API Testing" section</li>
+                    <li>Enter a test message in the provided input field</li>
+                    <li>Click "Send" to see how your chatbot responds</li>
+                    <li>Review the response and adjust your chatbot's training if necessary</li>
+                </ol>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Adding Website Information</h3>
+                <ol class="list-decimal list-inside text-gray-600 mb-4">
+                    <li>Go to the "Website Info" section</li>
+                    <li>Enter your website's name, URL, and a brief description</li>
+                    <li>Add key features or products of your website</li>
+                    <li>Click "Save" to update your chatbot's knowledge base</li>
+                </ol>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Managing FAQs</h3>
+                <ol class="list-decimal list-inside text-gray-600 mb-4">
+                    <li>Navigate to the "FAQ Management" section</li>
+                    <li>Click "Add New FAQ" to create a new question-answer pair</li>
+                    <li>Enter the question and its corresponding answer</li>
+                    <li>Use the drag-and-drop interface to reorder FAQs</li>
+                    <li>Click "Save Changes" to update your chatbot's FAQ knowledge</li>
+                </ol>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Fine-tuning Your Chatbot</h3>
+                <ol class="list-decimal list-inside text-gray-600 mb-4">
+                    <li>Go to the "Training" section in your dashboard</li>
+                    <li>Upload a CSV file with example conversations or use the web interface to add training data</li>
+                    <li>Click "Start Fine-tuning" to begin the process</li>
+                    <li>Monitor the progress and wait for the completion notification</li>
+                    <li>Test your newly fine-tuned model in the "API Testing" section</li>
+                </ol>
+
+                <h3 class="text-xl font-semibold text-gray-700 mb-2">Using Team Features</h3>
+                <ol class="list-decimal list-inside text-gray-600 mb-4">
+                    <li>Navigate to the "Team Management" section</li>
+                    <li>Click "Invite Team Member" to add a new member</li>
+                    <li>Enter the email address and select the appropriate role (Admin, Editor, Viewer)</li>
+                    <li>Set permissions for each team member</li>
+                    <li>Use the activity log to track changes made by team members</li>
+                </ol>
             </section>
 
-            <section id="faq" class="content-section bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Frequently Asked Questions</h2>
-                <dl class="space-y-4">
-                    <div>
-                        <dt class="font-semibold text-gray-700">How do I reset my API key?</dt>
-                        <dd class="text-gray-600">You can reset your API key from your account settings page. Navigate to the "API Keys" section and click on "Regenerate API Key". Note that this will invalidate your old API key immediately.</dd>
-                    </div>
-                    <div>
-                        <dt class="font-semibold text-gray-700">Is there a sandbox environment for testing?</dt>
-                        <dd class="text-gray-600">Yes, we provide a sandbox environment for testing. Use the base URL https://api-sandbox.example.com for all your test requests. The sandbox environment has the same functionality as the production environment but does not affect your live data or billing.</dd>
-                    </div>
-                    <div>
-                        <dt class="font-semibold text-gray-700">How do I report bugs or request features?</dt>
-                        <dd class="text-gray-600">Please submit issues and feature requests through our GitHub repository or contact our support team at support@example.com. For urgent matters, you can reach out to us via the live chat on our website.</dd>
-                    </div>
-                    <div>
-                        <dt class="font-semibold text-gray-700">What's the difference between the various subscription plans?</dt>
-                        <dd class="text-gray-600">Our subscription plans differ in terms of API call limits, available features, and support levels. You can find a detailed comparison on our pricing page. If you have specific needs, please contact our sales team for a custom plan.</dd>
-                    </div>
-                    <div>
-                        <dt class="font-semibold text-gray-700">Can I use your API in my mobile app?</dt>
-                        <dd class="text-gray-600">Absolutely! Our API is designed to work with any platform, including mobile apps. We recommend using one of our official SDKs for easier integration. Make sure to follow mobile best practices, such as not storing the API key directly in your app's code.</dd>
-                    </div>
-                </dl>
-            </section>
-
-            <section id="changelog" class="content-section bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Changelog</h2>
-                <ul class="space-y-4">
-                    <li>
-                        <h3 class="text-lg font-semibold text-gray-700">v3.0.0 (2023-09-01)</h3>
-                        <ul class="list-disc list-inside text-gray-600">
-                            <li>Introduced advanced NLP models with improved understanding and response generation</li>
-                            <li>Added support for voice assistant integration</li>
-                            <li>New endpoint: POST /api/v1/chatbots/{id}/train for fine-tuning models</li>
-                            <li>Enhanced multi-language support with automatic translation</li>
-                        </ul>
-                    </li>
-                    <li>
-                        <h3 class="text-lg font-semibold text-gray-700">v2.1.0 (2023-06-15)</h3>
-                        <ul class="list-disc list-inside text-gray-600">
-                            <li>Added support for multi-language chatbots</li>
-                            <li>Improved response time for high-traffic chatbots</li>
-                            <li>New endpoint: GET /api/v1/chatbots/{id}/performance</li>
-                        </ul>
-                    </li>
-                    <li>
-                        <h3 class="text-lg font-semibold text-gray-700">v2.0.0 (2023-05-01)</h3>
-                        <ul class="list-disc list-inside text-gray-600">
-                            <li>Major API overhaul with breaking changes (see migration guide)</li>
-                            <li>Introduced conversation management endpoints</li>
-                            <li>Added support for custom AI model fine-tuning</li>
-                        </ul>
-                    </li>
-                    <li>
-                        <h3 class="text-lg font-semibold text-gray-700">v1.5.2 (2023-03-10)</h3>
-                        <ul class="list-disc list-inside text-gray-600">
-                            <li>Fixed a bug in the rate limiting algorithm</li>
-                            <li>Improved error messages for better debugging</li>
-                        </ul>
-                    </li>
+            <section id="customization" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Customization</h2>
+                <p class="text-gray-600 mb-4">Infin8t offers various customization options:</p>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li>Appearance: Customize colors, fonts, and layout through the dashboard</li>
+                    <li>Behavior: Set up custom greetings, fallback messages, and conversation flow</li>
+                    <li>Training: Upload custom data to train your chatbot on specific information</li>
                 </ul>
             </section>
 
-            <section id="best-practices" class="content-section bg-white shadow-md rounded-lg p-6">
-                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Best Practices</h2>
+            <section id="analytics" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Analytics</h2>
+                <p class="text-gray-600 mb-4">Infin8t provides comprehensive analytics to help you understand your chatbot's performance:</p>
                 <ul class="list-disc list-inside text-gray-600 mb-4">
-                    <li>Use HTTPS for all API requests to ensure data security</li>
-                    <li>Implement proper error handling in your applications</li>
-                    <li>Cache API responses when appropriate to reduce unnecessary requests</li>
-                    <li>Use our official SDKs for easier integration and better performance</li>
-                    <li>Monitor your API usage and set up alerts for unusual activity</li>
-                    <li>Keep your API keys secure and rotate them regularly</li>
-                    <li>Use webhook endpoints for real-time updates instead of polling</li>
+                    <li>User engagement metrics</li>
+                    <li>Conversation analytics</li>
+                    <li>Popular topics and queries</li>
+                    <li>Chatbot performance over time</li>
+                </ul>
+                <p class="text-gray-600">Access these analytics through your Infin8t dashboard.</p>
+            </section>
+
+            <section id="api-reference" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">API Reference</h2>
+                <p class="text-gray-600 mb-4">For advanced integrations, Infin8t offers a RESTful API:</p>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/chat</code> - Send a message to the chatbot</li>
+                    <li><code class="bg-gray-100 px-1 rounded">GET /api/v1/conversations</code> - Retrieve conversation history</li>
+                    <li><code class="bg-gray-100 px-1 rounded">POST /api/v1/train</code> - Upload training data for your chatbot</li>
+                </ul>
+                <p class="text-gray-600">For full API documentation, visit our <a href="/api-docs" class="text-blue-600 hover:text-blue-800">API Documentation</a> page.</p>
+            </section>
+
+            <section id="troubleshooting" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Troubleshooting</h2>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li>Ensure you're using a valid API key</li>
+                    <li>Check that the script is loading correctly (inspect your browser's network tab)</li>
+                    <li>Verify that there are no JavaScript errors in the console</li>
+                    <li>For styling issues, make sure there are no CSS conflicts with your website</li>
+                </ul>
+                <p class="text-gray-600">If you continue to experience issues, please contact our support team.</p>
+            </section>
+
+            <section id="support" class="content-section bg-white shadow-md rounded-lg p-6">
+                <h2 class="text-2xl font-semibold text-gray-800 mb-4">Support</h2>
+                <p class="text-gray-600 mb-4">For additional support:</p>
+                <ul class="list-disc list-inside text-gray-600 mb-4">
+                    <li>Visit our <a href="/faq" class="text-blue-600 hover:text-blue-800">FAQ page</a></li>
+                    <li>Join our <a href="https://community.infin8t.tech" class="text-blue-600 hover:text-blue-800">community forum</a></li>
+                    <li>Contact our support team at <a href="mailto:support@infin8t.tech" class="text-blue-600 hover:text-blue-800">support@infin8t.tech</a></li>
                 </ul>
             </section>
         </div>
