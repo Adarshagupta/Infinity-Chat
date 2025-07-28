@@ -37,7 +37,6 @@ from sklearn.naive_bayes import MultinomialNB
 import numpy as np
 from sqlalchemy import func
 from apscheduler.schedulers.background import BackgroundScheduler
-from flask import jsonify, request
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
