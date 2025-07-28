@@ -147,10 +147,23 @@ def chatbot_script():
         else:
             design_file = "design/design.txt"
         
-        # Read the script from the appropriate design file
+        # Read the script from the appropriate design file with error handling
         script_path = os.path.join(app.root_path, design_file)
-        with open(script_path, "r") as file:
-            script = file.read()
+        try:
+            if not os.path.exists(script_path):
+                app.logger.error(f"Design file not found: {script_path}")
+                return (
+                    jsonify({"error": f"Design file not found: {design_file}"}),
+                    404,
+                )
+            with open(script_path, "r") as file:
+                script = file.read()
+        except Exception as file_error:
+            app.logger.error(f"Error reading design file: {str(file_error)}")
+            return (
+                jsonify({"error": f"Error reading design file: {str(file_error)}"}),
+                500,
+            )
 
         # Replace placeholders with actual API key
         script = script.replace("{api_key}", api_key)
